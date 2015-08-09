@@ -1,0 +1,46 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline
+#+OPTIONS: author:t c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
+#+TITLE: orion-muse
+#+AUTHOR: William Henney
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+* Exploring the data cubes
+** Original data locations
+At CRyA in =/fs/nil/other0/will/orion-muse/DATA= 
++ LR :: 1.25 Angstrom sampling: DATACUBEFINALuser_20140216T010259_cf767044.fits
++ HR :: 0.85 Angstrom sampling: DATACUBEFINALuser_20140216T010259_78380e1d.fits
+*** LR cube
++ Dimensions:
+  + NV = 3818
+  + NY = 1476
+  + NX = 1766
++ Scales:
+  + Spatial: 0.2 arcsec
+  + Wavelength: 1.25 Ang
+**** Reading in the cube
+#+BEGIN_SRC python
+from astropy.io import fits
+from astropy import wcs
+import numpy as np
+hdulist = fits.open('DATA/DATACUBEFINALuser_20140216T010259_cf767044.fits')
+cube = hdulist['DATA']
+#+END_SRC
+Note that this does not read the full data cube (40 GB) into memory unless we need to do something with it.
+**** Extracting the Orion S region
++ To start with, we will look at a 300x300 box centered on (1050, 550)
++ This is more or less the quad filter region
+#+BEGIN_SRC python
+  subcube = cube.data[:, 400:700, 900:1200]
+  spec = np.nansum(np.nansum(subcube, axis=-1), axis=-1)
+  spechdu = fits.PrimaryHDU(header=cube.header, data=spec.reshape((3818, 1, 1)))
+  spechdu.writeto('subcube-spec.fits')
+#+END_SRC
++ So this gives the summed spectrum of the region
++ Note that I did a reshape on the array so that wavelength is still the 3rd FITS axis.  So that the header WCS keywords don't need changing 
+#+BEGIN_SRC sh
+rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
+#+END_SRC
++ The spectrum shows up as s single pixel in ds9, but you can see a graph of it by using a region
