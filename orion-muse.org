@@ -7,6 +7,425 @@
 #+LANGUAGE: en
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
+* TODO Important things to follow up
+** [C I] 8727.13
++ This has a different morphology than anything else!
++ Redshifted filament pointing down SSW from Orion S
+** [Ar III] 7135.78
++ This is excellent for velocity mapping
++ The velocity resolution is better at longer wavelengths
++ You can see blue-shifted and red-shifted flows easily
+** Weaker lines that might be interesting
++ Ne I 8892.22 - similar to O I
++ Ca I] 9052.16 but 9095.09 is missing so maybe something else
++ [O I] 5577.31 need to remove sky line but then there are some interesting little spots like HH 201
++ 5906 very weak line - I had classified it as Si I 5906.22, 5906.15, 5906.418, 5906.92 but this seems very unlikely since it is not seen in any of the low-ionization parts, only near the Trapezium, most strongly in the SW compact bar
+** Using the absorption lines
++ The trouble here is that many of the best He II lines are bluer than the spectral range
++ He II 4686 works well
+  + Deepest in th2A
+  + One problem is that it is phase-dependent in th1C
++ He II 5411 has some potential, but is contaminated by [Fe III]
++ O II 4650 is seen in absorbtion right on th2A, but in the nebula it is swamped by the ORL emission lines
++ C IV 5801.35, 5811.97 are clearly seen in th1C spectrum and much weaker in th2A, absent in other trapezium stars
+  + Unfortunately, they are very weak in the nebula
+  + Requires integration over 15x15 arcsec box to have much s/n
++ N III 6633.9 is very interesting
+  + Has absorption depth of 0.08 in Orion S region
+  + But not seen in any OB stars 
+  + Seen in th1E, which is G2V spectral type
+    + (which Olivares et al 2013) say is not bound to Trapezium
+    + And is also eclipsing binary (Morales-Calderón et al 2012)
+    + But absorption depth there is only 0.05
+  + Conclusion must be that we are seeing scattered light from an embedded yellow supergiant that is leaking out.
+  + Some T Tauri stars show a Cr I line at 6630 but that has a very low EW ~0.01 A (Apenzeller et al 1986, Table III)
+  + There are also lines around 6480 and 6490 in the nebular scattered light
+    + Some stars show a strongish line around 6495
++ Not an absorption line, but also possibly stellar
+  + Wide (50 Angstrom) bup seen around 8600 Angstrom
+
+** DONE Looking at the strange broad NIR emission bump
+CLOSED: [2015-08-13 Thu 11:15]
++ Take the difference or ratio between 8570 A and 8552 A
++ Results are very disappointing
+  + We see a vague form of the nebula in the ratio image
+  + It looks similar to the continuum image, but not exactly the same
+  + It doesn't look much like scattered continuum
+  + And there is this instrumental tartan pattern superimposed on it
+  + And it is also very noisy
+  + Certainly not worth bothering with
+  + Ratio image is even worse
+#+BEGIN_SRC python :results output
+  from astropy.io import fits
+  import numpy as np
+
+  cubehdu, = fits.open('muse-hr-data-wavsec6.fits')
+  continuum = np.nanmean(cubehdu.data[441:446], axis=0)
+  bump = np.nanmean(cubehdu.data[455:471], axis=0)
+  fits.PrimaryHDU(header=cubehdu.header, data=bump-continuum).writeto('bump8600-diff.fits', clobber=True)
+  fits.PrimaryHDU(header=cubehdu.header, data=bump/continuum).writeto('bump8600-ratio.fits', clobber=True)
+#+END_SRC
+
+#+RESULTS:
+
+** Longer wavelength lines
+| 7001.92 | O I      | 3 |                          |
+| 7002.23 | O I      | 3 | blend                    |
+| 7065.28 | He I     | 2 |                          |
+| 7135.78 | [Ar III] | 1 | super strong             |
+| 7155.14 | [Fe II]  | 4 |                          |
+| 7231.34 | C II     | 3 |                          |
+| 7236.42 | C II     | 3 |                          |
+| 7254.15 | O I      | 3 | Also 7254.45, 7254.53    |
+| 7281.35 | He I     | 3 |                          |
+|  7290.3 | ?        | 4 | possibly [Fe II]         |
+| 7318.39 | [O II]   | 1 | Also 7319.99             |
+| 7329.66 | [O II]   | 1 | Also 7330.73             |
+| 7377.83 | [Ni II]  | 4 |                          |
+| 7411.61 | [Ni II]  | 5 |                          |
+| 7442.30 | N I      | 5 |                          |
+| 7452.54 | [Fe II]  | 4 |                          |
+| 7468.31 | N I      | 4 |                          |
+|---------+----------+---+--------------------------|
+| 7751.10 | [Ar III] | 1 |                          |
+| 7816.13 | He I     | 4 |                          |
+| 7890.07 | Ca I]    | 4 |                          |
+|    7900 | Sky      | 4 | Lots of sky lines        |
+|    8000 | Sky      | 4 | in this spectral         |
+|    8100 | Sky      | 4 | range                    |
+|---------+----------+---+--------------------------|
+|    8189 | Fe I?    | 4 | ID uncertain             |
+| 8200.36 | N I?     | 5 | very weak                |
+| 8210.72 | N I      | 5 |                          |
+| 8216.34 | N I      | 4 |                          |
+| 8223.14 | N I      | 4 | Strongest component      |
+|    8243 | ?        | 4 | O I? or Fe II?           |
+|   8240+ | H I      | 4 | Lots of Paschen lines    |
+| 8437.96 | H I      | 3 | Pa 18                    |
+| 8446.36 | O I      | 2 | And 8444.25, 8444.76--   |
+| 8467.25 | H I      | 2 | Pa 17                    |
+| 8502.48 | H I      | 2 | Pa 16                    |
+| 8545.38 | H I      | 2 | Pa 15                    |
+| 8578.69 | [Cl II]  | 3 |                          |
+| 8598.39 | H I      | 2 | Pa 14                    |
+|    8600 | Bump?    | 4 | Maybe scattered stellar  |
+| 8616.95 | [Fe II]  | 3 |                          |
+| 8665.02 | H I      | 2 | Pa 13                    |
+| 8680.28 | N I      | 4 | Strongest component      |
+| 8683.40 | N I      | 4 |                          |
+| 8686.15 | N I      | 4 |                          |
+| 8703.25 | N I      | 4 |                          |
+| 8711.70 | N I      | 4 |                          |
+| 8718.83 | N I      | 5 | very weak                |
+| 8727.13 | [C I]    | 4 | Different!               |
+| 8733.43 | He I     | 5 | very weak                |
+| 8750.47 | H I      | 2 |                          |
+|---------+----------+---+--------------------------|
+| 8862.79 | H I      | 2 |                          |
+| 8892.22 | Ne I     | 4 |                          |
+| 8996.99 | He I     | 5 |                          |
+| 9014.91 | H I      | 2 | Pa 10                    |
+|    9036 | ?        | 5 | very low ionization      |
+| 9052.16 | Ca I]    | 5 |                          |
+| 9068.90 | [S III]  | 1 |                          |
+| 9095.09 | Ca I]    | 5 |                          |
+| 9123.60 | [Cl II]  | 4 |                          |
+| 9204.17 | O II?    | 5 | but looks low ionization |
+| 9210.28 | He I     | 4 |                          |
+| 9229.01 | H I      | 2 | Pa 9                     |
+* Extracting lines for comparison with WFC3
+:LOGBOOK:
+CLOCK: [2015-10-07 Wed 09:58]
+:END:
++ The interesting sections are wavsec0 to wavsec3
+
+** Extract subsets of the full cubes
+
+*** PV diagrams
+Not yet
+
+*** Spectral windows for each WFC3 filter
+:PROPERTIES:
+:header-args: :python /Users/will/anaconda/envs/py27/bin/python :preamble "from __future__ import print_function" :noweb yes
+:END:
+
++ In principal the calibration can be done with just integrating the spectrum over the filter T reponse.
++ But we really need to fit Gaussians to the lines
++ Note that pysynphot requires Python 2.7
++ Also requires PYSYN_CDBS environment variable to be set
+  + On linux server
+#+BEGIN_SRC sh
+export PYSYN_CDBS=/fs/nil/other0/will/CDBS
+#+END_SRC
+
+
+**** List of HST filters to use
+:PROPERTIES:
+:TABLE_EXPORT_FILE: all-filters-input.tab
+:TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:END:
+
+Export this table to [[file:all-filters-input.tab]] with =C-c t e= after any modification. 
+
+#+name: selected-filters
+| Instrument | Filter |
+|------------+--------|
+| wfc3       | f487n  |
+| wfc3       | f502n  |
+| wfc3       | f547m  |
+| wfc3       | fq575n |
+| wfc3       | f656n  |
+| wfc3       | f658n  |
+| wfc3       | fq672n |
+| wfc3       | f673n  |
+| wfc3       | fq674n |
+|------------+--------|
+| wfpc2      | f502n  |
+| wfpc2      | f547m  |
+| wfpc2      | f631n  |
+| wfpc2      | f656n  |
+| wfpc2      | f658n  |
+| wfpc2      | f673n  |
+|------------+--------|
+| acs        | f658n  |
+| acs        | f660n  |
+| acs        | f435w  |
+| acs        | f555w  |
+| acs        | f775w  |
+| acs        | f850lp |
+
+
+Send all tables to linux server
+#+BEGIN_SRC sh :results verbatim
+rsync -aPq *.tab nil:/fs/nil/other0/will/orion-muse
+#+END_SRC
+
+#+RESULTS:
+
+#+name: bandpass-fullname-function
+#+BEGIN_SRC python
+  def bp_fullname(instrument, filter_):
+      if instrument.lower() == 'wfc3':
+          return 'wfc3,uvis1,'+filter_.lower()
+      elif instrument.lower() == 'acs':
+          return 'acs,wfc1,'+filter_.lower()
+      elif instrument.lower() == 'wfpc2':
+          return 'wfpc2,'+filter_.lower()
+      else:
+          raise NotImplementedError('Unknown instrument: ' + instrument)
+#+END_SRC
+
+
+**** DONE [1/1] Print out the mean wavelength and rectangular width of each filter
+CLOSED: [2015-10-08 Thu 11:25]
+#+name: extract-bandpasses 
+#+BEGIN_SRC python :return outtab
+  import pysynphot
+  from astropy.table import Table
+  <<bandpass-fullname-function>>
+  float_fmt = '{:.2f}'
+  intab = Table.read('all-filters-input.tab', format='ascii.tab')
+  outtab = [['Filter', 'Wav0', 'dWav'], None]
+  for row in intab:
+      fn = bp_fullname(row['Instrument'], row['Filter'])
+      bp = pysynphot.ObsBandpass(fn)
+      outtab.append([fn, float_fmt.format(bp.avgwave()), float_fmt.format(bp.rectwidth())])
+#+END_SRC
+
+#+RESULTS: extract-bandpasses
+| Filter            |    Wav0 |    dWav |
+|-------------------+---------+---------|
+| wfc3,uvis1,f487n  | 4871.42 |   60.41 |
+| wfc3,uvis1,f502n  | 5009.71 |   65.27 |
+| wfc3,uvis1,f547m  | 5451.37 |  649.89 |
+| wfc3,uvis1,fq575n | 5757.87 |   18.37 |
+| wfc3,uvis1,f656n  | 6561.44 |   17.65 |
+| wfc3,uvis1,f658n  | 6584.91 |   27.55 |
+| wfc3,uvis1,fq672n | 6716.62 |   19.37 |
+| wfc3,uvis1,f673n  | 6766.04 |  117.78 |
+| wfc3,uvis1,fq674n | 6730.77 |   17.63 |
+| wfpc2,f502n       | 5013.41 |   35.80 |
+| wfpc2,f547m       | 5487.62 |  638.11 |
+| wfpc2,f631n       | 6306.45 |   42.14 |
+| wfpc2,f656n       | 6563.57 |   28.34 |
+| wfpc2,f658n       | 6590.91 |   39.24 |
+| wfpc2,f673n       | 6732.30 |   63.31 |
+| acs,wfc1,f658n    | 6584.05 |   74.94 |
+| acs,wfc1,f660n    | 6599.50 |   35.69 |
+| acs,wfc1,f435w    | 4338.43 |  862.30 |
+| acs,wfc1,f555w    | 5373.22 | 1124.61 |
+| acs,wfc1,f775w    | 7705.71 | 1320.72 |
+| acs,wfc1,f850lp   | 9049.59 | 1261.35 |
+
++ [X] Test that this works on linux server
+
+
+
+
+**** Air to vacuum wavelength conversion
++ This depends on refractive index of air, given by the following function
++ To convert air -> vacuum we multiply the wavelengths by the refractive index
++ 
+
+#+name: air-refractive-index
+#+BEGIN_SRC python
+  from astropy import units as u
+  def air_refractive_index(wav):
+      """Equation (65) of Greisen et al 2006 for the refractive index of air
+  at STP.  Input wavelength 'wav' should be in microns or in any
+  'astropy.units' unit. It does not matter if 'wav' is on air or vacuum
+  scale
+
+      """
+      try:
+          # Convert to microns if necessary
+          wavm = wav.to(u.micron).value
+      except AttributeError:
+          # Assume already in microns
+          wavm = wav
+      return 1.0 + 1e-6*(287.6155 + 1.62887/wavm**2 + 0.01360/wavm**4)
+
+#+END_SRC
+**** TODO [4/5] Process spectral windows for each filter
++ This could be the last step that we would have to run on the server
++ If the files are small enough then they can be copied over to the macs
++ Each of the following snippets is run interactively on the server
+***** DONE Imports
+CLOSED: [2015-10-08 Thu 12:00]
+#+BEGIN_SRC python
+  from astropy.io import fits
+  from astropy import wcs
+  from astropy.table import Table
+  import pysynphot
+  import numpy as np
+#+END_SRC
+***** DONE Read FITS cube
+CLOSED: [2015-10-08 Thu 12:00]
+#+BEGIN_SRC python
+  hdulist = fits.open('DATA/DATACUBEFINALuser_20140216T010259_78380e1d.fits')
+#+END_SRC
+***** DONE Set up a vacuum wavelength scale
+CLOSED: [2015-10-08 Thu 14:01]
+#+BEGIN_SRC python
+  <<air-refractive-index>>
+  w = wcs.WCS(hdulist['DATA'].header)
+  NV, NY, NX = hdulist['DATA'].data.shape
+  # construct array of observed air wavelengths (at image center to be safe)
+  _, _, wavs = w.all_pix2world([NX/2]*NV, [NY/2]*NV, np.arange(NV), 0) 
+  # Make dimensional
+  wavs *= u.m
+  # Convert to vacuum scale
+  wavs *= air_refractive_index(wavs)
+#+END_SRC
+***** DONE Read in the table of filters
+CLOSED: [2015-10-08 Thu 14:08]
+#+BEGIN_SRC python
+  intab = Table.read('all-filters-input.tab', format='ascii.tab')
+#+END_SRC
+***** TODO Extract the windows for each filter
+#+BEGIN_SRC python
+  <<bandpass-fullname-function>>
+  for row in intab:
+      bpname = bp_fullname(row['Instrument'], row['Filter'])
+      bp = pysynphot.ObsBandpass(bpname)
+      # extend a full rectwidth either side of the average wavelength to fit it all in
+      wav_window = bp.avgwave() + bp.rectwidth()*np.array([-1, 1])
+      # Add in the units (all are in Angstrom I hope)
+      assert bp.waveunits.name == 'angstrom'
+      wav_window *= u.Angstrom
+      # convert to air wavelengths to agree with the WCS
+      wav_window /= air_refractive_index(wav_window)
+      # Now convert to fractional pixel coordinates
+      _, _, [k1, k2] = w.all_world2pix([0, 0], [0, 0], wav_window.to(u.m), 0)
+      # smallest slice that covers the window
+      wavslice = slice(int(k1), int(k2) + 2)
+      # tuple of slices for the 3 cube axes (in numpy array order: V, Y, X)
+      cubeslices = [wavslice, slice(None, None), slice(None, None)]
+
+      newhdr = hdulist['DATA'].header.copy()
+      newhdr.update(w.slice(cubeslices).to_header())
+
+      # Make a new HDUlist for the windowed spectrum and write it out
+      fits.HDUList(
+          [fits.PrimaryHDU(header=hdulist[0].header, data=None),
+           fits.ImageHDU(header=newhdr, data=hdulist['DATA'].data[cubeslices])
+          ]
+      ).writeto('muse-hr-window-{}-{}.fits'.format(row['Instrument'], row['Filter']), clobber=True)
+#+END_SRC
+**** Cleaning up the window FITS files for DS9
+For some reason, ds9 does not like the wavelength WCS, so we will try and fix it:
++ Put the physical scales in the CDELTi instead of in the PCi_j
++ Put it in angstrom instead of m
++ That's it to start with
+#+BEGIN_SRC python :tangle clean_up_wav_wcs.py
+  import sys
+  from astropy.io import fits
+  def clean_up_wav_wcs(filename):
+      hdulist = fits.open(filename, mode='update')
+      for hdu in hdulist:
+          if hdu.header.get('CUNIT3') == 'm':
+              # Change to Angstrom
+              hdu.header['PC3_3'] *= 1e10
+              hdu.header['CRVAL3'] *= 1e10
+              hdu.header['CUNIT3'] = 'Angstrom'
+              # And move scales to CDELT
+              for i in '123':
+                  CDELTi = 'CDELT'+i
+                  # Sanity check
+                  assert hdu.header.get(CDELTi) == 1.0
+                  PCi_j = 'PC{0}_{0}'.format(i)
+                  hdu.header[CDELTi], hdu.header[PCi_j] = hdu.header[PCi_j], hdu.header[CDELTi] 
+      hdulist.flush()
+
+
+  if __name__ == '__main__':
+      try:
+          fn = sys.argv[1]
+          clean_up_wav_wcs(fn)
+      except IndexError:
+          print('Usage:', sys.argv[0], 'FITSFILE')
+        
+#+END_SRC
+Export with =C-u C-c C-v C-t=
+
+Test it on the WFC3 f656n file
+
+#+BEGIN_SRC sh :results silent
+python clean_up_wav_wcs.py muse-hr-window-wfc3-f656n.fits
+#+END_SRC
+
+That seemed to work
+
+#+BEGIN_SRC sh :results silent
+python clean_up_wav_wcs.py muse-hr-window-acs-f658n.fits
+#+END_SRC
+
+
+**** Fold the spectra through each filter to get simulated images
+This does not have to be done on the server any more
+
+
+** Useful scripts
+:PROPERTIES:
+:header-args: :results silent
+:END:
+#+name: new-blank-ds9
+#+BEGIN_SRC sh :results silent :var DS9="ds9"
+open -n -a SAOImage\ DS9 --args -title $DS9
+sleep 1
+xpaset -p $DS9 view buttons no
+xpaset -p $DS9 frame delete all
+#+END_SRC
+
+#+call: new-blank-ds9() :results silent
+
+#+BEGIN_SRC sh
+xpaset -p ds9 frame new
+xpaset -p ds9 fits $PWD/muse-hr-data-wavsec3.fits
+#+END_SRC
+
+#+RESULTS:
+
 * Exploring the data cubes
 ** Original data locations
 At CRyA in =/fs/nil/other0/will/orion-muse/DATA= 
@@ -44,3 +463,91 @@ Note that this does not read the full data cube (40 GB) into memory unless we ne
 rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
 #+END_SRC
 + The spectrum shows up as s single pixel in ds9, but you can see a graph of it by using a region
+*** HR cube
++ Exactly the same, except that NV = 5614
+  + Wavelength scale: 0.85 angstroms
+  + CRPIX3 = 1
+  + CRVAL3 = 4595.
++ First try at dividing it up: do it by wavelength
+  + Divide into 8 parts of length 702
+    + Last one will be 700
+  + Size will be 0.702 1.476 1.766 4 = 7.32 GB
+
+  | Section |  CRVAL3 |
+  |---------+---------|
+  |       0 | 4595.00 |
+  |       1 | 5191.70 |
+  |       2 | 5788.40 |
+  |       3 | 6385.10 |
+  |       4 | 6981.80 |
+  |       5 | 7578.50 |
+  |       6 | 8175.20 |
+  |       7 | 8771.90 |
+  #+TBLFM: $2=4595.0 + 0.85 702 $1 ;f2
+
+#+BEGIN_SRC python
+  from astropy.io import fits
+  from astropy import wcs
+  import numpy as np
+
+  hdulist = fits.open('DATA/DATACUBEFINALuser_20140216T010259_78380e1d.fits')
+  datcube = hdulist['DATA']
+  errcube = hdulist['STAT']
+  sections = np.arange(8, dtype=int)
+  NV = 702
+  k1_list = sections*NV
+  k2_list = k1_list + NV
+  wav0_list = datcube.header['CRVAL3'] + datcube.header['CD3_3']*NV*sections
+  for section, k1, k2, wav0 in zip(sections, k1_list, k2_list, wav0_list):
+      fn = 'muse-hr-data-wavsec{}.fits'.format(section)
+      hdr = datcube.header.copy()
+      hdr['CRVAL3'] = wav0
+      hdr['NAXIS3'] = NV
+      print('Writing', fn)
+      fits.PrimaryHDU(header=hdr, data=datcube.data[k1:k2]).writeto(fn)
+  
+#+END_SRC
+*** Heliocentric correction
+Again, these snippets need to be run on the CRyA server where the big data cubes are
+**** Looking for keywords in the top-level header
+#+BEGIN_SRC python
+hdr = hdulist[0].header
+hdr.tofile('HRcube.hdr', sep='\n', padding=False)
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_EXAMPLE
+SIMPLE  =                    T / file does conform to FITS standard             
+BITPIX  =                    8 / number of bits per data pixel                  
+NAXIS   =                    0 / number of data axes                            
+EXTEND  =                    T / FITS dataset may contain extensions            
+COMMENT   FITS (Flexible Image Transport System) format is defined in 'Astronomy
+COMMENT   and Astrophysics', volume 376, page 359; bibcode: 2001A&A...376..359H 
+DATE    = '2014-11-13T08:54:24' / file creation date (YYYY-MM-DDThh:mm:ss UT)   
+ORIGIN  = 'TEST    '           / European Southern Observatory                  
+TELESCOP= 'ESO-VLT-U4'         / ESO <TEL>                                      
+INSTRUME= 'MUSE    '           / Instrument used.                               
+RA      =            83.780509 / [deg] 05:35:07.3 RA (J2000) pointing           
+DEC     =             -5.39556 / [deg] -05:23:44.0 DEC (J2000) pointing         
+EQUINOX =                2000. / Standard FK5                                   
+RADECSYS= 'FK5     '           / Coordinate system                              
+EXPTIME =                   5. / Integration time                               
+MJD-OBS =       56704.04374097 / Obs start                                      
+DATE-OBS= '2014-02-16T01:02:59.219' / Observing date                            
+UTC     =                3770. / [s] 01:02:49.000 UTC                           
+LST     =             21901.85 / [s] 06:05:01.850 LST                           
+PI-COI  = 'UNKNOWN '           / PI-COI name.                                   
+OBSERVER= 'UNKNOWN '           / Name of observer.                              
+PIPEFILE= 'DATACUBE_FINAL.fits' / Filename of data product                      
+BUNIT   = '10**(-20)*erg/s/cm**2/Angstrom'                                      
+DATAMD5 = '69173383d3718d3ddb46e187f4cc2954' / MD5 checksum                     
+OBJECT  = 'M42-lr  '           / Original target.                               
+CHECKSUM= 'NcfSOcZPNcdPNcZP'   / HDU checksum updated 2014-11-12T22:17:16       
+DATASUM = '0       '           / data unit checksum updated 2014-11-12T22:17:16 
+HIERARCH ESO OBS AIRM =     5. / Req. max. airmass                              
+HIERARCH ESO OBS AMBI FWHM = 2. / Req. max. seeing 
+... ETC ...        
+#+END_EXAMPLE
+
+So, this does have the info that we need: RA, DEC, MJD-OBS in particular
