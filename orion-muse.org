@@ -8,6 +8,21 @@
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 * TODO Important things to follow up
+** [Fe III] 5270
++ This shows lots of wonderful structure in the jet source regions
+  + HH529 and counterjet?
++ Also strong in NW extension of HH202
++ Shows jet that can be maybe linked with HH203/204
++ Our WFC3 469N filter shows a small field of this around Orion S
++ MUSE spectrum starts at 4595, so we should also have [Fe III] 4702, 4658, which are of similar brightness to 5270, plus a host of weaker ones - see the Manuel notes.
+  + Yes, they are seen - 4658 is the best
+** O II complex at 4650
++ 4649 and 4651 are severely blended
+  + Disentangling these is vital for getting an O II density diagnostic
++ We have to sum over a large area to get enough s/n to fit for all the O II components
++ We could maybe use the mean wavelength of the 4649+51 blend as a proxy for the 4649/51 ratio, but we would have to correct for the kinematics, using perhaps [O III] or, better yet, an unblended line of the same multiplet
+  + But the only one is  4676 and that is too weak
+  + We can't really use 4639+42 because that is blended with N II 4643 and N III 4641
 ** [C I] 8727.13
 + This has a different morphology than anything else!
 + Redshifted filament pointing down SSW from Orion S
@@ -170,6 +185,7 @@ Export this table to [[file:all-filters-input.tab]] with =C-c t e= after any mod
 #+name: selected-filters
 | Instrument | Filter |
 |------------+--------|
+| wfc3       | f469n  |
 | wfc3       | f487n  |
 | wfc3       | f502n  |
 | wfc3       | f547m  |
@@ -235,6 +251,7 @@ CLOSED: [2015-10-08 Thu 11:25]
 #+RESULTS: extract-bandpasses
 | Filter            |    Wav0 |    dWav |
 |-------------------+---------+---------|
+| wfc3,uvis1,f469n  | 4688.14 |   49.67 |
 | wfc3,uvis1,f487n  | 4871.42 |   60.41 |
 | wfc3,uvis1,f502n  | 5009.71 |   65.27 |
 | wfc3,uvis1,f547m  | 5451.37 |  649.89 |
@@ -286,7 +303,7 @@ CLOSED: [2015-10-08 Thu 11:25]
       return 1.0 + 1e-6*(287.6155 + 1.62887/wavm**2 + 0.01360/wavm**4)
 
 #+END_SRC
-**** TODO [4/5] Process spectral windows for each filter
+**** TODO [5/5] Process spectral windows for each filter
 + This could be the last step that we would have to run on the server
 + If the files are small enough then they can be copied over to the macs
 + Each of the following snippets is run interactively on the server
@@ -324,7 +341,8 @@ CLOSED: [2015-10-08 Thu 14:08]
 #+BEGIN_SRC python
   intab = Table.read('all-filters-input.tab', format='ascii.tab')
 #+END_SRC
-***** TODO Extract the windows for each filter
+***** DONE Extract the windows for each filter
+CLOSED: [2015-10-12 Mon 09:18]
 #+BEGIN_SRC python
   <<bandpass-fullname-function>>
   for row in intab:
@@ -399,7 +417,7 @@ python clean_up_wav_wcs.py muse-hr-window-wfc3-fq674n.fits
 That seemed to work
 
 #+BEGIN_SRC sh :results silent
-python clean_up_wav_wcs.py muse-hr-window-acs-f658n.fits
+python clean_up_wav_wcs.py muse-hr-window-wfc3-f469n.fits
 #+END_SRC
 
 
@@ -450,7 +468,7 @@ This does not have to be done on the server any more
 Example of use
 #+BEGIN_SRC sh
 source activate py27
-python filter-flatten.py wfc3 f673n
+python filter-flatten.py wfc3 f469n
 #+END_SRC
 
 #+RESULTS:
