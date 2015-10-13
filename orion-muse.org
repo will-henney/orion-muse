@@ -280,6 +280,8 @@ CLOSED: [2015-10-08 Thu 11:25]
 
 **** Decomposing the components that go into the throughput curve
 
+This is done in [[file:wfc3-throughput-components.py]]
+
 Use the STScI python install for a change
 #+BEGIN_SRC sh :results file :file wfc3-throughput-components.pdf
 source ~/.bash_profile
@@ -305,6 +307,26 @@ This is a plot of all the components that multiply together to make the filter t
 
 Multiplying them all together gives the total transmission of src_calc{0.65 0.87 0.95 1.18 0.9 0.9 0.95 0.88 0.85} {{{results(=0.364878642843=)}}}, which matches what is expected for the total bandpass.
 
+
+***** DONE Variation with time
+CLOSED: [2015-10-13 Tue 09:23]
++ According to [[http://ssb.stsci.edu/pysynphot/docs/appendixb.html#pysynphot-appendixb][Appendix B of the pysynphot docs]] we can ask for the filter throughput for a particular MJD using e.g., 'wfc3,uvis1,f658n,mjd#49486'
++ Today's Julian date is src_calc{julian(<Tue Oct 13, 2015>) - 2400000} {{{results(=57307=)}}}
++ Orion S observations were around MJD=55933
++ Plot various dates in [[file:wfc3-throughput-evolution.py]]
+#+BEGIN_SRC sh :results file :file wfc3-throughput-evolution.pdf
+source ~/.bash_profile
+ur_setup
+export PYSYN_CDBS=/Users/will/Dropbox/CDBS
+python wfc3-throughput-evolution.py
+#+END_SRC
+
+#+RESULTS:
+[[file:wfc3-throughput-evolution.pdf]]
+
+Upshot is that there is no discernible difference with time, and also that the Quantum Yield Correction makes no difference at the shortest wavelengths that we are interested in (4700 Angstrom), 
+
+src_python{import sys; return sys.version.split(' ')[0]} {{{results(=2.7.10=)}}} 
 
 **** TODO Converting surface brightness to predicted counts
 + Note that =bp.primary_area= is given as 45238.93416, which must be in sq cm.  This is same as src_calc{pi*(120)**2} {{{results(=45238.9342117=)}}} 
