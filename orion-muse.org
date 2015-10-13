@@ -278,6 +278,41 @@ CLOSED: [2015-10-08 Thu 11:25]
 
 
 
+**** Decomposing the components that go into the throughput curve
+
+Use the STScI python install for a change
+#+BEGIN_SRC sh :results file :file wfc3-throughput-components.pdf
+source ~/.bash_profile
+ur_setup
+export PYSYN_CDBS=/Users/will/Dropbox/CDBS
+python wfc3-throughput-components.py
+#+END_SRC
+
+#+RESULTS:
+[[file:wfc3-throughput-components.pdf]]
+
+This is a plot of all the components that multiply together to make the filter throughput:
++ hst_ota :: Optical Telescope Assembly.  I think this is the primary mirror efficiency, accounting for fraction of circular area that is obscured by secondary. Roughly constant at about 0.65
++ wfc3_uvis_ccd1 :: Efficiency of CCD, roughly constant at ~ 0.87
+  + Note that CCD2 is extremely similar.  The difference is less than 0.5%
++ wfc3_uvis_owin :: Outer window transmission, roughly 0.95
++ wfc3_uvis_cor :: Correction based on white dwarf photometry. Roughly 1.18 but falling to red.
++ wfc3_uvis_mir1 :: Internal camera mirror efficiency, roughly 0.9
++ wfc3_uvis_mir2 :: Another mirror efficiency, roughly 0.9
++ wfc3_uvis_iwin :: Internal window, roughly 0.95
++ wfc3_pom_001 :: Pick Off Mirror (45 deg mirror that diverts light into instrument), roughly 0.88
++ wfc3_uvis_f547m :: The filter itself, roughly 0.85 
+
+Multiplying them all together gives the total transmission of src_calc{0.65 0.87 0.95 1.18 0.9 0.9 0.95 0.88 0.85} {{{results(=0.364878642843=)}}}, which matches what is expected for the total bandpass.
+
+
+**** TODO Converting surface brightness to predicted counts
++ Note that =bp.primary_area= is given as 45238.93416, which must be in sq cm.  This is same as src_calc{pi*(120)**2} {{{results(=45238.9342117=)}}} 
++ The units of the muse data is given as '10**(-20)*erg/s/cm**2/Angstrom'
+  + This must be per pixel, I assume
+  + Each pixel is 0.2 arcsec square, so this is src_calc{(0.2/206265)**2} {{{results(=9.40175455274e-13=)}}} steradian
++ [ ] We have summed this in wavelength, but we really should have multiplied by lambda first to convert from energy to photon units
+  + And while we are at it we can use the C_{WFC3} to put it in counts/s
 
 **** Air to vacuum wavelength conversion
 + This depends on refractive index of air, given by the following function
