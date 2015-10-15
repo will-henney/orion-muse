@@ -334,7 +334,9 @@ src_python{import sys; return sys.version.split(' ')[0]} {{{results(=2.7.10=)}}}
   + This must be per pixel, I assume
   + Each pixel is 0.2 arcsec square, so this is src_calc{(0.2/206265)**2} {{{results(=9.40175455274e-13=)}}} steradian
 + [ ] We have summed this in wavelength, but we really should have multiplied by lambda first to convert from energy to photon units
-  + And while we are at it we can use the C_{WFC3} to put it in counts/s
+  + And while we are at it we can use the C_{WFC3} to put it in electron/s
+
+
 
 **** Air to vacuum wavelength conversion
 + This depends on refractive index of air, given by the following function
@@ -474,10 +476,31 @@ python clean_up_wav_wcs.py muse-hr-window-wfc3-fq674n.fits
 That seemed to work
 
 #+BEGIN_SRC sh :results silent
-python clean_up_wav_wcs.py muse-hr-window-wfc3-f469n.fits
+python clean_up_wav_wcs.py muse-hr-window-wfc3-f487n.fits
 #+END_SRC
 
+**** DONE Convert from erg/cm2/s/Angstrom to electron/s
+CLOSED: [2015-10-13 Tue 12:50]
+:LOGBOOK:
+- Note taken on [2015-10-13 Tue 09:58]
+:END:
++ The fundamental equation is \(R_{}_j = C_{WFC3 }\int \lambda I_\lambda T_\lambda d\lambda\)
+  + Where C_{WFC3 }= 0.0840241 if \lambda is in \AA
++ So, we need to multiply by lambda when we do the flattening
++ Also, we need to get from MUSE's flux-per-pixel to brightness (per-steradian)
+  + This means we divide by the MUSE pixel area of 9.40175455274e-13 sr
++ AND we need to multiply by the MUSE bin width in \AA
++ Question is, do we apply this normalization to the =transwin= cubes?
+  + Best not, so as to minimze churn of large files on Dropbox
 
+#+name: flux-to-counts
+#+BEGIN_SRC python
+  from astropy import units as u
+  WFC3_CONSTANT = 0.0840241
+  MUSE_FLUX_UNITS = 1e-20 
+  MUSE_PIXEL_AREA_SR = (0.2*u.arcsec).to(u.radian)**2
+
+#+END_SRC
 **** Fold the spectra through each filter to get simulated images
 This does not have to be done on the server any more
 
@@ -487,6 +510,7 @@ This does not have to be done on the server any more
   <<astro-imports>>
   <<air-refractive-index>>
   <<bandpass-fullname-function>>
+  <<flux-to-counts>>
 
   def bandpass_flatten(instrument, bpname):
       filename = 'muse-hr-window-{}-{}.fits'.format(instrument, bpname)
@@ -509,26 +533,426 @@ This does not have to be done on the server any more
       # Weight by transmission curve and save that
       hdu.data *= T[:, None, None]
       hdulist.writeto(filename.replace('-window-', '-transwin-'), clobber=True)
-      # Sum over wavelength, already weighted by transmission curve
-      hdu.data = np.sum(hdu.data, axis=0)
+      # Integrate over wavelength, already weighted by transmission curve. But
+      # now need to multiply by wavelength, put in brightness units, and
+      # convert to WFC3 electron/s/pixel
+      hdu.data *= WFC3_CONSTANT*MUSE_FLUX_UNITS/MUSE_PIXEL_AREA_SR
+      hdu.data *= wavs.to(u.Angstrom).value[:, None, None]
+      hdu.data = hdu.header['CDELT3']*np.sum(hdu.data, axis=0)
+      hdu.header['BUNIT'] = 'electron/s/(0.03962 arcsec)**2'
       hdulist.writeto(filename.replace('-window-', '-image-'), clobber=True)
-  
+
   if __name__ == '__main__':
       try:
           instrument, bpname = sys.argv[1:]
           bandpass_flatten(instrument, bpname)
       except IndexError:
           print('Usage:', sys.argv[0], 'INSTRUMENT FILTER')
-      
+  
 #+END_SRC
 
-Example of use
-#+BEGIN_SRC sh
+New example of use, using STSCI python on laptop
+#+BEGIN_SRC sh :results silent
+source ~/.bash_profile
+ur_setup
+export PYSYN_CDBS=/Users/will/Dropbox/CDBS
+python filter-flatten.py wfc3 fq575n
+#+END_SRC
+
+
+Check the same one using the Anaconda py27 on hypatia, but make sure that we are using the same version of CDBS
+#+BEGIN_SRC sh :results silent
 source activate py27
-python filter-flatten.py wfc3 f469n
+export PYSYN_CDBS=/Users/will/Dropbox/CDBS
+python filter-flatten.py wfc3 fq575n
+#+END_SRC
+Exactly the same, which is a heartening.  
+
+Now do it for all the filters
+#+BEGIN_SRC sh
+  source activate py27
+  export PYSYN_CDBS=/Users/will/Dropbox/CDBS
+  FILTERS="f469n f487n f502n f547m fq575n f656n f658n fq672n f673n fq674n"
+  for f in $FILTERS; do
+      echo Flattening $f
+      python filter-flatten.py wfc3 $f
+  done
 #+END_SRC
 
 #+RESULTS:
+| Flattening | f469n  |
+| Flattening | f487n  |
+| Flattening | f502n  |
+| Flattening | f547m  |
+| Flattening | fq575n |
+| Flattening | f656n  |
+| Flattening | f658n  |
+| Flattening | fq672n |
+| Flattening | f673n  |
+| Flattening | fq674n |
+**** Comparing profiles by eye
+:PROPERTIES:
+:ID:       B1BF9964-0468-480C-8A10-B1885B5A2006
+:END:
++ Took some profiles by eye on WFC3 and MUSE images of F547M
+  + Cannot compare them in DS9 because the spatial axis is written in pixels, which are different sizes 
++ [[file:muse-f547m-cut.dat]]
++ [[file:wfc3-f547m-cut.dat]]
+** TODO [3/4] Compare the real and predicted count-rate images on a common grid
++ We want to put everything on the MUSE pixel grid, since that will make smaller files by a factor of src_calc{(0.2/0.03962)**2} {{{results(=25.4818555174=)}}}
++ We could use
+  1. astrodrizzle
+     - [[file:~/Dropbox/OrionHST-2012/HST-ACS/acs-ramp-filters.org][acs-ramp-filters.org]]
+  2. montage
+     - [[https://montage-wrapper.readthedocs.org]]
+     - I had already done that in the t-squared [[id:A237AB1D-270E-497F-BB6B-2FD78C43E668][project]]
+     - And I hadn't even used the python bindings
+*** DONE Check that I have a working Montage installation
+CLOSED: [2015-10-14 Wed 09:10]
++ I already have version 3.3 but version 4 is out
++ Cloning from github into [[file:~/Source/Montage/]]
++ Compiled with =make -j8= - that was fast!
+*** DONE Testing out Montage
+CLOSED: [2015-10-14 Wed 09:10]
+#+BEGIN_SRC sh :results verbatim
+PATH=$PATH:~/Source/Montage/bin
+err=$(mProjectPP --help)
+echo $err
+#+END_SRC
+
+#+RESULTS:
+: [struct stat="ERROR", msg="Usage: mProjectPP [-z factor][-d level][-b border][-s statusfile][-o altout.hdr][-i altin.hdr][-h hdu][-x scale][-w weightfile][-t threshold][-X(expand)] in.fits out.fits template.hdr"]
+*** DONE Script to resample WFC3 image onto MUSE grid
+CLOSED: [2015-10-14 Wed 09:12]
++ Header for MUSE full frame grid: [[file:muse-full-frame.hdr]]
++ This does not expand the WFC3 image beyond its original borders
+  + So we will have to extract a section of the MUSE image for comparison
+  + On the other hand, it does maintain the same reference pixel
+    + But with different values of CRPIX because the image lower left corner is different
+    + So it has the same values of CRVAL
+    + This will make it easy to slice the MUSE image
++ Smoothing needs to be improved
+  + No smoothing is too little
+  + The =s120= images that I already have are too much (this was 1.2 arcsec I assume)
+  + In the [[id:2E0AC321-C544-4E65-9D59-9A11F96E94BD][t2 notes]] I calculated FWHM of 4 pixels = 0.8 arcsec
+  + Actually 0.7 arcsec was better - this is now done in [[id:0CF5E394-36D0-4589-9E02-93EEDE7CF151][the orion-t2.org notes]]
+#+BEGIN_SRC sh :tangle wfc3-resample-to-muse.sh
+F=$1
+MDIR=~/Source/Montage/bin
+TDIR=~/Work/RubinWFC3/Tsquared
+$MDIR/mProjectPP -h 0 -X $TDIR/full_${F}-s070.fits wfc3-resample-muse-$F.fits muse-full-frame.hdr
+#+END_SRC
+
+Test with a single image
+#+BEGIN_SRC sh :results verbatim
+time sh wfc3-resample-to-muse.sh F547M 2>&1 
+#+END_SRC
+
+#+RESULTS:
+: [struct stat="OK", time=3]
+
+
+Do all of the images
+#+BEGIN_SRC sh :results verbatim
+  FILTERS="f469n f487n f502n f547m fq575n f656n f658n fq672n f673n fq674n"
+  for f in $FILTERS; do
+      echo "Resampling $f"
+      time sh wfc3-resample-to-muse.sh $f
+  done
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Resampling f469n
+[struct stat="OK", time=4]
+Resampling f487n
+[struct stat="OK", time=3]
+Resampling f502n
+[struct stat="OK", time=5]
+Resampling f547m
+[struct stat="OK", time=4]
+Resampling fq575n
+[struct stat="OK", time=4]
+Resampling f656n
+[struct stat="OK", time=5]
+Resampling f658n
+[struct stat="OK", time=4]
+Resampling fq672n
+[struct stat="OK", time=4]
+Resampling f673n
+[struct stat="OK", time=5]
+Resampling fq674n
+[struct stat="OK", time=4]
+#+end_example
+*** TODO Crop MUSE image to the WFC3 field
+This is the final step required before we can do things like take ratio maps or calculate 2d histogram images
+#+BEGIN_SRC python :tangle crop_muse.py
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from astropy.wcs import WCS
+
+  def crop_muse_to_wfc3(fid):
+      """Cut out a section of the MUSE image to match the WFC3 field"""
+      wname = 'wfc3-resample-muse-{}.fits'.format(fid)
+      mname = 'muse-hr-image-wfc3-{}.fits'.format(fid)
+      whdu = fits.open(wname)[0]
+      mhdu = fits.open(mname)['DATA']
+      wcs_w = WCS(whdu.header).celestial
+      wcs_m = WCS(mhdu.header).celestial
+      # Check that the two images have the same reference point in RA, DEC
+      assert np.all(wcs_w.wcs.crval == wcs_m.wcs.crval)
+      # And that the pixel scales are the same
+      assert np.all(wcs_w.wcs.cdelt == wcs_m.wcs.cdelt)
+      assert np.all(wcs_w.wcs.pc == wcs_m.wcs.pc)
+
+      # The shapes of the two grids: (nx, ny) in FITS axis order
+      shape_w = np.array([whdu.header['NAXIS1'], whdu.header['NAXIS2']])
+      shape_m = np.array([mhdu.header['NAXIS1'], mhdu.header['NAXIS2']])
+  
+      # The difference in CRPIX values tells us the start indices (i, j)
+      # for the crop window on the MUSE grid. Note that this is in
+      # zero-based array indices
+      start = wcs_m.wcs.crpix - wcs_w.wcs.crpix
+      # The stop indices for the crop window 
+      stop = start + shape_w
+      
+      # Shift 1 pixel to the right to do a coarse alignment correction
+      start[0] += 1
+      stop[0] += 1
+
+      # Check that these are within bounds of the original MUSE grid
+      assert np.all(start >= 0.0)
+      assert np.all(stop < shape_m)
+  
+      # Crop the MUSE data array to the start:stop indices, remembering
+      # that python axis order is backwards with respect to FITS axis
+      # order
+      mhdu.data = mhdu.data[start[1]:stop[1], start[0]:stop[0]]
+
+      # And copy the WFC3 wcs into the new MUSE header
+      mhdu.header.update(wcs_w.to_header())
+
+      # Write out the new cropped MUSE image
+      oname = mname.replace('-image-', '-cropimage-')
+      mhdu.writeto(oname, clobber=True)
+
+      return oname
+
+
+  if __name__ == '__main__':
+      try:
+          filter_id = sys.argv[1]
+      except:
+          print('Usage:', sys.argv[0], 'FILTER')
+
+      print(crop_muse_to_wfc3(filter_id))
+  
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+python crop_muse.py f547m
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+  FILTERS="f469n f487n f502n f547m fq575n f656n f658n fq672n f673n fq674n"
+  for f in $FILTERS; do
+      time python crop_muse.py $f
+  done
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+muse-hr-cropimage-wfc3-f469n.fits
+muse-hr-cropimage-wfc3-f487n.fits
+muse-hr-cropimage-wfc3-f502n.fits
+muse-hr-cropimage-wfc3-f547m.fits
+muse-hr-cropimage-wfc3-fq575n.fits
+muse-hr-cropimage-wfc3-f656n.fits
+muse-hr-cropimage-wfc3-f658n.fits
+muse-hr-cropimage-wfc3-fq672n.fits
+muse-hr-cropimage-wfc3-f673n.fits
+muse-hr-cropimage-wfc3-fq674n.fits
+#+end_example
+
+** Visualizations of throughput calibration quality
+The final count-rate images to be compared are 
++ Smoothed WFC3 :: wfc3-resample-muse-FILTER.fits
++ Cropped MUSE :: muse-hr-cropimage-wfc3-FILTER.fits
+*** Ratios of the images
++ This will allow us to see how important misalignment is, and if there are any spatial trends
+
+#+BEGIN_SRC python
+  from astropy.io import fits
+
+  filters_ = ["FQ575N", "FQ672N", "FQ674N", "F673N", "F469N",
+              "F487N", "F656N", "F658N", "F547M", "F502N"]
+
+  def divide_fits_images(name1, name2, outname):
+      hdu1 = fits.open(name1)[0]
+      hdu2 = fits.open(name2)['DATA']
+      fits.PrimaryHDU(header=hdu1.header, data=hdu1.data/hdu2.data).writeto(outname, clobber=True)
+
+  if __name__ == '__main__':
+      for f in filters_:
+          divide_fits_images(
+              'wfc3-resample-muse-{}.fits'.format(f),
+              'muse-hr-cropimage-wfc3-{}.fits'.format(f),
+              'wfc3-over-muse-calib-ratio-{}.fits'.format(f)
+          )
+    
+#+END_SRC
+
+#+RESULTS:
+: None
+
+
+*** Two-d histogram of WFC3 vs MUSE-predicted count rates
+
+#+BEGIN_SRC python :tangle histocalib.py
+  from __future__ import print_function
+  import numpy as np
+  from astropy.io import fits
+  from astropy.convolution import convolve, Gaussian2DKernel
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  maxcount = {
+      "fq575n": 0.4,
+      "fq672n": 0.6,
+      "fq674n": 0.75,
+      "f673n" : 2.5,
+      "f469n" : 0.5,
+      "f487n" : 10.0,
+      "f656n" : 40.0, 
+      "f658n" : 11.0, 
+      "f547m" : 7.0, 
+      "f502n" : 20.0,
+  }
+  GAMMA = 2.0
+
+  cmap = sns.light_palette((260, 50, 30), input="husl", as_cmap=True)
+  # cmap = plt.cm.gray_r
+
+  def histogram_calib_images(f, vmax=1.0):
+      name1 = 'wfc3-resample-muse-{}.fits'.format(f)
+      name2 = 'muse-hr-cropimage-wfc3-{}.fits'.format(f)
+      pltname = 'wfc3-vs-muse-calib-{}.pdf'.format(f)
+      hdu1 = fits.open(name1)[0]
+      hdu2 = fits.open(name2)['DATA']
+      hduc = fits.open('wfc3-resample-muse-f547m.fits')[0]
+      x, y = hdu2.data, hdu1.data
+      xmin, xmax = ymin, ymax = 0.0, vmax
+      ew = y/hduc.data
+      # mask out silly values
+      m = np.isfinite(x) & np.isfinite(y/x) & (np.abs(np.log10(y/x)) < 1.0)
+      H, xedges, yedges = np.histogram2d(x[m], y[m], 200,
+                                         [[xmin, xmax], [ymin, ymax]],
+                                         weights=y[m])
+      # Fit a straight line
+      mm = m & (x > 0.05*xmax) & (y > 0.05*ymax) & (x < 0.5*xmax) & (y < 0.5*ymax) & (np.abs(np.log10(y/x)) < 0.3)
+      # First, linear fit y(x) = m x + c
+      y_x_linfit = np.polyfit(x[mm], y[mm], 1, w=y[mm])
+      # Second, linear fit x(y) = m y + c
+      x_y_linfit = np.polyfit(y[mm], x[mm], 1, w=y[mm])
+      # Convert this from x(y) -> y(x)
+      # If x = m y + c, then y = (1/m) x - c/m
+      y_x_altfit = np.array([1./x_y_linfit[0], -x_y_linfit[1]/x_y_linfit[0]])
+      # Take average and spread of these two fits
+      y_x_bestfit = 0.5*(y_x_linfit + y_x_altfit)
+      y_x_errfit = 0.5*np.abs(y_x_linfit - y_x_altfit)
+
+      pbest =  np.poly1d(y_x_bestfit)
+
+      # H = convolve(H, Gaussian2DKernel(1.0))
+      fitcolor = (1.0, 0.5, 0.0)
+      fitlabel = "y = ({:.2f} +/- {:.2f}) x + ({:.2f} +/- {:.2f})".format(
+          y_x_bestfit[0], y_x_errfit[0], y_x_bestfit[1], y_x_errfit[1])
+      fig, ax = plt.subplots(1, 1)
+      ax.imshow((H.T)**(1.0/GAMMA), extent=[xmin, xmax, ymin, ymax],
+                interpolation='none', aspect='auto', origin='lower', 
+                cmap=cmap, alpha=1.0)
+      ax.plot([0.0, x[m].max()], [0.0, x[m].max()], '-', alpha=1.0,
+              lw=1, c='w', label=None)
+      ax.plot([0.0, x[m].max()], pbest([0.0, x[m].max()]), '-', alpha=1.0,
+              lw=1, c=fitcolor, label=fitlabel)
+
+      leg = ax.legend(loc='upper left', title='Linear Fit', frameon=True, fancybox=True)
+      leg.get_title().set_fontsize('small')
+      ax.set_ylabel(
+          'Observed WFC3 {} count rate, electron/s/pixel'.format(f.upper()))
+      ax.set_xlabel(
+          'MUSE-predicted WFC3 {} count rate, electron/s/pixel'.format(f.upper()))
+      ax.set_xlim(xmin, xmax)
+      ax.set_ylim(ymin, ymax)
+
+      # Now do 1-D histogram of the deviations from the model
+      ratio = y/pbest(x)
+      if f == 'f547m':
+          # Divide into high and low continuum counts
+          s = 'counts'
+          mlo = (y < y[m].mean()) & m
+          mhi = (y >= y[m].mean()) & m
+      else:
+          # Divide into high and low EW
+          s = 'EW'
+          mlo = (ew < np.median(ew[m])) & m
+          mhi = (ew >= np.median(ew[m])) & m
+
+      assert mlo.sum() > 0, f
+        
+      # inset axis at the bottom right
+      ax2 = fig.add_axes([0.6, 0.2, 0.25, 0.25])
+      ax2.hist(ratio[mlo], bins=100, range=(0.5, 1.5),
+               normed=True, weights=y[mlo], alpha=0.7, label='Low '+s)
+      ax2.hist(ratio[mhi], bins=100, range=(0.5, 1.5),
+               normed=True, weights=y[mhi], color='red', alpha=0.3, label='High '+s)
+      ax2.set_xlim(0.5, 1.5)
+      ax2.legend(loc='upper left', fontsize='xx-small')
+      ax2.tick_params(labelleft=False, labelsize='x-small')
+      ax2.set_xlabel('(Observed Counts) / (Linear Fit)', fontsize='xx-small')
+      ax2.set_ylabel('Weighted PDF Histograms', fontsize='xx-small')
+  #    ax2.set_title('PDF', fontsize='x-small')
+      fig.set_size_inches(7, 7)
+      fig.savefig(pltname)
+
+      return [pltname, fitlabel]
+
+
+  if __name__ == '__main__':
+      for f, vmax in maxcount.items():
+          print(histogram_calib_images(f, vmax))
+
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC sh
+python histocalib.py 
+#+END_SRC
+
+#+RESULTS:
+| ['wfc3-vs-muse-calib-f487n.pdf'  | 'y = (0.99 +/- 0.01) x + (-0.02 +/- 0.02)'] |
+| ['wfc3-vs-muse-calib-f658n.pdf'  | 'y = (1.00 +/- 0.01) x + (-0.02 +/- 0.02)'] |
+| ['wfc3-vs-muse-calib-f469n.pdf'  | 'y = (0.94 +/- 0.03) x + (-0.00 +/- 0.01)'] |
+| ['wfc3-vs-muse-calib-fq674n.pdf' | 'y = (0.98 +/- 0.01) x + (0.01 +/- 0.00)']  |
+| ['wfc3-vs-muse-calib-f656n.pdf'  | 'y = (1.02 +/- 0.01) x + (0.18 +/- 0.07)']  |
+| ['wfc3-vs-muse-calib-fq672n.pdf' | 'y = (0.97 +/- 0.02) x + (0.01 +/- 0.00)']  |
+| ['wfc3-vs-muse-calib-fq575n.pdf' | 'y = (1.00 +/- 0.02) x + (-0.00 +/- 0.00)'] |
+| ['wfc3-vs-muse-calib-f673n.pdf'  | 'y = (0.97 +/- 0.01) x + (0.02 +/- 0.01)']  |
+| ['wfc3-vs-muse-calib-f547m.pdf'  | 'y = (1.01 +/- 0.01) x + (-0.11 +/- 0.03)'] |
+| ['wfc3-vs-muse-calib-f502n.pdf'  | 'y = (0.98 +/- 0.01) x + (-0.01 +/- 0.04)'] |
+
+
+*** Summary of calibration results
++ Calibration constant is unity in most cases!
+  + Exceptions are
+    + F469N :: slope = 0.94
+    + F673N :: slope = 0.97
+    + F547M :: intercept = -0.11
++ Also no evidence of trend with EW
+
 
 ** Useful scripts
 :PROPERTIES:

@@ -30,6 +30,11 @@ def bp_fullname(instrument, filter_):
         return 'wfpc2,'+filter_.lower()
     else:
         raise NotImplementedError('Unknown instrument: ' + instrument)
+from astropy import units as u
+WFC3_CONSTANT = 0.0840241
+MUSE_FLUX_UNITS = 1e-20 
+MUSE_PIXEL_AREA_SR = (0.2*u.arcsec).to(u.radian)**2
+
 
 def bandpass_flatten(instrument, bpname):
     filename = 'muse-hr-window-{}-{}.fits'.format(instrument, bpname)
@@ -52,8 +57,13 @@ def bandpass_flatten(instrument, bpname):
     # Weight by transmission curve and save that
     hdu.data *= T[:, None, None]
     hdulist.writeto(filename.replace('-window-', '-transwin-'), clobber=True)
-    # Sum over wavelength, already weighted by transmission curve
-    hdu.data = np.sum(hdu.data, axis=0)
+    # Integrate over wavelength, already weighted by transmission curve. But
+    # now need to multiply by wavelength, put in brightness units, and
+    # convert to WFC3 electron/s/pixel
+    hdu.data *= WFC3_CONSTANT*MUSE_FLUX_UNITS/MUSE_PIXEL_AREA_SR
+    hdu.data *= wavs.to(u.Angstrom).value[:, None, None]
+    hdu.data = hdu.header['CDELT3']*np.sum(hdu.data, axis=0)
+    hdu.header['BUNIT'] = 'electron/s/(0.03962 arcsec)**2'
     hdulist.writeto(filename.replace('-window-', '-image-'), clobber=True)
 
 if __name__ == '__main__':
