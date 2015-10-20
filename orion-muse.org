@@ -23,13 +23,44 @@
 + We could maybe use the mean wavelength of the 4649+51 blend as a proxy for the 4649/51 ratio, but we would have to correct for the kinematics, using perhaps [O III] or, better yet, an unblended line of the same multiplet
   + But the only one is  4676 and that is too weak
   + We can't really use 4639+42 because that is blended with N II 4643 and N III 4641
+** O I 8446 multiplet
++ This is way brighter than the bluer O I lines
++ Excellent for tracing kinematics of neutral gas
 ** [C I] 8727.13
 + This has a different morphology than anything else!
 + Redshifted filament pointing down SSW from Orion S
+** [Cl IV] 8045.62
++ The highest ionization line
++ Traces very interior gas, and also ORL clump
 ** [Ar III] 7135.78
 + This is excellent for velocity mapping
 + The velocity resolution is better at longer wavelengths
 + You can see blue-shifted and red-shifted flows easily
+** Paschen lines 
+Doing the ratio with Ha would be good for reddening curve
+** Ca II permitted lines in HST3 170-337
++ This is a proplyd with redshifted jet
++ It has components that look like they are blue wings of some Paschen lines
+  + But they can't be because only some Pa lines have them
+  + Instead they must be something else
+  + 8495, 8538, 8658
+  + Turns out that they are Ca II lines, and these are well-known in T Tauri stars
+    + EW(Ca II) correlates with mass accretion rate
+    + Moto'oka and Itoh (2015)
+    + Looking at the full-res cube, this is restricted to the star - not extended
+    + Also seen in many other young stars/proplyds
+      + E.g., LV2, LV5, LL Ori and many more
++ Also red component to [S III] 9069
++ In blue end of spectrum He I lines at 4921 and 5016 show a red component
++ Also 5167, 5183, 5197, 5231 unidentified lines
+  + plus other weaker ones
+  + These may well be photospheric
++ Strong [N II] 5755 but it is not redshifted
++ C II (?) 5890 line shows up maybe
+  + But wav doesn't quite match
+  + Could be unidentified lines at 5887 and 5894
++ More lines at 6135, 6147, 6240, 6245 - very weak
++ More lines at 6430, 6453, 6514
 ** Weaker lines that might be interesting
 + Ne I 8892.22 - similar to O I
 + Ca I] 9052.16 but 9095.09 is missing so maybe something else
@@ -56,11 +87,10 @@
   + Some T Tauri stars show a Cr I line at 6630 but that has a very low EW ~0.01 A (Apenzeller et al 1986, Table III)
   + There are also lines around 6480 and 6490 in the nebular scattered light
     + Some stars show a strongish line around 6495
-+ Not an absorption line, but also possibly stellar
-  + Wide (50 Angstrom) bup seen around 8600 Angstrom
 
 ** DONE Looking at the strange broad NIR emission bump
 CLOSED: [2015-08-13 Thu 11:15]
++ NO - This is just a second order Balmer line - see their paper!
 + Take the difference or ratio between 8570 A and 8552 A
 + Results are very disappointing
   + We see a vague form of the nebula in the ratio image
@@ -107,6 +137,7 @@ CLOSED: [2015-08-13 Thu 11:15]
 | 7890.07 | Ca I]    | 4 |                          |
 |    7900 | Sky      | 4 | Lots of sky lines        |
 |    8000 | Sky      | 4 | in this spectral         |
+| 8045.62 | [Cl IV]  | 4 | HIGH IONIZATION!         |
 |    8100 | Sky      | 4 | range                    |
 |---------+----------+---+--------------------------|
 |    8189 | Fe I?    | 4 | ID uncertain             |
@@ -123,7 +154,7 @@ CLOSED: [2015-08-13 Thu 11:15]
 | 8545.38 | H I      | 2 | Pa 15                    |
 | 8578.69 | [Cl II]  | 3 |                          |
 | 8598.39 | H I      | 2 | Pa 14                    |
-|    8600 | Bump?    | 4 | Maybe scattered stellar  |
+|    8600 | Bump?    | 4 | second order             |
 | 8616.95 | [Fe II]  | 3 |                          |
 | 8665.02 | H I      | 2 | Pa 13                    |
 | 8680.28 | N I      | 4 | Strongest component      |
@@ -140,7 +171,7 @@ CLOSED: [2015-08-13 Thu 11:15]
 | 8892.22 | Ne I     | 4 |                          |
 | 8996.99 | He I     | 5 |                          |
 | 9014.91 | H I      | 2 | Pa 10                    |
-|    9036 | ?        | 5 | very low ionization      |
+|    9032 | ?        | 5 | low ionization shocks    |
 | 9052.16 | Ca I]    | 5 |                          |
 | 9068.90 | [S III]  | 1 |                          |
 | 9095.09 | Ca I]    | 5 |                          |
@@ -148,7 +179,535 @@ CLOSED: [2015-08-13 Thu 11:15]
 | 9204.17 | O II?    | 5 | but looks low ionization |
 | 9210.28 | He I     | 4 |                          |
 | 9229.01 | H I      | 2 | Pa 9                     |
-* Extracting lines for comparison with WFC3
+|    9267 | ??       | 5 | only in shock knots      |
+
+
+
+* MUSE spectra as a check on fidelity of filter-derived line ratios
+** Extracting individual emission lines from MUSE cube
+
+*** Strong lines and others of primary interest
+:PROPERTIES:
+:TABLE_EXPORT_FILE: basic-line-list.tab
+:TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:END:
++ After editing, remember to export the table to file with =C-c t e=
+#+name: basic-line-list
+| Ion      |     wav0 | strength | blue cont | red cont | comment          |
+|----------+----------+----------+-----------+----------+------------------|
+| [Fe III] |  4658.10 |        3 |         0 |        1 |                  |
+| H I      |  4861.32 |        1 |         1 |        1 |                  |
+| [O III]  |  4958.91 |        1 |         1 |        1 |                  |
+| [O III]  |  5006.84 |        1 |         1 |        1 |                  |
+| [N II]   |  5755.08 |        4 |         1 |        1 |                  |
+| He I     |  5875.62 |        1 |         1 |        1 |                  |
+| [O I]    |  6300.30 |        3 |         1 |        1 |                  |
+| [O I]    |  6363.78 |        3 |         1 |        0 |                  |
+| [N II]   |  6548.05 |        2 |         1 |        1 |                  |
+| H I      |  6562.79 |        1 |         1 |        1 |                  |
+| C II     |  6578.05 |        5 |         1 |        0 |                  |
+| [N II]   |  6583.45 |        2 |         1 |        1 |                  |
+| He I     |  6678.15 |        2 |         1 |        1 |                  |
+| [S II]   |  6716.44 |        3 |         1 |        1 |                  |
+| [S II]   | 6730.816 |        3 |         1 |        1 |                  |
+| O I      |  7001.92 |        3 |         1 |        1 |                  |
+| [Ar III] |  7135.78 |        1 |         1 |        1 | super strong     |
+| [O II]   |  7318.39 |        1 |         1 |        1 | Also 7319.99     |
+| [O II]   |  7329.66 |        1 |         0 |        1 | Also 7330.73     |
+| [Ar III] |  7751.10 |        1 |         1 |        1 |                  |
+| [Cl IV]  |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION! |
+| O I      |  8446.36 |        2 |         0 |        1 |                  |
+| [C I]    |  8727.13 |        4 |         1 |        0 | Different!       |
+| [S III]  |  9068.90 |        1 |         1 |        1 |                  |
+| H I      |  9229.01 |        2 |         1 |        1 | Pa 9             |
+
+*** Simple method with moments
++ This will work for any line that is sufficiently isolated
+
+**** Program to extract a single line extract-em-line.py
++ First go
+  + Choose wavelength range around line
+    + [ ]This should come from a velocity range really
+  + Extract cube that is just the line
+
+#+BEGIN_SRC python :tangle extract-em-line.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.table import Table
+  from astropy.io import fits
+  from astropy.wcs import WCS
+  from astropy import units as u
+  from misc_utils import sanitize_string
+  sys.path.append('/Users/will/Dropbox/OrionWest/')
+  from helio_utils import waves2vels
+
+  linetab = Table.read('basic-line-list.tab', format='ascii.tab')
+  wavsectab = Table.read('wavsec-startwavs.tab', format='ascii.tab')
+
+  def find_wavsec(wav):
+      """Which wavsec chunk is this wavelength in"""
+      return wavsectab['Section'][wav > wavsectab['CRVAL3']].max() 
+
+
+  def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
+      wavsec = find_wavsec(wav)
+      fn = 'muse-hr-data-wavsec{}.fits'.format(wavsec)
+      hdulist = fits.open(fn)
+      hdu = hdulist['DATA']
+      w = WCS(hdu.header)
+      helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
+      maps, spec =  extract_line_maps(wav, hdu.data, w, helio_hdr, usecont)
+      wavid = str(int(wav+0.5))
+      # Save the maps to FITS file 
+      for mapid, mapdata in maps.items():
+          mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
+          mname = '{}/{}-{}-{}.fits'.format(mapdir, mapid, species, wavid)
+          mhdu.writeto(mname, clobber=True)
+      sname = '{}/spec1d-{}-{}.tab'.format(mapdir, species, wavid)
+      # And save the spectrum to TSV file
+      Table(spec).write(sname, format='ascii.tab')
+  
+  def extract_line_maps(wav, cube, wcube, helio_hdr,
+                        usecont=[1, 1], dwav=4.0, dwavcont=8.0):
+      """Extract line moments and continuum"""
+
+      # outer range is wav +/- dwavcont
+      wavs = (wav + dwavcont*np.array([-1, 1]))*u.Angstrom.to(u.m)
+      _, _, (kout1, kout2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
+      kout1, kout2 = int(kout1), int(kout2) + 2
+
+      # inner range is wav +/- dwav
+      wavs = (wav + dwav*np.array([-1, 1]))*u.Angstrom.to(u.m)
+      _, _, (kin1, kin2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
+      kin1, kin2 = int(kin1), int(kin2) + 2
+
+      # find average continuum
+      cont1 = np.nanmean(cube[kout1:kin1, :, :], axis=0)
+      cont2 = np.nanmean(cube[kin2:kout2, :, :], axis=0)
+      # Maybe don't use the continuum on one side (if contaminated)
+      wt1, wt2 = usecont          
+      avcont = (wt1*cont1 + wt2*cont2)/(wt1 + wt2)
+
+      # Subtract to get pure line window
+      linewin = cube[kin1:kin2, :, :] - avcont[None, :, :]
+      # Now find moments
+      nwin = kin2 - kin1
+      _, _, winwavs = wcube.all_pix2world([0]*nwin, [0]*nwin, np.arange(kin1, kin2), 0)
+      # Convert wavelengths to velocities
+      winvels = waves2vels(winwavs*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
+      mom0 = linewin.sum(axis=0)
+      mom1 = np.sum(linewin*winvels[:, None, None], axis=0)
+      vmean = mom1/mom0
+      mom2 = np.sum(linewin*(winvels[:, None, None] - vmean)**2, axis=0)
+      vsig = np.sqrt(mom2/mom0)
+      maps = {'continuum': avcont, 'linesum': mom0,
+              'mean': vmean.to(u.km/u.s).value, 'sigma': vsig.to(u.km/u.s).value}
+
+      # Save an average spectrum as well
+      nwinout = kout2 - kout1
+      _, _, winwavsout = wcube.all_pix2world([0]*nwinout, [0]*nwinout, np.arange(kout1, kout2), 0)
+      winvelsout = waves2vels(winwavsout*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
+
+      # Just select region to SW of Trap
+      xslice = slice(900, 1400)
+      yslice = slice(400, 900)
+      spec = {
+          'vhel': winvelsout.to(u.km/u.s),
+          'wav': winwavsout*u.m.to(u.Angstrom),
+          'flux': np.nanmean(cube[kout1:kout2, yslice, xslice], axis=(1, 2)),
+          'cont': np.nanmean(avcont[yslice, xslice])*np.ones(nwinout),
+      }
+
+      return maps, spec
+
+
+  for row in linetab:
+      print(row['Ion'], row['wav0'])
+      save_linemap_files(row['wav0'], sanitize_string(row['Ion']),
+                         usecont=[row['blue cont'], row['red cont']])
+
+
+#+END_SRC
+
+
+#+BEGIN_SRC sh :results silent
+mkdir LineMaps
+#+END_SRC
+
+Test it out in a shell
+#+BEGIN_SRC sh :eval no
+python extract-em-line.py
+#+END_SRC
+
+Check out the heliocentric correction
+#+BEGIN_SRC python :results output
+  from __future__ import print_function
+  import sys
+  from astropy.io import fits
+  sys.path.append('/Users/will/Dropbox/OrionWest/')
+  from helio_utils import helio_topo_from_header
+
+  hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
+  print(helio_topo_from_header(hdr, observatory='VLT4'))
+#+END_SRC
+
+#+RESULTS:
+: -16.217273731
+
+
+*** Plot the average spectrum for each line
+#+BEGIN_SRC python :tangle plot-em-line-spec.py
+  from astropy.table import Table
+  from misc_utils import sanitize_string
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  linetab = Table.read('basic-line-list.tab', format='ascii.tab')
+
+  for row in linetab:
+      wav = row['wav0']
+      wavid = str(int(wav+0.5))
+      species = sanitize_string(row['Ion'])
+      sname = 'Linemaps/spec1d-{}-{}.tab'.format(species, wavid)
+      spec = Table.read(sname, format='ascii.tab')
+      for xkey, xlabel in [['vhel', 'Heliocentric velocity, km/s'],
+                           ['wav', 'Observed air wavelength, Angstrom']]:
+          fig, ax = plt.subplots(1, 1)
+          ax.plot(spec[xkey], spec['flux'])
+          ax.plot(spec[xkey], spec['cont'])
+          ax.set_ylim(0.0, None)
+          ax.set_xlabel(xlabel)
+          ax.set_ylabel('Mean flux per pixel')
+          ax.set_title('{} {:.2f}'.format(row['Ion'], row['wav0']))
+          fig.set_size_inches(5, 5)
+          fig.savefig(sname.replace('.tab', '-{}.pdf'.format(xkey)))
+          del(fig)
+          del(ax)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+python plot-em-line-spec.py
+#+END_SRC
+
+#+RESULTS:
+
+*** TODO Complex method with Gaussian fits
++ This is necessasry for blended lines
+
+** Calculate MUSE line ratio maps directly
+#+BEGIN_SRC python :tangle muse_line_ratio.py
+  from __future__ import print_function
+  import sys
+  from astropy.io import fits
+  def save_line_ratio_map(line1, line2, mapdir='LineMaps'):
+      fn1 = '{}/linesum-{}.fits'.format(mapdir, line1)
+      fn2 = '{}/linesum-{}.fits'.format(mapdir, line2)
+      hdu1 = fits.open(fn1)[0]
+      hdu2 = fits.open(fn2)[0]
+      wav1 = line1.split('-')[-1]
+      wav2 = line2.split('-')[-1]
+      hdu1.data /= hdu2.data
+      hdu1.writeto('{}/ratio-{}-{}.fits'.format(mapdir, wav1, wav2))
+
+  if __name__ == '__main__':
+      try:
+          line1 = sys.argv[1]
+          line2 = sys.argv[2]
+      except IndexError:
+          sys.exit('Usage: {} LINE1 LINE2'.format(sys.argv[0]))
+
+      save_line_ratio_map(line1, line2)
+        
+
+#+END_SRC
+
+N II ratio
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py N_II-5755 N_II-6583
+#+END_SRC
+
+S II ratio
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py S_II-6716 S_II-6731
+#+END_SRC
+
+Balmer decrement
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py H_I-6563 H_I-4861
+#+END_SRC
+
+Balmer decrement upside down for good measure
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py H_I-4861 H_I-6563
+#+END_SRC
+
+Paschen-Balmer decrement
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py  H_I-9229 H_I-6563
+#+END_SRC
+
+N II sanity check
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py N_II-6548 N_II-6583
+#+END_SRC
+
+O III sanity check
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py O_III-4959 O_III-5007
+#+END_SRC
+
+O II red lines
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py O_II-7318 O_II-7330
+#+END_SRC
+
+He I ratio
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py He_I-5876 He_I-6678
+#+END_SRC
+
+Ar III line ratio
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py Ar_III-7136 Ar_III-7751
+#+END_SRC
+
+
+** Calculate MUSE line ratio maps indirectly from synthetic filters
++ We start from the =muse-hr-image-wfc3-f*.fits= maps
++ These were created using the nominal throughputs, so we need to back transform them using the same nominal throughputs
++ We do this using nebulio
++ [2015-10-20 Tue] Also, take ratio with the true line ratio
+#+BEGIN_SRC sh 
+mkdir NebulioMUSE
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python :tangle muse-nebulio-line-ratios.py
+  from __future__ import print_function
+  from misc_utils import sanitize_string
+  from astropy.io import fits
+  import nebulio
+  print(nebulio.__version__)
+
+  # Mean and std of the color terms ktwiddle
+  # This is copied from ratio-sensitivity-nebulio.py in the Tsquared folder
+  COLOR_TERMS_MEAN_SIG = {
+      "FQ674N": (1.00, 0.10), 
+      "F673N":  (1.00, 0.10), 
+      "FQ672N": (0.99, 0.10), 
+      "F658N":  (1.04, 0.11), 
+      "F656N":  (1.04, 0.11), 
+      "FQ575N": (0.97, 0.03), 
+      "F547M":  (1.03, 0.01), 
+      "F502N":  (1.10, -0.04), 
+  #    "F487N":  (1.13, -0.06), 
+      "F487N":  (1.65, -0.06), 
+      "FQ437N": (1.41, -0.13), 
+      "FQ436N": (1.87, -0.08), 
+  }
+  def get_color_term(fname="FQ575N", kshift=0.0):
+      """Return color term for filter `fname`, shifted `kshift` stdevs from mean"""
+      mean, sigma = COLOR_TERMS_MEAN_SIG[fname]
+      return mean + kshift*sigma
+
+  filtersets = {
+      "5755-6583": {"line1": "[N II] 5755", "line2": "[N II] 6583",
+                           "I": "FQ575N", "II": "F658N", "III": "F547M"},
+      "6716-6731": {"line1": "[S II] 6716", "line2": "[S II] 6731",
+                           "I": "FQ672N", "II": "FQ674N", "III": "F547M"}, 
+      "6716-6731-N": {"line1": "[S II] 6716", "line2": "[S II] 6731",
+                           "I": "FQ672N", "II": "FQ674N", "III": "F673N"}, 
+      "4861-6563": {"line1": "H I 4861", "line2": "H I 6563",
+                           "I": "F487N", "II": "F656N", "III": "F547M"},
+  }
+
+
+  def get_fits_data(fn='FQ575N'):
+      hdu = fits.open('muse-hr-image-wfc3-{}.fits'.format(fn.lower()))['DATA']
+      return hdu.data
+
+  def get_fits_header(fn='FQ575N'):
+      hdu = fits.open('muse-hr-image-wfc3-{}.fits'.format(fn.lower()))['DATA']
+      return hdu.header
+
+  heliocentric_correction = -16.2
+  default_velocity =  25.0 + heliocentric_correction
+  default_width = 20.0
+
+  for ratio_name, filterset in filtersets.items():
+      FI, FII, FIII = [filterset[J] for J in ("I", "II", "III")]
+      print(FI, FII, FIII)
+      RI = get_fits_data(FI)
+      RII = get_fits_data(FII)
+      RIII = get_fits_data(FIII)
+      print(RIII[::100, ::100])
+      lineids = filterset['line1'], filterset['line2']
+      bpnames = ['wfc3,uvis1,' + F for F in (FI, FII, FIII)]
+      fset = nebulio.Filterset(bpnames, lineids,
+                               velocity=default_velocity, fwhm_kms=default_width)
+      kI = get_color_term(FI)/get_color_term(FIII)
+      kII = get_color_term(FII)/get_color_term(FIII)
+      print('Color terms:', kI ,kII)
+      ratio = fset.find_line_ratio(rates=[RI, RII, RIII], colors=(kI, kII), naive=False)
+      ratio_naive = fset.find_line_ratio(rates=[RI, RII, RIII], colors=(kI, kII), naive=True)
+      # And if we just ignore the color terms
+      ratio_flat = fset.find_line_ratio(rates=[RI, RII, RIII], colors=(1.0, 1.0), naive=False)
+
+      outhdu = fits.PrimaryHDU(header=get_fits_header(), data=ratio)
+      outhdu.writeto(
+          'NebulioMUSE/synthetic-ratio-{}.fits'.format(ratio_name),
+          clobber=True)
+
+      outhdu = fits.PrimaryHDU(header=get_fits_header(), data=ratio_naive)
+      outhdu.writeto(
+          'NebulioMUSE/synthetic-naive-ratio-{}.fits'.format(ratio_name),
+          clobber=True)
+
+      outhdu = fits.PrimaryHDU(header=get_fits_header(), data=ratio_flat)
+      outhdu.writeto(
+          'NebulioMUSE/synthetic-flat-ratio-{}.fits'.format(ratio_name),
+          clobber=True)
+
+      # Take ratio of ratios between simulated and true
+      # Ignore anything after the second dash in finding the true ratio name
+      ratio_name_true = '-'.join(ratio_name.split('-')[:2])
+      fn_true = 'LineMaps/ratio-{}.fits'.format(ratio_name_true)
+      ratio_true = fits.open(fn_true)[0].data
+      ratio_of_ratios = ratio/ratio_true
+      outhdu = fits.PrimaryHDU(header=get_fits_header(), data=ratio_of_ratios)
+      outhdu.writeto(
+          'NebulioMUSE/synthetic-over-true-ratio-{}.fits'.format(ratio_name),
+          clobber=True)
+      # And the same for the naive/true
+      ratio_of_ratios = ratio_naive/ratio_true
+      outhdu = fits.PrimaryHDU(header=get_fits_header(), data=ratio_of_ratios)
+      outhdu.writeto(
+          'NebulioMUSE/synthetic-naive-over-true-ratio-{}.fits'.format(ratio_name),
+          clobber=True)
+      # And the same for the flat/true
+      ratio_of_ratios = ratio_flat/ratio_true
+      outhdu = fits.PrimaryHDU(header=get_fits_header(), data=ratio_of_ratios)
+      outhdu.writeto(
+          'NebulioMUSE/synthetic-flat-over-true-ratio-{}.fits'.format(ratio_name),
+          clobber=True)
+          
+#+END_SRC
+
+#+BEGIN_SRC sh
+python muse-nebulio-line-ratios.py 1>&2
+#+END_SRC
+
+#+RESULTS:
+
++ Mostly looks OK
++ [ ] But there is a strange problem with hb/ha
+  + The synthetic value comes out too large by about 5 to 10%
+  + I tried fiddling with the ktwiddle color terms, but that didn't seem to work
+
+** Two-D histogram of MUSE synthetic filter vs MUSE true line ratios
+#+BEGIN_SRC python :tangle histo-muse-ratios.py
+  from __future__ import print_function
+  import numpy as np
+  from astropy.io import fits
+  from astropy.convolution import convolve, Gaussian2DKernel
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  from specplot1d_utils import plot_1d_spec_from_fits
+
+
+  plotpars = {
+      '6716-6731': {'line1': '[S II] 6716', 'line2': '[S II] 6731',
+                    'min': 0.4, 'max': 1.1},
+      '6716-6731-N': {'line1': '[S II] 6716', 'line2': '[S II] 6731',
+                    'min': 0.4, 'max': 1.1},
+      '5755-6583': {'line1': '[N II] 5755', 'line2': '[N II] 6583',
+                    'min': 0.0, 'max': 0.04},
+      '4861-6563': {'line1': 'H I 4861', 'line2': 'H I 6563',
+                    'min': 0.15, 'max': 0.35},
+    }
+
+  titles_from_extra = {
+      '': 'Fully continuum-corrected with color terms',
+      '-naive': 'Uncorrected for continuum',
+      '-flat': 'Partially continuum-corrected but without color terms',
+  }
+
+  GAMMA = 1.0
+
+  cmap = sns.light_palette((260, 50, 30), input="husl", as_cmap=True)
+  # cmap = plt.cm.gray_r
+
+  def histogram_ratio_images(ratio_name, pars, extra=''):
+      ratio_name_true = '-'.join(ratio_name.split('-')[:2])
+      fn_true = 'LineMaps/ratio-{}.fits'.format(ratio_name_true)
+      fn_syn = 'NebulioMUSE/synthetic{}-ratio-{}.fits'.format(extra, ratio_name)
+      pltname = 'NebulioMUSE/synthetic{}-vs-true-calib-{}.pdf'.format(extra, ratio_name)
+      hdu_true = fits.open(fn_true)[0]
+      hdu_syn = fits.open(fn_syn)[0]
+      # Flux of a strong line to weight the pixels
+      hduf = fits.open('LineMaps/linesum-H_I-6563.fits')[0]
+      x, y, w = hdu_true.data, hdu_syn.data, hduf.data
+      xmin, xmax = ymin, ymax = pars['min'], pars['max']
+      # mask out silly values
+      m = np.isfinite(x) & np.isfinite(y/x) & (np.abs(np.log10(y/x)) < 1.0)
+      H, xedges, yedges = np.histogram2d(x[m], y[m], 400,
+                                         [[xmin, xmax], [ymin, ymax]],
+                                         weights=w[m])
+      fig, ax = plt.subplots(1, 1)
+      ax.imshow((H.T)**(1.0/GAMMA), extent=[xmin, xmax, ymin, ymax],
+                interpolation='nearest', aspect='auto', origin='lower', 
+                cmap=cmap, alpha=1.0)
+      ax.plot([xmin, xmax], [xmin, xmax], '-', alpha=1.0,
+              lw=1, c='r', label=None)
+      ax.set_xlabel(
+          'MUSE spectrum-derived line ratio: {} / {}'.format(
+              pars['line1'], pars['line2']))
+      ax.set_ylabel(
+          'MUSE synthetic WFC3 filter-derived line ratio: {} / {}'.format(
+              pars['line1'], pars['line2']))
+      ax.set_xlim(xmin, xmax)
+      ax.set_ylim(ymin, ymax)
+      ax.text(0.3, 0.05, titles_from_extra[extra], transform=ax.transAxes)
+
+      fig.set_size_inches(7, 7)
+      fig.savefig(pltname)
+
+      return pltname
+
+
+  if __name__ == '__main__':
+      for ratio_name, pars in plotpars.items():
+          for extra in '', '-naive', '-flat':
+              print(histogram_ratio_images(ratio_name, pars, extra))
+
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results verbatim
+python histo-muse-ratios.py
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+NebulioMUSE/synthetic-vs-true-calib-6716-6731.pdf
+NebulioMUSE/synthetic-naive-vs-true-calib-6716-6731.pdf
+NebulioMUSE/synthetic-flat-vs-true-calib-6716-6731.pdf
+NebulioMUSE/synthetic-vs-true-calib-6716-6731-N.pdf
+NebulioMUSE/synthetic-naive-vs-true-calib-6716-6731-N.pdf
+NebulioMUSE/synthetic-flat-vs-true-calib-6716-6731-N.pdf
+NebulioMUSE/synthetic-vs-true-calib-4861-6563.pdf
+NebulioMUSE/synthetic-naive-vs-true-calib-4861-6563.pdf
+NebulioMUSE/synthetic-flat-vs-true-calib-4861-6563.pdf
+NebulioMUSE/synthetic-vs-true-calib-5755-6583.pdf
+NebulioMUSE/synthetic-naive-vs-true-calib-5755-6583.pdf
+NebulioMUSE/synthetic-flat-vs-true-calib-5755-6583.pdf
+#+end_example
+
+* Calibration of WFC3 filter using MUSE cube
 :LOGBOOK:
 CLOCK: [2015-10-07 Wed 09:58]
 :END:
@@ -156,8 +715,145 @@ CLOCK: [2015-10-07 Wed 09:58]
 
 ** Extract subsets of the full cubes
 
-*** PV diagrams
-Not yet
+*** Transposed cubes
++ These are taken from the section cubes that I made [[id:C2108CD1-EF28-4F63-9CA1-B7F9DA59C450][down here]]
+  + Origina axis order is RA, Dec, Wav
++ They will look like longslit spectra in DS9 - at least that is the idea
+
+**** TODO Stack of horizontal slits: Wav, RA, Dec
++ 1 2 3 -> 3 1 2
+#+BEGIN_SRC sh :results verbatim
+  MDIR=~/Source/Montage/bin
+  $MDIR/mTranspose muse-hr-data-wavsec0.fits muse-hr-hslit-stack-wavsec0.fits 3 1 2
+#+END_SRC
+
+#+RESULTS:
+
++ Note that this takes a long time to run - even longer on my laptop
++ Best to do it in a terminal rather than with babel
++ They are too big (17GB each), so I have moved tham to a =BigFiles/= folder, which I am not synching with my laptop, only with hypatia
+
+**** TODO Stack of vertical slits: Wav, Dec, RA
++ 1 2 3 -> 3 2 1
+
+**** Bin them up to make them easier to use
+
+***** DONE 1 arcsec pixels: 5x5 binning in RA and Dec
+CLOSED: [2015-10-16 Fri 08:42]
++ First, work directly on the original cube sections
++ FITS order is RA, Dec, Wav
++ Python order is Wav, Dec, RA
++ Original NY, NX is 1476, 1766
+  + If we chop off just 1 pixel on each axis, then we are divisible by 5
++ Work on one image at time to simplify things and reduce memory footprint
+#+BEGIN_SRC python :tangle rebin_datacube.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+
+  def rebin_xyimage(im, mx=5, my=5):
+      ny, nx = im.shape
+      # Shape of new rebinned array
+      nny, nnx = ny//my, nx//mx
+      # Shave a bit off original array so shape is multiple of m
+      # And then concertina each axis to be 4-dimensional
+      im4d = im[:nny*my, :nnx*mx].reshape((nny, my, nnx, mx))
+      # Average along the mx, my axes
+      return np.nansum(im4d, axis=(1, 3))
+
+
+  def rebin_hdu(hdu, m=(5, 5)):
+      mx, my = m                  # FITS axis order
+      nv, ny, nx = hdu.data.shape  # Python axis order
+      nny, nnx = ny//my, nx//mx
+      newdata = np.empty((nv, nny, nnx))
+      for k in range(nv):
+          print('Rebinning plane {}/{}'.format(k+1, nv))
+          newdata[k] = rebin_xyimage(hdu.data[k], mx, my)
+      newhdu = fits.PrimaryHDU(header=hdu.header, data=newdata)
+      # New pixel deltas are bigger
+      if 'CDELT1' in newhdu.header:
+          newhdu.header['CDELT1'] *= mx
+          newhdu.header['CDELT2'] *= my
+      else:
+          # assume no rotation
+          newhdu.header['CD1_1'] *= mx
+          newhdu.header['CD2_2'] *= my
+        
+           # pix=0.5 is left edge of first pixel
+      newhdu.header['CRPIX1'] = 0.5 + (newhdu.header['CRPIX1'] - 0.5)/mx
+      newhdu.header['CRPIX2'] = 0.5 + (newhdu.header['CRPIX2'] - 0.5)/my
+
+      return newhdu
+
+  if __name__ == '__main__':
+      try:
+          infilename = sys.argv[1]
+          m = int(sys.argv[2]), int(sys.argv[3])
+      except IndexError:
+          sys.exit('Usage: {} FITSFILE BINX BINY'.format(sys.argv[0]))
+
+      hdu = fits.open(infilename)['DATA']
+      newsuffix = '-rebin{:02d}x{:02d}.fits'.format(*m)
+      outfilename = infilename.replace('.fits', newsuffix)
+      rebin_hdu(hdu, m).writeto(outfilename, clobber=True)
+
+#+END_SRC
+
++ These should all be run in an interactive shell
++ First, test it with a small file
+  #+BEGIN_SRC sh :eval no
+  python rebin_datacube.py muse-hr-window-wfc3-fq575n.fits 5 5
+  #+END_SRC
++ Then do all the big sections
+  #+BEGIN_SRC sh :eval no :tangle rebin-all-wavsecs.sh
+    for i in $(seq 7); do
+        python rebin_datacube.py muse-hr-data-wavsec$i.fits 5 5
+    done
+  #+END_SRC
+
+
+***** Glue all the wavsecs back together again to make one big spectrum
+If we demote the data arrays to 32 bit reals, then this should be still less than 2GB for the 5x5 spatial binning
+
+#+BEGIN_SRC python :tangle reassemble-fullcube.py
+  from __future__ import print_function
+  import numpy as np
+  from astropy.io import fits
+
+  def reassemble(nsec=8, suffix='rebin05x05'):
+      template = 'muse-hr-data-wavsec{isec}-{suffix}.fits'
+
+      cubes = []
+      for isec in range(nsec):
+          fn = template.format(isec=isec, suffix=suffix)
+          hdulist = fits.open(fn)
+          hdu = hdulist[0]
+          # The full cube will use the header from the first section
+          if isec == 0:
+              hdr = hdu.header.copy()
+          # Save this section of the cube 
+          cubes.append(hdu.data.astype(np.float32))
+          print('Section', isec, 'saved')
+          hdulist.close()
+      newhdu = fits.PrimaryHDU(header=hdr, data=np.concatenate(cubes))
+      outfile = 'muse-hr-fullcube-{suffix}.fits'.format(suffix=suffix)
+      newhdu.writeto(outfile, clobber=True)
+      return outfile
+
+  if __name__ == '__main__':
+
+      print('Reassembling cube ...')
+      print('... done:', reassemble())
+    
+#+END_SRC
+
+Run in interactive shell 
+#+BEGIN_SRC sh :eval no
+time python reassemble-fullcube.py
+#+END_SRC
+
 
 *** Spectral windows for each WFC3 filter
 :PROPERTIES:
@@ -432,6 +1128,9 @@ CLOSED: [2015-10-12 Mon 09:18]
       ).writeto('muse-hr-window-{}-{}.fits'.format(row['Instrument'], row['Filter']), clobber=True)
 #+END_SRC
 **** Cleaning up the window FITS files for DS9
+:PROPERTIES:
+:ID:       45AB8659-4D07-4EE5-A3DC-FECF9C10833D
+:END:
 For some reason, ds9 does not like the wavelength WCS, so we will try and fix it:
 + Put the physical scales in the CDELTi instead of in the PCi_j
 + Put it in angstrom instead of m
@@ -598,7 +1297,8 @@ Now do it for all the filters
   + Cannot compare them in DS9 because the spatial axis is written in pixels, which are different sizes 
 + [[file:muse-f547m-cut.dat]]
 + [[file:wfc3-f547m-cut.dat]]
-** TODO [3/4] Compare the real and predicted count-rate images on a common grid
+** DONE [4/4] Compare the real and predicted count-rate images on a common grid
+CLOSED: [2015-10-15 Thu 12:05]
 + We want to put everything on the MUSE pixel grid, since that will make smaller files by a factor of src_calc{(0.2/0.03962)**2} {{{results(=25.4818555174=)}}}
 + We could use
   1. astrodrizzle
@@ -684,13 +1384,16 @@ Resampling f673n
 Resampling fq674n
 [struct stat="OK", time=4]
 #+end_example
-*** TODO Crop MUSE image to the WFC3 field
-This is the final step required before we can do things like take ratio maps or calculate 2d histogram images
+*** DONE [2/2] Crop MUSE image to the WFC3 field
+CLOSED: [2015-10-15 Thu 12:05]
++ [X] This is the final step required before we can do things like take ratio maps or calculate 2d histogram images
++ [X] [2015-10-15 Thu] Also, write out the integrated spectrum times filter throughput for the cropped region
 #+BEGIN_SRC python :tangle crop_muse.py
   import sys
   import numpy as np
   from astropy.io import fits
-  from astropy.wcs import WCS
+  from astropy.wcs import WCS, WCSSUB_SPECTRAL
+  import astropy.units as u
 
   def crop_muse_to_wfc3(fid):
       """Cut out a section of the MUSE image to match the WFC3 field"""
@@ -698,6 +1401,8 @@ This is the final step required before we can do things like take ratio maps or 
       mname = 'muse-hr-image-wfc3-{}.fits'.format(fid)
       whdu = fits.open(wname)[0]
       mhdu = fits.open(mname)['DATA']
+      # Also get the spectral data cube multiplied by filter throughput
+      shdu = fits.open(mname.replace('-image-', '-transwin-'))['DATA']
       wcs_w = WCS(whdu.header).celestial
       wcs_m = WCS(mhdu.header).celestial
       # Check that the two images have the same reference point in RA, DEC
@@ -709,14 +1414,14 @@ This is the final step required before we can do things like take ratio maps or 
       # The shapes of the two grids: (nx, ny) in FITS axis order
       shape_w = np.array([whdu.header['NAXIS1'], whdu.header['NAXIS2']])
       shape_m = np.array([mhdu.header['NAXIS1'], mhdu.header['NAXIS2']])
-  
+
       # The difference in CRPIX values tells us the start indices (i, j)
       # for the crop window on the MUSE grid. Note that this is in
       # zero-based array indices
       start = wcs_m.wcs.crpix - wcs_w.wcs.crpix
       # The stop indices for the crop window 
       stop = start + shape_w
-      
+
       # Shift 1 pixel to the right to do a coarse alignment correction
       start[0] += 1
       stop[0] += 1
@@ -724,7 +1429,7 @@ This is the final step required before we can do things like take ratio maps or 
       # Check that these are within bounds of the original MUSE grid
       assert np.all(start >= 0.0)
       assert np.all(stop < shape_m)
-  
+
       # Crop the MUSE data array to the start:stop indices, remembering
       # that python axis order is backwards with respect to FITS axis
       # order
@@ -737,6 +1442,27 @@ This is the final step required before we can do things like take ratio maps or 
       oname = mname.replace('-image-', '-cropimage-')
       mhdu.writeto(oname, clobber=True)
 
+      # Finally, as a bonus, calculate the 1-D average spectrum from the cube
+      spec = np.nanmean(shdu.data[:, start[1]:stop[1], start[0]:stop[0]], axis=(-1, -2))
+
+      # Convert from 1e-20 flux-per-pixel to surface brightness units (flux per sr)
+      pixel_area_sr = np.product(np.abs(wcs_m.wcs.cdelt))*(u.deg.to(u.radian))**2
+      spec *= 1e-20/pixel_area_sr
+      # extract only the spectral part of the cube's WCS
+      wcs_s = WCS(shdu.header).sub([WCSSUB_SPECTRAL])
+      oshdu = fits.PrimaryHDU(header=wcs_s.to_header(), data=spec)
+      oshdu.header['BUNIT'] = 'erg/s/cm**2/sr/Angstrom'
+      # Fix up the wavelngth units to angstrom
+      oshdu.header['CDELT1'] *= 1e10
+      oshdu.header['CRVAL1'] *= 1e10
+      oshdu.header['CUNIT1'] = 'Angstrom'
+      # And record the window from the MUSE full field that was extracted
+      oshdu.header['MUSE_X1'] = start[0] + 1, 'Extracted window: start X pixel' 
+      oshdu.header['MUSE_X2'] = stop[0] + 1, 'Extracted window: stop X pixel' 
+      oshdu.header['MUSE_Y1'] = start[1] + 1, 'Extracted window: start Y pixel' 
+      oshdu.header['MUSE_Y2'] = stop[0] + 1, 'Extracted window: stop Y pixel' 
+      oshdu.writeto(mname.replace('-image-', '-cropspec1d-'), clobber=True)
+
       return oname
 
 
@@ -747,7 +1473,7 @@ This is the final step required before we can do things like take ratio maps or 
           print('Usage:', sys.argv[0], 'FILTER')
 
       print(crop_muse_to_wfc3(filter_id))
-  
+
 #+END_SRC
 
 #+BEGIN_SRC sh :results silent
@@ -774,6 +1500,53 @@ muse-hr-cropimage-wfc3-fq672n.fits
 muse-hr-cropimage-wfc3-f673n.fits
 muse-hr-cropimage-wfc3-fq674n.fits
 #+end_example
+** Plot the cropped 1D spectra
+#+BEGIN_SRC python :tangle specplot1d_utils.py
+  from __future__ import print_function
+  import sys
+  from astropy.io import fits
+  from astropy.wcs import WCS
+  from astropy import units as u
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  def plot_1d_spec_from_fits(fn, ax, fontsize=None):
+      """Plots spectrum from filename `fn` onto pre-existing axis `ax`"""
+      hdu = fits.open(fn)[0]
+      spec = hdu.data/1e-3
+      w = WCS(hdu.header)
+      nwav = len(spec)
+      wavs, = w.all_pix2world(range(nwav), 0)
+      wavs *= u.m.to(u.Angstrom)
+      #ax.plot(wavs, spec, drawstyle='steps-mid')
+      ax.bar(wavs, spec, align='center', linewidth=0)
+      ax.set_xlim(wavs.min(), wavs.max())
+      ax.set_xlabel('Observed Air Wavelength, Angstrom', fontsize=fontsize)
+      ax.set_ylabel('Filter Throughput x Brightness\n 0.001 erg/s/cm^2/sr/Angstrom', fontsize=fontsize)
+
+
+  if __name__ == '__main__':
+      try:
+          filt = sys.argv[1]
+      except IndexError:
+          print('Usage:', sys.argv[0], 'FILTER')
+      fig, ax = plt.subplots(1, 1)
+      fn = 'muse-hr-cropspec1d-wfc3-{}.fits'.format(filt)
+      plot_1d_spec_from_fits(fn, ax)
+      # ax.set_yscale('log')
+      # ax.set_ylim(1e-7, None)
+      fig.savefig(sys.argv[0].replace('.py', '-test-{}.pdf'.format(filt)))
+
+#+END_SRC
+
+#+BEGIN_SRC sh
+FILTERS="f469n f487n f502n f547m fq575n f656n f658n fq672n f673n fq674n"
+for f in $FILTERS; do
+    python specplot1d_utils.py $f
+done
+#+END_SRC
+
+#+RESULTS:
 
 ** Visualizations of throughput calibration quality
 The final count-rate images to be compared are 
@@ -816,6 +1589,7 @@ The final count-rate images to be compared are
   from astropy.convolution import convolve, Gaussian2DKernel
   from matplotlib import pyplot as plt
   import seaborn as sns
+  from specplot1d_utils import plot_1d_spec_from_fits
 
   maxcount = {
       "fq575n": 0.4,
@@ -895,24 +1669,37 @@ The final count-rate images to be compared are
           mhi = (y >= y[m].mean()) & m
       else:
           # Divide into high and low EW
-          s = 'EW'
+          s = f.upper() + '/F547M'
           mlo = (ew < np.median(ew[m])) & m
           mhi = (ew >= np.median(ew[m])) & m
 
       assert mlo.sum() > 0, f
-        
-      # inset axis at the bottom right
-      ax2 = fig.add_axes([0.6, 0.2, 0.25, 0.25])
+      
+      # inset axis at the top left
+      ax2 = fig.add_axes([0.2, 0.55, 0.25, 0.25])
       ax2.hist(ratio[mlo], bins=100, range=(0.5, 1.5),
                normed=True, weights=y[mlo], alpha=0.7, label='Low '+s)
       ax2.hist(ratio[mhi], bins=100, range=(0.5, 1.5),
                normed=True, weights=y[mhi], color='red', alpha=0.3, label='High '+s)
       ax2.set_xlim(0.5, 1.5)
+      # leave more space at top
+      y1, y2 = ax2.get_ylim()
+      y2 *= 1.2
+      ax2.set_ylim(y1, y2)
       ax2.legend(loc='upper left', fontsize='xx-small')
       ax2.tick_params(labelleft=False, labelsize='x-small')
       ax2.set_xlabel('(Observed Counts) / (Linear Fit)', fontsize='xx-small')
       ax2.set_ylabel('Weighted PDF Histograms', fontsize='xx-small')
   #    ax2.set_title('PDF', fontsize='x-small')
+
+      # inset axis at the bottom right
+      ax3 = fig.add_axes([0.6, 0.2, 0.3, 0.3])
+      fn = 'muse-hr-cropspec1d-wfc3-{}.fits'.format(f)
+      plot_1d_spec_from_fits(fn, ax3, fontsize='xx-small')
+      ax3.tick_params(labelsize='xx-small')
+      ax3.set_title(f.upper())
+
+
       fig.set_size_inches(7, 7)
       fig.savefig(pltname)
 
@@ -966,7 +1753,12 @@ xpaset -p $DS9 view buttons no
 xpaset -p $DS9 frame delete all
 #+END_SRC
 
-#+call: new-blank-ds9() :results silent
+#+call: new-blank-ds9("cube") :results silent
+
+#+BEGIN_SRC sh
+xpaset -p cube frame new
+xpaset -p cube fits $PWD/muse-hr-fullcube-rebin05x05.fits
+#+END_SRC
 
 #+BEGIN_SRC sh
 xpaset -p ds9 frame new
@@ -1013,6 +1805,11 @@ rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
 #+END_SRC
 + The spectrum shows up as s single pixel in ds9, but you can see a graph of it by using a region
 *** HR cube
+:PROPERTIES:
+:TABLE_EXPORT_FILE: wavsec-startwavs.tab
+:TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:ID:       C2108CD1-EF28-4F63-9CA1-B7F9DA59C450
+:END:
 + Exactly the same, except that NV = 5614
   + Wavelength scale: 0.85 angstroms
   + CRPIX3 = 1
@@ -1022,17 +1819,21 @@ rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
     + Last one will be 700
   + Size will be 0.702 1.476 1.766 4 = 7.32 GB
 
-  | Section |  CRVAL3 |
-  |---------+---------|
-  |       0 | 4595.00 |
-  |       1 | 5191.70 |
-  |       2 | 5788.40 |
-  |       3 | 6385.10 |
-  |       4 | 6981.80 |
-  |       5 | 7578.50 |
-  |       6 | 8175.20 |
-  |       7 | 8771.90 |
-  #+TBLFM: $2=4595.0 + 0.85 702 $1 ;f2
+
+
+
+#+name: wavsec-startwavs
+| Section |  CRVAL3 |
+|---------+---------|
+|       0 | 4595.00 |
+|       1 | 5191.70 |
+|       2 | 5788.40 |
+|       3 | 6385.10 |
+|       4 | 6981.80 |
+|       5 | 7578.50 |
+|       6 | 8175.20 |
+|       7 | 8771.90 |
+#+TBLFM: $2=4595.0 + 0.85 702 $1 ;f2
 
 #+BEGIN_SRC python
   from astropy.io import fits
@@ -1056,6 +1857,7 @@ rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
       fits.PrimaryHDU(header=hdr, data=datcube.data[k1:k2]).writeto(fn)
   
 #+END_SRC
+*** 
 *** Heliocentric correction
 Again, these snippets need to be run on the CRyA server where the big data cubes are
 **** Looking for keywords in the top-level header

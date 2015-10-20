@@ -1,0 +1,87 @@
+\documentclass[preprint]{aastex}
+\usepackage{amsmath}
+\usepackage{newtxtext, newtxmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\graphicspath{
+  {../},
+}
+
+
+\usepackage{geometry}
+\geometry{margin=1in}
+\setkeys{Gin}{width=0.6\linewidth, keepaspectratio}  
+
+\usepackage{natbib}
+\usepackage{microtype}
+\usepackage{xcolor}
+\bibliographystyle{apj}
+
+
+\input{/Users/will/Work/RubinWFC3/Tsquared/wfc3-macros.tex}
+
+
+\begin{document}
+\title{Orion fluctuations: New material 2015-10}
+\author{W. J. Henney, C. R. O'Dell, G. J. Ferland, M. Peimbert}
+\section{New calibration of the WFC3 filters with MUSE}
+\label{sec:muse-calib}
+\citep{Weilbacher:2015a}
+
+
+\newcommand\calibplot[1]{\includegraphics{wfc3-vs-muse-calib-#1}}
+
+\begin{figure}[p]
+  \centering
+  \setkeys{Gin}{width=\linewidth}
+  \calibplot{F656N}
+  \caption{Results of spectrophotometric calibration of the WFC3 F656N
+    filter.  The vertical axis of the principal plot is the observed
+    WFC3 filter count rate after resampling at the \(0.2''\) pixel
+    size of the MUSE spectrophotometric observations.  The horizontal
+    axis of the principal plot is the predicted count rate calculated
+    by folding the MUSE spectrum through the nominal WFC3 filter
+    throughput profile.  The grayscale intensity represents the two-dimensional
+    histogram over the entire usable WFC3 field of these two
+    quantities, weighted by the count rate of each pixel.  The red
+    line is the optimum linear fit to the relationship.  The lower
+    right inset plot shows the product of the MUSE spectrum (integrated
+    over the entire field) and the filter throughput profile.  The
+    upper left inset plot shows the distribution of deviations from the
+    linear fit for two subsamples of pixels: the red histogram shows
+    the subsample with larger than average line/continuum ratio, while
+    the blue histogram shows the subsample with smaller than average
+    line/continuum ratio.}
+\end{figure}
+
+\newcommand\figcontinue[1]{
+  \begin{figure}[p]
+    \centering
+    \setkeys{Gin}{width=\linewidth}
+    \calibplot{#1}
+    % \addtocounter{figure}{-1}
+    \caption{#1}
+  \end{figure}
+}
+
+\figcontinue{F658N}
+\figcontinue{F502N}
+\figcontinue{F673N}
+\figcontinue{F487N}
+\figcontinue{F469N}
+
+\figcontinue{F547M}
+
+\figcontinue{FQ575N}
+\figcontinue{FQ672N}
+\figcontinue{FQ674N}
+\bibliography{BibdeskLibrary-slavoj}
+
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+

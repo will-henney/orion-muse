@@ -4,6 +4,7 @@ from astropy.io import fits
 from astropy.convolution import convolve, Gaussian2DKernel
 from matplotlib import pyplot as plt
 import seaborn as sns
+from specplot1d_utils import plot_1d_spec_from_fits
 
 maxcount = {
     "fq575n": 0.4,
@@ -83,24 +84,37 @@ def histogram_calib_images(f, vmax=1.0):
         mhi = (y >= y[m].mean()) & m
     else:
         # Divide into high and low EW
-        s = 'EW'
+        s = f.upper() + '/F547M'
         mlo = (ew < np.median(ew[m])) & m
         mhi = (ew >= np.median(ew[m])) & m
 
     assert mlo.sum() > 0, f
-      
-    # inset axis at the bottom right
-    ax2 = fig.add_axes([0.6, 0.2, 0.25, 0.25])
+    
+    # inset axis at the top left
+    ax2 = fig.add_axes([0.2, 0.55, 0.25, 0.25])
     ax2.hist(ratio[mlo], bins=100, range=(0.5, 1.5),
              normed=True, weights=y[mlo], alpha=0.7, label='Low '+s)
     ax2.hist(ratio[mhi], bins=100, range=(0.5, 1.5),
              normed=True, weights=y[mhi], color='red', alpha=0.3, label='High '+s)
     ax2.set_xlim(0.5, 1.5)
+    # leave more space at top
+    y1, y2 = ax2.get_ylim()
+    y2 *= 1.2
+    ax2.set_ylim(y1, y2)
     ax2.legend(loc='upper left', fontsize='xx-small')
     ax2.tick_params(labelleft=False, labelsize='x-small')
     ax2.set_xlabel('(Observed Counts) / (Linear Fit)', fontsize='xx-small')
     ax2.set_ylabel('Weighted PDF Histograms', fontsize='xx-small')
 #    ax2.set_title('PDF', fontsize='x-small')
+
+    # inset axis at the bottom right
+    ax3 = fig.add_axes([0.6, 0.2, 0.3, 0.3])
+    fn = 'muse-hr-cropspec1d-wfc3-{}.fits'.format(f)
+    plot_1d_spec_from_fits(fn, ax3, fontsize='xx-small')
+    ax3.tick_params(labelsize='xx-small')
+    ax3.set_title(f.upper())
+
+
     fig.set_size_inches(7, 7)
     fig.savefig(pltname)
 

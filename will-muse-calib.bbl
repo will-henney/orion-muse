@@ -1,0 +1,10 @@
+\begin{thebibliography}{1}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{Weilbacher} {et~al.}(2015){Weilbacher}, {Monreal-Ibero},
+  {Kollatschny}, {Ginsburg}, {McLeod}, {Kamann}, {Sandin}, {Palsa}, {Wisotzki},
+  {Bacon}, {Selman}, {Brinchmann}, {Caruana}, {Kelz}, {Martinsson},
+  {P{\'e}contal-Rousset}, {Richard}, \& {Wendt}}]{Weilbacher:2015a}
+{Weilbacher}, P.~M., {et~al.} 2015, ArXiv e-prints
+
+\end{thebibliography}

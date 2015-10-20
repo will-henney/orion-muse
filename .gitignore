@@ -8,3 +8,13 @@ bump*.fits
 subcube*.fits
 *.bck
 *.bck.dir
+__pycache__/misc_utils.cpython-34.pyc
+auto
+.DS_Store
+*.pyc
+muse-hr-fullcube-rebin05x05.fits
+*.aux
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
