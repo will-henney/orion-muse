@@ -38,6 +38,18 @@
 + You can see blue-shifted and red-shifted flows easily
 ** Paschen lines 
 Doing the ratio with Ha would be good for reddening curve
+*** Comparing Hb/Ha with Paschen/Balmer
+:PROPERTIES:
+:ID:       236AC762-7034-42E9-83BC-754A68346A23
+:END:
+The reddenings are very similar, except for two things:
+1. Some very opaque filaments show up as reddening in 9229/6563, but minima in reddening in 4861/6563 (and high extinction in Ha-radio)
+   - I'm thinking this could be due to blocking all the light behind in 6563 and 4861, so being dominated by the foreground extinction
+   - Whereas not totally opaque at 9229 (but extinction curve is not /that/ steep, is it?)
+2. Thin strip on neutral side of bar has increased Hb/Ha reddening but barely visible in 9229/6563 - and has /negative/ Ha-radio estinction in parts
+   - This must be scattering!
+   - Multiple scattering so that it is red rather than blue
+   - No real H+ emission, so not see in radio, leading to negative Ha-radio extinction
 ** Ca II permitted lines in HST3 170-337
 + This is a proplyd with redshifted jet
 + It has components that look like they are blue wings of some Paschen lines
@@ -199,9 +211,12 @@ CLOSED: [2015-08-13 Thu 11:15]
 | H I      |  4861.32 |        1 |         1 |        1 |                  |
 | [O III]  |  4958.91 |        1 |         1 |        1 |                  |
 | [O III]  |  5006.84 |        1 |         1 |        1 |                  |
+| [Cl III] |  5517.71 |        3 |         1 |        1 |                  |
+| [Cl III] |  5537.88 |        3 |         1 |        1 |                  |
 | [N II]   |  5755.08 |        4 |         1 |        1 |                  |
 | He I     |  5875.62 |        1 |         1 |        1 |                  |
 | [O I]    |  6300.30 |        3 |         1 |        1 |                  |
+| [S III]  |  6312.06 |        3 |         1 |        1 |                  |
 | [O I]    |  6363.78 |        3 |         1 |        0 |                  |
 | [N II]   |  6548.05 |        2 |         1 |        1 |                  |
 | H I      |  6562.79 |        1 |         1 |        1 |                  |
@@ -211,14 +226,29 @@ CLOSED: [2015-08-13 Thu 11:15]
 | [S II]   |  6716.44 |        3 |         1 |        1 |                  |
 | [S II]   | 6730.816 |        3 |         1 |        1 |                  |
 | O I      |  7001.92 |        3 |         1 |        1 |                  |
+| He I     |  7065.28 |        2 |         1 |        1 |                  |
 | [Ar III] |  7135.78 |        1 |         1 |        1 | super strong     |
 | [O II]   |  7318.39 |        1 |         1 |        1 | Also 7319.99     |
 | [O II]   |  7329.66 |        1 |         0 |        1 | Also 7330.73     |
+| [Fe II]  |  7452.54 |        4 |         1 |        1 |                  |
 | [Ar III] |  7751.10 |        1 |         1 |        1 |                  |
 | [Cl IV]  |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION! |
+| H I      |  8437.96 |        3 |         1 |        0 | Pa 18            |
 | O I      |  8446.36 |        2 |         0 |        1 |                  |
+| H I      |  8467.25 |        2 |         0 |        1 | Pa 17            |
+| H I      |  8502.48 |        2 |         1 |        1 | Pa 16            |
+| H I      |  8545.38 |        2 |         1 |        1 | Pa 15            |
+| [Cl II]  |  8578.69 |        3 |         1 |        0 | Blend with 8582  |
+| H I      |  8598.39 |        2 |         1 |        1 | Pa 14            |
+| [Fe II]  |  8616.95 |        3 |         1 |        1 |                  |
+| H I      |  8665.02 |        2 |         1 |        1 | Pa 13            |
 | [C I]    |  8727.13 |        4 |         1 |        0 | Different!       |
+| H I      |  8750.47 |        2 |         1 |        1 | Pa 12            |
+| H I      |  8862.79 |        2 |         1 |        1 | Pa 11            |
+| H I      |  9014.91 |        2 |         1 |        1 | Pa 10            |
+| Ca I]    |  9052.16 |        5 |         1 |        0 |                  |
 | [S III]  |  9068.90 |        1 |         1 |        1 |                  |
+| Ca I]    |  9095.09 |        5 |         1 |        0 |                  |
 | H I      |  9229.01 |        2 |         1 |        1 | Pa 9             |
 
 *** Simple method with moments
@@ -337,7 +367,7 @@ mkdir LineMaps
 
 Test it out in a shell
 #+BEGIN_SRC sh :eval no
-python extract-em-line.py
+  python extract-em-line.py
 #+END_SRC
 
 Check out the heliocentric correction
@@ -376,6 +406,10 @@ Check out the heliocentric correction
           fig, ax = plt.subplots(1, 1)
           ax.plot(spec[xkey], spec['flux'])
           ax.plot(spec[xkey], spec['cont'])
+          if xkey == 'wav':
+              ax.set_xlim(row['wav0']-8.0, row['wav0']+8.0)
+          else:
+              ax.set_xlim(-300.0, 300.0)
           ax.set_ylim(0.0, None)
           ax.set_xlabel(xlabel)
           ax.set_ylabel('Mean flux per pixel')
@@ -387,8 +421,20 @@ Check out the heliocentric correction
 
 #+END_SRC
 
-#+BEGIN_SRC sh :results verbatim
+#+BEGIN_SRC sh :results silent
 python plot-em-line-spec.py
+#+END_SRC
+
+Look at spectra on heliocentric velocity scale
+#+BEGIN_SRC sh
+open LineMaps/spec1d*-vhel.pdf
+#+END_SRC
+
+#+RESULTS:
+
+Look at spectra on wavelength scale
+#+BEGIN_SRC sh
+open LineMaps/spec1d*-wav.pdf
 #+END_SRC
 
 #+RESULTS:
@@ -401,26 +447,54 @@ python plot-em-line-spec.py
   from __future__ import print_function
   import sys
   from astropy.io import fits
-  def save_line_ratio_map(line1, line2, mapdir='LineMaps'):
-      fn1 = '{}/linesum-{}.fits'.format(mapdir, line1)
-      fn2 = '{}/linesum-{}.fits'.format(mapdir, line2)
+  def save_line_ratio_map(line1, line2, prefix='linesum', suffix='', mapdir='LineMaps'):
+      fn1 = '{}/{}-{}{}.fits'.format(mapdir, prefix, line1, suffix)
+      fn2 = '{}/{}-{}{}.fits'.format(mapdir, prefix, line2, suffix)
+      print(fn1, fn2)
       hdu1 = fits.open(fn1)[0]
+      if hdu1.data is None:
+          hdu1 = fits.open(fn1)[1]
       hdu2 = fits.open(fn2)[0]
+      if hdu2.data is None:
+          hdu2 = fits.open(fn2)[1]
       wav1 = line1.split('-')[-1]
       wav2 = line2.split('-')[-1]
       hdu1.data /= hdu2.data
-      hdu1.writeto('{}/ratio-{}-{}.fits'.format(mapdir, wav1, wav2))
+      if prefix == 'linesum':
+          hdu1.writeto('{}/ratio-{}-{}{}.fits'.format(mapdir, wav1, wav2, suffix), clobber=True)
+      else:
+          hdu1.writeto('{}/ratio-{}-{}-{}.fits'.format(mapdir, prefix, wav1, wav2, suffix), clobber=True)
 
   if __name__ == '__main__':
       try:
           line1 = sys.argv[1]
           line2 = sys.argv[2]
       except IndexError:
-          sys.exit('Usage: {} LINE1 LINE2'.format(sys.argv[0]))
+          sys.exit('Usage: {} LINE1 LINE2 [PREFIX] [SUFFIX]'.format(sys.argv[0]))
 
-      save_line_ratio_map(line1, line2)
+      try:
+          prefix = sys.argv[3]
+      except IndexError:
+          prefix = 'linesum'
+
+      try:
+          suffix = '-' + sys.argv[4]
+      except IndexError:
+          suffix = ''
+
+      save_line_ratio_map(line1, line2, prefix, suffix)
         
 
+#+END_SRC
+
+S III ratio
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py S_III-6312 S_III-9069
+#+END_SRC
+
+Cl III ratio
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py Cl_III-5538 Cl_III-5518
 #+END_SRC
 
 N II ratio
@@ -448,6 +522,20 @@ Paschen-Balmer decrement
 python muse_line_ratio.py  H_I-9229 H_I-6563
 #+END_SRC
 
+And other way up
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py  H_I-6563 H_I-9229
+#+END_SRC
+
+Paschen-Paschen decrement
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py  H_I-8545 H_I-9229
+python muse_line_ratio.py  H_I-8598 H_I-9229
+python muse_line_ratio.py  H_I-8750 H_I-9229
+python muse_line_ratio.py  H_I-8863 H_I-9229
+python muse_line_ratio.py  H_I-9015 H_I-9229
+#+END_SRC
+
 N II sanity check
 #+BEGIN_SRC sh :results silent
 python muse_line_ratio.py N_II-6548 N_II-6583
@@ -473,8 +561,36 @@ Ar III line ratio
 python muse_line_ratio.py Ar_III-7136 Ar_III-7751
 #+END_SRC
 
+*** Continuum ratios to see spatial variations in slope
+
+This one doesn't work because of contamination by Balmer line wings
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py H_I-4861 H_I-6563 continuum
+#+END_SRC
+
+This one is the best - blue side of 5755
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py Fe_III-4658 N_II-5755 continuum
+#+END_SRC
+
+And this one covers red side of 5755
+#+BEGIN_SRC sh :results silent
+python muse_line_ratio.py N_II-5755 S_II-6731 continuum
+#+END_SRC
+
++ It looks like these ratios do correlate well with equivalent width
+  + But that remains to be tested
++ Also should have secondary correlation with reddening
+  + But that is not so apparent
+    + At least not for the highest extinction, where we seem to have bluer spectra
+    + But for the brightest parts, we do maybe have redder continuum where extinction is higher
+
+
 
 ** Calculate MUSE line ratio maps indirectly from synthetic filters
+:PROPERTIES:
+:ID:       385E5413-D978-4DE6-98C2-BC893905316B
+:END:
 + We start from the =muse-hr-image-wfc3-f*.fits= maps
 + These were created using the nominal throughputs, so we need to back transform them using the same nominal throughputs
 + We do this using nebulio
@@ -500,11 +616,11 @@ mkdir NebulioMUSE
       "FQ672N": (0.99, 0.10), 
       "F658N":  (1.04, 0.11), 
       "F656N":  (1.04, 0.11), 
-      "FQ575N": (0.97, 0.03), 
+      "FQ575N": (0.95, 0.03), 
       "F547M":  (1.03, 0.01), 
       "F502N":  (1.10, -0.04), 
-  #    "F487N":  (1.13, -0.06), 
-      "F487N":  (1.65, -0.06), 
+      "F487N":  (1.06, -0.06), 
+  #    "F487N":  (1.65, -0.06), 
       "FQ437N": (1.41, -0.13), 
       "FQ436N": (1.87, -0.08), 
   }
@@ -597,17 +713,20 @@ mkdir NebulioMUSE
 #+END_SRC
 
 #+BEGIN_SRC sh
+export PYTHON_CDBS=~/Dropbox/CDBS
 python muse-nebulio-line-ratios.py 1>&2
 #+END_SRC
 
 #+RESULTS:
 
 + Mostly looks OK
-+ [ ] But there is a strange problem with hb/ha
++ [X] But there is a strange problem with hb/ha
   + The synthetic value comes out too large by about 5 to 10%
   + I tried fiddling with the ktwiddle color terms, but that didn't seem to work
+  + [2015-10-22 Thu] All sorted now - it was a problem with which CDBS I used
 
-** Two-D histogram of MUSE synthetic filter vs MUSE true line ratios
+** DONE Two-D histogram of MUSE synthetic filter vs MUSE true line ratios
+CLOSED: [2015-10-22 Thu 17:21]
 #+BEGIN_SRC python :tangle histo-muse-ratios.py
   from __future__ import print_function
   import numpy as np
@@ -648,7 +767,7 @@ python muse-nebulio-line-ratios.py 1>&2
       hdu_true = fits.open(fn_true)[0]
       hdu_syn = fits.open(fn_syn)[0]
       # Flux of a strong line to weight the pixels
-      hduf = fits.open('LineMaps/linesum-H_I-6563.fits')[0]
+      hduf = fits.open('LineMaps/linesum-N_II-6583.fits')[0]
       x, y, w = hdu_true.data, hdu_syn.data, hduf.data
       xmin, xmax = ymin, ymax = pars['min'], pars['max']
       # mask out silly values
@@ -707,9 +826,70 @@ NebulioMUSE/synthetic-naive-vs-true-calib-5755-6583.pdf
 NebulioMUSE/synthetic-flat-vs-true-calib-5755-6583.pdf
 #+end_example
 
+#+BEGIN_SRC sh :result silent
+open NebulioMUSE/synthetic-vs-true-calib-*.pdf
+open NebulioMUSE/synthetic-naive-vs-true-calib-*.pdf
+open NebulioMUSE/synthetic-flat-vs-true-calib-*.pdf
+#+END_SRC
+
+#+RESULTS:
+
+#+RESULTS
+
+** DONE Now compare synthetic filter-derived ratios with real WFC3 filter-derived ones
+CLOSED: [2015-10-22 Thu 17:21]
+:LOGBOOK:
+CLOCK: [2015-10-21 Wed 21:19]--[2015-10-22 Thu 00:27] =>  3:08
+:END:
++ [2015-10-21 Wed] I have using DS9
+  + MUSE :: synthetic-ratio-5755-6583.fits
+  + WFC3 :: newratio-5755-6583.fits
++ This works tolerably well now
+
+
+*** Old comments
++ They are significantly different
+  + MUSE synthetic map has median ratio < 0.15 in faint parts
+  + WFC3 map has median ratio > 0.15 in faint parts
++ But the real and synthetic filter images should be the same
+  + If we look at =wfc3-over-muse-calib-ratio-F*.fits= then we find
+    + F575N and F658N are fine
+    + But F547M shows some discrepancies
+      + Over most of the field the ratio is 0.9 rather than 1
+      + Although I had interpreted that as a shift of origin
+      + I think that is partly due to the hump of scattered light that comes down from Trapezium
+    + F656N also shows a bit of a discrepancy
+      + The ratio is 1.03 in the brighter part of the sweet spot (which is what we adopted from the straight line cuts)
+      + But is more like 104 to 1.05 in the fainter parts
+    + F673N is prety good at 1.0 apart from the hump
+      + Not much justification for the 0.97, except for at the top, which is outsid ethe sweetspot
+    + FQ672N looks like it has a gradient from 1.0 to 1.1 from the top left to bottom right, parallel to the chip - maybe there is a flat field error
+      + We had interpreted this as an offset
+      + But that does sort of fit too
+    + FQ674N does not have this problem
++ *What would be the consequences of overestimating F547M?*
+  + Means true continuum is higher than we had thought
+  + So we should subtract more from the FQ575N filter, which will bring down the nii ratio
+  + Which is what we want!
+
+** Conclusions on spectra vs filters comparison with MUSE
+1. In general it works very well
+2. There are small residual correlations betwen line ratios and continuum color, which means the relations don't quite have unit slope
+   - In the case of Hb/Ha this is probably due to the fact that continuum is reddened the same as the lines are - we could even correct for that
+   - That same correction could even then be applied to the other filters
+3. The [S II] ratio is best determined using the F673N filter to get the continuum
+4. The [N II] ratio has a lot of noise, but then we knew that already
+5. There was some strangeness with Hb/Ha
+   - I had to bump up the color term a lot
+   - At first I thought this was justified because the continuum looked blue
+     - Even though the fig I had calculated from ODH said not
+   - But now I realise that the relevant slope is in \lambda F_{\lambda}
+     - Which is much flatter
+   - So I am a bit confused, but going to move on anyhow
+
 * Calibration of WFC3 filter using MUSE cube
 :LOGBOOK:
-CLOCK: [2015-10-07 Wed 09:58]
+CLOCK: [2015-10-07 Wed 09:58]--[2015-10-07 Wed 11:58] =>  2:00
 :END:
 + The interesting sections are wavsec0 to wavsec3
 
@@ -881,6 +1061,8 @@ Export this table to [[file:all-filters-input.tab]] with =C-c t e= after any mod
 #+name: selected-filters
 | Instrument | Filter |
 |------------+--------|
+| wfc3       | fq436n |
+| wfc3       | fq437n |
 | wfc3       | f469n  |
 | wfc3       | f487n  |
 | wfc3       | f502n  |
@@ -892,6 +1074,9 @@ Export this table to [[file:all-filters-input.tab]] with =C-c t e= after any mod
 | wfc3       | f673n  |
 | wfc3       | fq674n |
 |------------+--------|
+| wfpc2      | f437n  |
+| wfpc2      | f469n  |
+| wfpc2      | f487n  |
 | wfpc2      | f502n  |
 | wfpc2      | f547m  |
 | wfpc2      | f631n  |
@@ -947,6 +1132,8 @@ CLOSED: [2015-10-08 Thu 11:25]
 #+RESULTS: extract-bandpasses
 | Filter            |    Wav0 |    dWav |
 |-------------------+---------+---------|
+| wfc3,uvis1,fq436n | 4367.22 |   43.36 |
+| wfc3,uvis1,fq437n | 4371.09 |   29.99 |
 | wfc3,uvis1,f469n  | 4688.14 |   49.67 |
 | wfc3,uvis1,f487n  | 4871.42 |   60.41 |
 | wfc3,uvis1,f502n  | 5009.71 |   65.27 |
@@ -957,6 +1144,9 @@ CLOSED: [2015-10-08 Thu 11:25]
 | wfc3,uvis1,fq672n | 6716.62 |   19.37 |
 | wfc3,uvis1,f673n  | 6766.04 |  117.78 |
 | wfc3,uvis1,fq674n | 6730.77 |   17.63 |
+| wfpc2,f437n       | 4369.57 |   31.84 |
+| wfpc2,f469n       | 4694.55 |   33.10 |
+| wfpc2,f487n       | 4865.48 |   33.93 |
 | wfpc2,f502n       | 5013.41 |   35.80 |
 | wfpc2,f547m       | 5487.62 |  638.11 |
 | wfpc2,f631n       | 6306.45 |   42.14 |
@@ -1767,6 +1957,765 @@ xpaset -p ds9 fits $PWD/muse-hr-data-wavsec3.fits
 
 #+RESULTS:
 
+
+* TODO Line ratios -> T, N diagnostics for the MUSE data
++ This will allow us to extend the t2 spatial scale analysis to larger scales
++ And will give us another window onto the effects of noise on the results
++ Will also be practise for redoing everything with WFC3
+
+** De-redden the nii line ratio
+#+BEGIN_SRC python :tangle muse-deredden.py
+  import sys
+  from astropy.io import fits
+
+  sys.path.append('/Users/will/Work/RubinWFC3/Tsquared')
+  from deredden import deredden_nii_ratio
+
+  hb_ha = fits.open('Linemaps/ratio-4861-6563.fits')[0].data
+  nii_hdu = fits.open('Linemaps/ratio-5755-6583.fits')[0]
+  nii_hdu.data = deredden_nii_ratio(nii_hdu.data, hb_ha)
+  nii_hdu.writeto('Linemaps/ratio-5755-6583-deredden-2874.fits', clobber=True)
+
+  hb_ha = fits.open('NebulioMUSE/synthetic-ratio-4861-6563.fits')[0].data
+  nii_hdu = fits.open('NebulioMUSE/synthetic-ratio-5755-6583.fits')[0]
+  nii_hdu.data = deredden_nii_ratio(nii_hdu.data, hb_ha)
+  nii_hdu.writeto('NebulioMUSE/synthetic-ratio-5755-6583-deredden-2874.fits', clobber=True)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+python muse-deredden.py
+#+END_SRC
+
+
+** Plot histogram of [N II] vs [S II] line ratios
+Based on a [[id:D15B6745-A22C-420C-A669-E39FD7954AC7][very similar program for WFC3 data]]
+#+BEGIN_SRC python :tangle muse-rnii-rsii-histogram.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from matplotlib import pyplot as plt
+  import pyregion
+  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
+  sys.path.append(t2dir)
+  from pyneb_utils import rsii_T_den, rnii_T_den
+
+  try:
+      region = sys.argv[1]
+  except IndexError:
+      sys.exit('Usage: {} REGION [SUFFIX]'.format(sys.argv[0]))
+
+  try:
+      suffix = '-' + sys.argv[2]
+  except IndexError:
+      suffix = ''
+  
+  snii_hdu = fits.open("Linemaps/linesum-N_II-6583{}.fits".format(suffix))['SCALED']
+  hduA = fits.open("Linemaps/ratio-6716-6731{}.fits".format(suffix))['SCALED']
+  hduB = fits.open("Linemaps/ratio-5755-6583{}-deredden-2874.fits".format(suffix))['SCALED']
+  # hduB = fits.open(prefix + "ratio-5755-6583.fits")[0]
+
+  xmin, xmax, ymin, ymax = 0.4, 1.0, 0.0, 0.05
+
+  m = np.isfinite(hduA.data) & np.isfinite(hduB.data)
+  m = m & (hduA.data > 0.0) & (hduB.data > 0.0) 
+  if 'sweet' in region.lower():
+      title = 'Orion S'
+      include = pyregion.open(t2dir + '/will-nii-sweet-spot-wcs.reg')
+      exclude = pyregion.open(t2dir + '/will-nii-exclude-wcs.reg')
+      m = m & include.get_mask(hdu=snii_hdu) & (~exclude.get_mask(hdu=snii_hdu))
+
+      include = pyregion.open(t2dir + '/will-sii-sweet-spot-wcs.reg')
+      exclude = pyregion.open(t2dir + '/will-sii-exclude-wcs.reg')
+      m = m & include.get_mask(hdu=snii_hdu) & (~exclude.get_mask(hdu=snii_hdu))
+  else:
+      title = 'Full nebula'
+    
+  x = hduA.data[m]
+  y = hduB.data[m]
+  w = snii_hdu.data[m]
+  gamma = 1.5
+  fig, ax = plt.subplots(1, 1)
+  H, xedges, yedges = np.histogram2d(x, y, 50,
+                                     [[xmin, xmax], [ymin, ymax]],
+                                     weights=w)
+  ax.imshow((H.T)**(1.0/gamma), extent=[xmin, xmax, ymin, ymax],
+            interpolation='nearest', aspect='auto', origin='lower', 
+            cmap=plt.cm.gray_r, alpha=1.0)
+
+  denrange = np.linspace(0.0, 8.e4, 200)
+  for tem in [7e3, 9e3, 1.1e4, 1.3e4, 1.5e4, 1.7e4]:
+      ax.plot(rsii_T_den(tem, denrange), rnii_T_den(tem, denrange),
+              label="T = {:.0f} K".format(tem))
+
+  temrange = np.linspace(5000.0, 20000.0, 100)
+  for den in [1000, 2000, 4000, 8000, 16000, 32000]:
+      ax.plot(rsii_T_den(temrange, den), rnii_T_den(temrange, den),
+              '--', label="n = {:.0f} pcc".format(den))
+
+  ax.set_xlim(xmin, xmax)
+  ax.set_ylim(ymin, ymax)
+  ax.set_xlabel('[S II] 6716 / 6731')
+  ax.set_ylabel('Dereddened [N II] 5755 / 6584')
+  ax.grid()
+  ax.legend(ncol=2, fontsize='x-small', handlelength=2.2, numpoints=1)
+
+  fig.set_size_inches(7, 7)
+  pltfile = 'muse-rnii-rsii-histogram-{}{}.pdf'.format(region, suffix)
+
+  fig.savefig(pltfile)
+  print(pltfile)
+#+END_SRC
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py sweet bin001
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rnii-rsii-histogram-sweet-bin001.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py full bin001
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rnii-rsii-histogram-full-bin001.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py full bin004
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rnii-rsii-histogram-full-bin004.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py full bin016
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rnii-rsii-histogram-full-bin016.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py full bin064
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rnii-rsii-histogram-full-bin064.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py full bin256
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rnii-rsii-histogram-full-bin256.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rnii-rsii-histogram.py NebulioMUSE/synthetic-
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-synthetic-rnii-rsii-histogram.pdf]]
+
+
+** Use pyneb to calculate the Te, ne from [S II], [N II]
+#+BEGIN_SRC python :tangle muse-make-te-ne-maps.py
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
+  sys.path.append(t2dir)
+  from derive_ne_te_1phase import T_den_from_rsii_rnii
+
+  prefix = 'Linemaps/'
+  hduA = fits.open(prefix + "ratio-6716-6731.fits")[0]
+  hduB = fits.open(prefix + "ratio-5755-6583-deredden-2874.fits")[0]
+
+  Te = np.empty_like(hduA.data)
+  Ne = np.empty_like(hduA.data)
+  m = np.isfinite(hduA.data) & np.isfinite(hduB.data) & (hduA.data > 0) & (hduB.data > 0)
+  Te[m], Ne[m] = T_den_from_rsii_rnii(hduA.data[m], hduB.data[m])
+  Te[~m], Ne[~m] = np.nan, np.nan
+  fits.PrimaryHDU(header=hduA.header, data=Te).writeto(
+      prefix + 'muse-derived-Te.fits', clobber=True)
+  fits.PrimaryHDU(header=hduA.header, data=Ne).writeto(
+      prefix + 'muse-derived-Ne.fits', clobber=True)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+time python muse-make-te-ne-maps.py
+#+END_SRC
+
+#+RESULTS:
+
+
+** DONE Extension to [Cl III], [S III] pair
+CLOSED: [2015-10-25 Sun 21:58]
++ We can use [Cl III] 5538/5518 for density
++ And [S III] 6312/9069 for Te
+  + But it needs correcting for extinction
+  + We can use the Balmer-Paschen line ratio to correct for this
+  + For instance 6563/9299
+  + 6563/6312 = 1.04 whereas 9299/9069 = 1.025 so not too far off
+  + Dereddening is done down [[id:89D30B56-E005-4846-8CD2-FBA8C008109D][here]]
+*** Plot histogram of [S III] vs [Cl III] line ratios
+#+BEGIN_SRC python :tangle muse-rsiii-rcliii-histogram.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from matplotlib import pyplot as plt
+  import pyregion
+  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
+  sys.path.append(t2dir)
+  from pyneb_utils import rcliii_T_den, rsiii_T_den
+
+  try:
+      region = sys.argv[1]
+  except IndexError:
+      sys.exit('Usage: {} REGION [SUFFIX]'.format(sys.argv[0]))
+  
+  try:
+      suffix = '-' + sys.argv[2]
+  except IndexError:
+      suffix = ''
+  
+  ssiii_hdu = fits.open("Linemaps/linesum-S_III-9069{}.fits".format(suffix))['SCALED']
+  hduA = fits.open("Linemaps/ratio-5538-5518{}.fits".format(suffix))['SCALED']
+  hduB = fits.open("Linemaps/ratio-6312-9069-deredden{}.fits".format(suffix))['SCALED']
+  # hduB = fits.open(prefix + "ratio-5755-6583.fits")[0]
+
+  xmin, xmax, ymin, ymax = 0.5, 2.5, 0.02, 0.08
+
+  m = np.isfinite(hduA.data) & np.isfinite(hduB.data)
+  if 'sweet' in region.lower():
+      title = 'Orion S'
+      include = pyregion.open(t2dir + '/will-nii-sweet-spot-wcs.reg')
+      exclude = pyregion.open(t2dir + '/will-nii-exclude-wcs.reg')
+      m = m & include.get_mask(hdu=ssiii_hdu) & (~exclude.get_mask(hdu=ssiii_hdu))
+       
+      include = pyregion.open(t2dir + '/will-sii-sweet-spot-wcs.reg')
+      exclude = pyregion.open(t2dir + '/will-sii-exclude-wcs.reg')
+      m = m & include.get_mask(hdu=ssiii_hdu) & (~exclude.get_mask(hdu=ssiii_hdu))
+  else:
+      title = 'Full nebula'
+
+  x = hduA.data[m]
+  y = hduB.data[m]
+  w = ssiii_hdu.data[m]
+  gamma = 1.5
+  fig, ax = plt.subplots(1, 1)
+  H, xedges, yedges = np.histogram2d(x, y, 50,
+                                     [[xmin, xmax], [ymin, ymax]],
+                                     weights=w)
+  ax.imshow((H.T)**(1.0/gamma), extent=[xmin, xmax, ymin, ymax],
+            interpolation='nearest', aspect='auto', origin='lower', 
+            cmap=plt.cm.gray_r, alpha=1.0)
+
+  denrange = np.linspace(0.0, 8.e4, 200)
+  for tem in [7.5e3, 8e3, 8.5e3, 9e3, 9.5e3, 1e4]:
+      ax.plot(rcliii_T_den(tem, denrange), rsiii_T_den(tem, denrange),
+              label="T = {:.0f} K".format(tem))
+
+  temrange = np.linspace(0.0, 20000.0, 100)
+  for den in [1000, 2000, 4000, 8000, 16000, 32000]:
+      ax.plot(rcliii_T_den(temrange, den), rsiii_T_den(temrange, den),
+              '--', label="n = {:.0f} pcc".format(den))
+
+  ax.set_xlim(xmin, xmax)
+  ax.set_ylim(ymin, ymax)
+  ax.set_xlabel('[Cl III] 5538 / 5518')
+  ax.set_ylabel('Dereddened [S III] 6300 / 9069')
+  ax.grid()
+  ax.legend(ncol=2, fontsize='x-small', handlelength=2.2, numpoints=1)
+
+  fig.set_size_inches(7, 7)
+  pltfile = 'muse-rsiii-rcliii-histogram-{}{}.pdf'.format(region, suffix)
+
+
+  fig.savefig(pltfile)
+  print(pltfile)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py sweet bin001
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-sweet-bin001.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py full bin001
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-full-bin001.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py full bin004
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-full-bin004.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py full bin016
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-full-bin016.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py full bin064
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-full-bin064.pdf]]
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py full bin256
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-full-bin256.pdf]]
+
+
+
+#+BEGIN_SRC sh :results file
+python muse-rsiii-rcliii-histogram.py sweet bin016
+#+END_SRC
+
+#+RESULTS:
+[[file:muse-rsiii-rcliii-histogram-sweet-bin016.pdf]]
+
+** DONE Look at extinction curve in more detail
+CLOSED: [2015-10-24 Sat 15:02]
++ We have the following extinction-sensitive ratios
+  + Balmer decrement Hb 4861/Ha 6563
+  + Balmer-Paschen decrement Ha 6563/Pa-9 9229
+  + Decrements within the Pa series
+    + 8545/9229
+    + 8598/9229
+    + 8750/9229 - contaminated with something high ionization
+    + 8863/9229
+    + 9015/9229 - contaminated with blueshifted something else
++ [ ] Why did we miss out 8665
++ There is broad agreement of all ratios in the main extinction features: dark bay plus sw cloud
++ But there are some interesting differences, some discussed [[id:236AC762-7034-42E9-83BC-754A68346A23][above]]
+  + More relevant here is that over in the far NE, where we should be in the Dark Bay, the apparent extinction measured by the non-contaminated inter-Paschen ratios (8545/9229, 8598/9229, 8863/9229) all show /low/ extinction
+  + This may be due to a foreground emission component, with low extinction
+    + This makes a relatively larger contribution to the higher Pa lines
+    + But why is the same effect not seen in 6563/9229?
++ Since we have 3 Pa ratios, we can fit pixel-by-pixel for:
+  1. Magnitud of extinction
+  2. Slope of extinction
+  3. Foreground contamination
++ But we would probably best off making (3) fixed at least, and maybe (2) too
+*** Pyneb calculations of the intrinsic Balmer and Paschen decrements
++ Based on Balmer decrement calculation I did [[id:6FCC69BB-E453-4B3F-A9F6-DC6A1203542F][here]]
++ So none of these vary much unless T < 4000 K
++ Previously we had taken 1/2.874 = 0.3479 for Hb/Ha, which applies for T = 1e4 K over a large range of n
++ It looks like we should use an 6563/9229 intrinsic ratio of 113.0
+#+BEGIN_SRC python :tangle intrinsic-H-line-ratios.py
+  import numpy as np
+  from matplotlib import pyplot as plt
+  import pyneb
+  h1 = pyneb.RecAtom('H', 1)
+  tems = [2000, 4000, 8000, 12000, 16000, 20000]
+  den = np.logspace(2.0, 6.0)
+  linepairs = [
+      [(2, 4), (2, 3)],
+      [(2, 3), (3, 9)],
+      [(3, 10), (3, 9)],
+      [(3, 11), (3, 9)],
+      [(3, 12), (3, 9)],
+      [(3, 13), (3, 9)],
+      [(3, 14), (3, 9)],
+      [(3, 15), (3, 9)],
+      [(3, 16), (3, 9)],
+      [(3, 17), (3, 9)],
+  ]
+  for levelsA, levelsB in linepairs:
+      wavA = h1.getWave(*levelsA)
+      wavB = h1.getWave(*levelsB)
+      fig, ax = plt.subplots(1, 1)
+      for T in tems:
+          # Level order is backward for emissivity
+          emA = h1.getEmissivity(T, den, *levelsA[::-1])
+          emB = h1.getEmissivity(T, den, *levelsB[::-1])
+          ax.plot(den, emA/emB, label='T = {:.0f} K'.format(T))
+      ax.set_xscale('log')
+      ax.set_xlim(den.min(), den.max())
+      ax.set_ylim(0.0, None)
+      ax.set_xlabel('Density, pcc')
+      ax.set_ylabel('Line Ratio H({}-{})/H({}-{})'.format(*(levelsA[::-1]+levelsB[::-1])))
+      ax.set_title('H I {:.2f} / {:.2f}'.format(wavA, wavB))
+      ax.legend(loc='lower right', fontsize='small')
+      fig.set_size_inches(7, 7)
+      fig.savefig('intrinsic-ratio-H_I_{}_{}.pdf'.format(int(wavA+0.5), int(wavB+0.5)))
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+python intrinsic-H-line-ratios.py && open intrinsic-ratio-H_I_*.pdf
+#+END_SRC
+** DONE De-redden the [S III] ratio
+CLOSED: [2015-10-25 Sun 11:42]
+:PROPERTIES:
+:ID:       89D30B56-E005-4846-8CD2-FBA8C008109D
+:END:
++ E(lam1-lam2) = E(lam1-Hb) - E(lam2-Hb)
++ E(lam-Hb) = f(lam) A(Hb)
++ => E(lam1-lam2) = (f(lam1) - f(lam2)) A(Hb)
++ observed ratio r12 = r0 10^[-0.4 E(lam1-lam2)]
+  + e.g r(6312/9069) = r0(6312/9069) 10^[-0.4 E(6312-9069)]
+  + E(6312-9069) = -2.5 log(r(6312/9069) / r0(6312/9069))
+  + We want to find r0(6312/9069)
++ Same for reddening diagnostic lines:
+  + E(lamA-lamB) = (f(lamA) - f(lamB)) A(Hb)
+  + => E(lam1-lam2) = E(lamA-lamB) (f(lam1) - f(lam2)) / (f(lamA) - f(lamB))
+  + or E(lam1-lam2) = F E(lamA-lamB) where f is that ratio of f differences
+  + And also E(lamA-lamB) = -2.5 log(rAB/rAB0)
++ Therefore -2.5 log(r(6312/9069) / r0(6312/9069)) = -2.5 F log(rAB/rAB0)
+  + => r(6312/9069) / r0(6312/9069) = (rAB/rAB0)^F
+  + => r0(6312/9069) = r(6312/9069) (rAB0/rAB)^F
+
+#+BEGIN_SRC python :tangle deredden_siii.py
+  import sys
+  import numpy as np
+  from astropy.io import fits
+
+  # Blagrave extinction law interpolated on table
+  # -0.138 + (6312 - 5876)*(-0.218 - (-0.138))/(6548 - 5876)
+  f_6312 = -0.1899
+  # -0.309 + (9069 - 7330)*(-0.507 - (-0.309))/(9229 - 7330)
+  f_9069 = -0.4903
+  f_6563 = -0.220
+  f_9229 = -0.507
+
+  F_siii_ha_pa9 = (f_6312 - f_9069) / (f_6563 - f_9229) # Should be 1.0467
+
+  def deredden_siii_ratio(rsiii, rha_pa9, ha_pa9_intrinsic=113.0):
+      """Uses the Blagrave reddening law"""
+      return rsiii*(ha_pa9_intrinsic/rha_pa9)**F_siii_ha_pa9
+
+  if __name__ == '__main__':
+      try:
+          suffix = '-' + sys.argv[1]
+      except IndexError:
+          suffix = ''
+        
+      rha_pa9 = fits.open('Linemaps/ratio-6563-9229{}.fits'.format(suffix))['SCALED'].data
+      siii_hdu = fits.open('Linemaps/ratio-6312-9069{}.fits'.format(suffix))['SCALED']
+      siii_hdu.data = deredden_siii_ratio(siii_hdu.data, rha_pa9)
+      siii_hdu.writeto('Linemaps/ratio-6312-9069-deredden{}.fits'.format(suffix),
+                      clobber=True)
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+  for binning in 001 002 004 008 016 032 064 128 256; do
+      python deredden_siii.py bin$binning
+  done
+#+END_SRC
+
+#+RESULTS:
+
+* Multi-resolution MUSE line maps
++ This is stolen from a [[id:EAE1FA1C-7D1B-484D-9B4A-FF42DE7D8594][similar program for the Alba project]]
++ The difference is that we are starting from a simple image, not from a superposition of slits
++ Extra inspiration (e.g., star mask) is taken from [[id:B8D31952-3114-4FE8-B2D7-A0CC32287FA2][here]]
+#+BEGIN_SRC python :tangle multibin-map.py
+from __future__ import print_function
+import sys
+import numpy as np
+sys.path.append('/Users/will/Work/RubinWFC3/Tsquared')
+from rebin_utils import downsample, oversample
+from astropy.io import fits
+
+nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+mingoods = [2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+try: 
+    infile = sys.argv[1]
+except:
+    sys.exit('Usage: {} FITSFILE'.format(sys.argv[0]))
+
+
+hdu = fits.open(infile)[0]
+hdr = hdu.header
+im = hdu.data
+w = np.ones_like(hdu.data)
+
+continuum = fits.open('muse-hr-image-wfc3-f547m.fits')['DATA'].data
+starmask = continuum > 30
+m =  np.isfinite(hdu.data) & (hdu.data > 0.0) & (~starmask)
+for n, mingood in zip(nlist, mingoods):
+    im[~m] = 0.0
+    outfile = infile.replace('.fits', '-bin{:03d}.fits'.format(n))
+    print('Saving', outfile)
+    # Save both the scaled image and the weights, but at the full resolution
+    fits.HDUList([
+        fits.PrimaryHDU(),
+        fits.ImageHDU(data=oversample(im, n), header=hdr, name='scaled'),
+        fits.ImageHDU(data=oversample(w, n), header=hdr, name='weight'),
+    ]).writeto(outfile, clobber=True)
+    # Now do the rebinning by a factor of two
+    [im,], m, w = downsample([im,], m, weights=w, mingood=mingood)
+
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+python multibin-map.py LineMaps/linesum-Cl_III-5538.fits
+#+END_SRC
+
+#+RESULTS:
+: Saving LineMaps/linesum-Cl_III-5538-bin001.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin002.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin004.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin008.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin016.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin032.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin064.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin128.fits
+: Saving LineMaps/linesum-Cl_III-5538-bin256.fits
+
+
+Do them all
+#+BEGIN_SRC sh :results verbatim
+linelist=LineMaps/linesum-*[0-9][0-9][0-9][0-9].fits
+for line in $linelist; do
+    echo "Processing $line"
+    time python multibin-map.py $line > ${line}-multibin.log
+done
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Processing LineMaps/linesum-Ar_III-7136.fits
+Processing LineMaps/linesum-Ar_III-7751.fits
+Processing LineMaps/linesum-C_I-8727.fits
+Processing LineMaps/linesum-C_II-6578.fits
+Processing LineMaps/linesum-Ca_I-9052.fits
+Processing LineMaps/linesum-Ca_I-9095.fits
+Processing LineMaps/linesum-Cl_II-8579.fits
+Processing LineMaps/linesum-Cl_III-5518.fits
+Processing LineMaps/linesum-Cl_III-5538.fits
+Processing LineMaps/linesum-Cl_IV-8046.fits
+Processing LineMaps/linesum-Fe_II-7453.fits
+Processing LineMaps/linesum-Fe_II-8617.fits
+Processing LineMaps/linesum-Fe_III-4658.fits
+Processing LineMaps/linesum-H_I-4861.fits
+Processing LineMaps/linesum-H_I-6563.fits
+Processing LineMaps/linesum-H_I-8438.fits
+Processing LineMaps/linesum-H_I-8467.fits
+Processing LineMaps/linesum-H_I-8502.fits
+Processing LineMaps/linesum-H_I-8545.fits
+Processing LineMaps/linesum-H_I-8598.fits
+Processing LineMaps/linesum-H_I-8665.fits
+Processing LineMaps/linesum-H_I-8750.fits
+Processing LineMaps/linesum-H_I-8863.fits
+Processing LineMaps/linesum-H_I-9015.fits
+Processing LineMaps/linesum-H_I-9229.fits
+Processing LineMaps/linesum-He_I-5876.fits
+Processing LineMaps/linesum-He_I-6678.fits
+Processing LineMaps/linesum-He_I-7065.fits
+Processing LineMaps/linesum-N_I-8680.fits
+Processing LineMaps/linesum-N_II-5755.fits
+Processing LineMaps/linesum-N_II-6548.fits
+Processing LineMaps/linesum-N_II-6583.fits
+Processing LineMaps/linesum-O_I-6300.fits
+Processing LineMaps/linesum-O_I-6364.fits
+Processing LineMaps/linesum-O_I-7002.fits
+Processing LineMaps/linesum-O_I-8446.fits
+Processing LineMaps/linesum-O_II-7318.fits
+Processing LineMaps/linesum-O_II-7330.fits
+Processing LineMaps/linesum-O_III-4959.fits
+Processing LineMaps/linesum-O_III-5007.fits
+Processing LineMaps/linesum-S_II-6716.fits
+Processing LineMaps/linesum-S_II-6731.fits
+Processing LineMaps/linesum-S_III-6312.fits
+Processing LineMaps/linesum-S_III-9069.fits
+#+end_example
+
+
+** Ratio of multibin maps
+#+name: ratio-pairs
++ N_II-5755;N_II-6583
++ S_III-6312;S_III-9069
++ Cl_III-5538;Cl_III-5518
++ S_II-6716;S_II-6731
++ H_I-6563;H_I-4861
++ H_I-4861;H_I-6563
++ H_I-6563;H_I-9229
++ H_I-8545;H_I-9229
++ H_I-8598;H_I-9229
++ H_I-8750;H_I-9229
++ H_I-8863;H_I-9229
++ H_I-9015;H_I-9229
++ O_II-7318;O_II-7330
++ He_I-5876;He_I-6678
++ Ar_III-7136;Ar_III-7751
++ O_I-7002;O_I-8446
++ Fe_III-4658;H_I-4861
+
+What a palaver it is to deal with array variables in bash
+#+name: ratio-multibin
+#+BEGIN_SRC sh :var list=ratio-pairs :results verbatim
+for pair in $list; do
+    arr_pair=(${pair//;/ })
+    echo ${arr_pair[0]} ${arr_pair[1]} 
+    for binning in 001 002 004 008 016 032 064 128 256; do
+        python muse_line_ratio.py ${arr_pair[0]} ${arr_pair[1]} linesum bin$binning > /dev/null
+    done
+done
+#+END_SRC
+
+#+RESULTS: ratio-multibin
+#+begin_example
+N_II-5755 N_II-6583
+S_III-6312 S_III-9069
+Cl_III-5538 Cl_III-5518
+S_II-6716 S_II-6731
+H_I-6563 H_I-4861
+H_I-4861 H_I-6563
+H_I-6563 H_I-9229
+H_I-8545 H_I-9229
+H_I-8598 H_I-9229
+H_I-8750 H_I-9229
+H_I-8863 H_I-9229
+H_I-9015 H_I-9229
+O_II-7318 O_II-7330
+He_I-5876 He_I-6678
+Ar_III-7136 Ar_III-7751
+O_I-7002 O_I-8446
+Fe_III-4658 H_I-4861
+#+end_example
+
+#+RESULTS:
+#+begin_example
+N_II-5755 N_II-6583
+S_III-6312 S_III-9069
+Cl_III-5538 Cl_III-5518
+S_II-6716 S_II-6731
+H_I-6563 H_I-4861
+H_I-4861 H_I-6563
+H_I-9229 H_I-6563
+O_II-7318 O_II-7330
+He_I-5876 He_I-6678
+Ar_III-7136 Ar_III-7751
+O_I-7002 O_I-8446
+Fe_III-4658 H_I-4861
+#+end_example
+
+#+name: more-ratio-pairs
++ O_I-6300;O_I-8446
++ O_I-6300;O_II-7319
++ O_III-5007;O_II-7319
+
+#+call: ratio-multibin(more-ratio-pairs)
+
+
+
+#+BEGIN_SRC sh :results verbatim
+for binning in 001 002 004 008 016 032 064 128 256; do
+    python muse_line_ratio.py N_II-5755 N_II-6583 linesum bin$binning 
+done
+#+END_SRC
+
+#+RESULTS:
+: LineMaps/linesum-N_II-5755-bin001.fits LineMaps/linesum-N_II-6583-bin001.fits
+: LineMaps/linesum-N_II-5755-bin002.fits LineMaps/linesum-N_II-6583-bin002.fits
+: LineMaps/linesum-N_II-5755-bin004.fits LineMaps/linesum-N_II-6583-bin004.fits
+: LineMaps/linesum-N_II-5755-bin008.fits LineMaps/linesum-N_II-6583-bin008.fits
+: LineMaps/linesum-N_II-5755-bin016.fits LineMaps/linesum-N_II-6583-bin016.fits
+: LineMaps/linesum-N_II-5755-bin032.fits LineMaps/linesum-N_II-6583-bin032.fits
+: LineMaps/linesum-N_II-5755-bin064.fits LineMaps/linesum-N_II-6583-bin064.fits
+: LineMaps/linesum-N_II-5755-bin128.fits LineMaps/linesum-N_II-6583-bin128.fits
+: LineMaps/linesum-N_II-5755-bin256.fits LineMaps/linesum-N_II-6583-bin256.fits
+
+
+** Te, Ne from multibin maps
+#+BEGIN_SRC python :tangle muse-make-te-ne-maps-rebin.py
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
+  sys.path.append(t2dir)
+  from derive_ne_te_1phase import T_den_from_rsii_rnii
+  from deredden import deredden_nii_ratio
+
+  prefix = 'Linemaps/'
+  nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+
+  for n in nlist:
+      suffix = '-bin{:03d}'.format(n)
+
+      hduA = fits.open(prefix + "ratio-6716-6731{}.fits".format(suffix))[1]
+      hduB = fits.open(prefix + "ratio-5755-6583{}.fits".format(suffix))[1]
+      hb_ha = fits.open(prefix + "ratio-4861-6563{}.fits".format(suffix))[1].data
+      hduB.data = deredden_nii_ratio(hduB.data, hb_ha)
+      hduB.writeto('Linemaps/ratio-5755-6583{}-deredden-2874.fits'.format(suffix),
+                   clobber=True)
+
+      Te = np.empty_like(hduA.data)
+      Ne = np.empty_like(hduA.data)
+      m = (np.isfinite(hduA.data) & np.isfinite(hduB.data)
+           & (hduA.data > 0) & (hduB.data > 0))
+      Te[m], Ne[m] = T_den_from_rsii_rnii(hduA.data[m], hduB.data[m])
+      Te[~m], Ne[~m] = np.nan, np.nan
+      fits.PrimaryHDU(header=hduA.header, data=Te).writeto(
+          prefix + 'muse-derived-Te{}.fits'.format(suffix), clobber=True)
+      fits.PrimaryHDU(header=hduA.header, data=Ne).writeto(
+          prefix + 'muse-derived-Ne{}.fits'.format(suffix), clobber=True)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+time python muse-make-te-ne-maps-rebin.py
+#+END_SRC
+
+And the same for [Cl III] and [S III]
+#+BEGIN_SRC python :tangle muse-make-te-ne-maps-iii-rebin.py
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
+  sys.path.append(t2dir)
+  from derive_ne_te_1phase import T_den_from_rcliii_rsiii
+
+  prefix = 'Linemaps/'
+  nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+
+  for n in nlist:
+      suffix = '-bin{:03d}'.format(n)
+
+      hduA = fits.open(prefix + "ratio-5538-5518{}.fits".format(suffix))[1]
+      hduB = fits.open(prefix + "ratio-6312-9069-deredden{}.fits".format(suffix))[1]
+
+      Te = np.empty_like(hduA.data)
+      Ne = np.empty_like(hduA.data)
+      m = (np.isfinite(hduA.data) & np.isfinite(hduB.data)
+           & (hduA.data > 0) & (hduB.data > 0))
+      Te[m], Ne[m] = T_den_from_rcliii_rsiii(hduA.data[m], hduB.data[m])
+      Te[~m], Ne[~m] = np.nan, np.nan
+      fits.PrimaryHDU(header=hduA.header, data=Te).writeto(
+          prefix + 'muse-derived-Te-iii{}.fits'.format(suffix), clobber=True)
+      fits.PrimaryHDU(header=hduA.header, data=Ne).writeto(
+          prefix + 'muse-derived-Ne-iii{}.fits'.format(suffix), clobber=True)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+time python muse-make-te-ne-maps-iii-rebin.py
+#+END_SRC
+
+#+RESULTS:
+
+
+** Te - Ne distribution histograms
+
 * Exploring the data cubes
 ** Original data locations
 At CRyA in =/fs/nil/other0/will/orion-muse/DATA= 
@@ -1803,7 +2752,7 @@ Note that this does not read the full data cube (40 GB) into memory unless we ne
 #+BEGIN_SRC sh
 rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
 #+END_SRC
-+ The spectrum shows up as s single pixel in ds9, but you can see a graph of it by using a region
++ The spectrum shows up as a single pixel in ds9, but you can see a graph of it by using a region
 *** HR cube
 :PROPERTIES:
 :TABLE_EXPORT_FILE: wavsec-startwavs.tab
@@ -1901,4 +2850,4 @@ HIERARCH ESO OBS AMBI FWHM = 2. / Req. max. seeing
 ... ETC ...        
 #+END_EXAMPLE
 
-So, this does have the info that we need: RA, DEC, MJD-OBS in particular
+So, this does have the info that we need: RA, DEC, MJD-OBS in particula

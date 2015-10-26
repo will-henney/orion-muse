@@ -1,4 +1,6 @@
 Instrument	Filter
+wfc3	fq436n
+wfc3	fq437n
 wfc3	f469n
 wfc3	f487n
 wfc3	f502n
@@ -9,6 +11,9 @@ wfc3	f658n
 wfc3	fq672n
 wfc3	f673n
 wfc3	fq674n
+wfpc2	f437n
+wfpc2	f469n
+wfpc2	f487n
 wfpc2	f502n
 wfpc2	f547m
 wfpc2	f631n

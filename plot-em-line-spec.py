@@ -16,6 +16,10 @@ for row in linetab:
         fig, ax = plt.subplots(1, 1)
         ax.plot(spec[xkey], spec['flux'])
         ax.plot(spec[xkey], spec['cont'])
+        if xkey == 'wav':
+            ax.set_xlim(row['wav0']-8.0, row['wav0']+8.0)
+        else:
+            ax.set_xlim(-300.0, 300.0)
         ax.set_ylim(0.0, None)
         ax.set_xlabel(xlabel)
         ax.set_ylabel('Mean flux per pixel')

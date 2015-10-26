@@ -75,6 +75,30 @@
 \figcontinue{FQ575N}
 \figcontinue{FQ672N}
 \figcontinue{FQ674N}
+
+
+\section{Comparison of spectrally derived and filter-derived line
+  ratios}
+\label{sec:comp-spectr-deriv}
+
+\newcommand\ratioFig[2]{\includegraphics{NebulioMUSE/synthetic#1-vs-true-calib-#2}}
+
+\newcommand\rowOfRatioFigs[1]{
+  \ratioFig{-naive}{#1} & \ratioFig{-flat}{#1} & \ratioFig{}{#1} 
+}
+\begin{figure}
+  \setkeys{Gin}{width=0.33\linewidth}
+  \centering
+  \begin{tabular}{lll}
+    \rowOfRatioFigs{4861-6563} \\
+    \rowOfRatioFigs{5755-6583} \\
+    \rowOfRatioFigs{6716-6731} \\
+    \rowOfRatioFigs{6716-6731-N} \\
+  \end{tabular}
+  \caption{Successive improvements in line ratio estimation using
+    synthetic filters with the MUSE dataset}
+\end{figure}
+
 \bibliography{BibdeskLibrary-slavoj}
 
 

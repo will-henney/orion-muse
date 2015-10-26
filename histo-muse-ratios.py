@@ -37,7 +37,7 @@ def histogram_ratio_images(ratio_name, pars, extra=''):
     hdu_true = fits.open(fn_true)[0]
     hdu_syn = fits.open(fn_syn)[0]
     # Flux of a strong line to weight the pixels
-    hduf = fits.open('LineMaps/linesum-H_I-6563.fits')[0]
+    hduf = fits.open('LineMaps/linesum-N_II-6583.fits')[0]
     x, y, w = hdu_true.data, hdu_syn.data, hduf.data
     xmin, xmax = ymin, ymax = pars['min'], pars['max']
     # mask out silly values
