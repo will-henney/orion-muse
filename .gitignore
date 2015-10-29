@@ -1,4 +1,6 @@
 *~
+BigFiles
+LineMaps
 OrigImages
 muse-hr-window-*.fits
 muse-hr-image-*.fits
@@ -18,3 +20,4 @@ muse-hr-fullcube-rebin05x05.fits
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.pyg

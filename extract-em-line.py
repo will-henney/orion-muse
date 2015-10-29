@@ -19,7 +19,17 @@ def find_wavsec(wav):
 
 def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
     wavsec = find_wavsec(wav)
-    fn = 'muse-hr-data-wavsec{}.fits'.format(wavsec)
+    wavsec_blue = find_wavsec(wav - 8.0)
+    wavsec_red = find_wavsec(wav + 8.0)
+    if (wavsec_blue != wavsec) or (wavsec_red != wavsec):
+        print('Uh, oh - line straddles wavsecs', wavsec_blue, wavsec, wavsec_red)
+        if 5000.0 < wav < 6000.0:
+            print('But luckily we can use F547M window instead')
+            fn = 'muse-hr-window-wfc3-f547m.fits'
+        else:
+            sys.exit('Unable to find a cube that contains wavelength range - sorry!')
+    else:
+        fn = 'muse-hr-data-wavsec{}.fits'.format(wavsec)
     hdulist = fits.open(fn)
     hdu = hdulist['DATA']
     w = WCS(hdu.header)

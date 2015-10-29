@@ -1,15 +1,36 @@
 Ion	wav0	strength	blue cont	red cont	comment
+O II	4650.00	4	1	0	blend 4649.13,50.84
 [Fe III]	4658.10	3	0	1	
+[Fe III]	4701.62	4	1	1	
 H I	4861.32	1	1	1	
 [O III]	4958.91	1	1	1	
 [O III]	5006.84	1	1	1	
+He I	5015.68	3	0	1	
+Si II	5041.03	4	1	0	
+He I	5047.74	4	0	1	No good cont!
+Si II	5055.98	4	0	1	
+[Ar III]	5191.82	4	1	0	
+[N I]	5199.00	4	0	1	Blend 5197.98,200.26
+[Fe II]	5261.61	4	1	0	
+[Fe III]	5270.40	3	0	1	
 [Cl III]	5517.71	3	1	1	
 [Cl III]	5537.88	3	1	1	
+[O I]	5577.34	4	1	1	Sky contamination
 [N II]	5755.08	4	1	1	
 He I	5875.62	1	1	1	
+C II	5889.78	4	1	1	Na I sky blend
+N II	5931.78	4	1	1	
+N II	5941.65	4	1	1	
+N II	5952.39	4	1	0	
+Si II	5957.56	4	0	1	Blend with O I?
+Si II	5978.93	4	1	1	
+O I	6046.23	4	1	1	
+[Fe II]	6133.433	4	1	1	plus sky?
 [O I]	6300.30	3	1	1	
 [S III]	6312.06	3	1	1	
+Si II	6347.11	4	1	1	
 [O I]	6363.78	3	1	0	
+Si II	6371.36	4	0	1	
 [N II]	6548.05	2	1	1	
 H I	6562.79	1	1	1	
 C II	6578.05	5	1	0	
