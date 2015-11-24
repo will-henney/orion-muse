@@ -1,0 +1,1019 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline
+#+OPTIONS: author:t c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
+#+TITLE: Kappa distributions and elastic collisions
+#+AUTHOR: William Henney
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+TODO: TODO NEXT STARTED | DONE CANCELED
+
+* STARTED [#A] Stuff for Gary's anti-Kappa paper
+:LOGBOOK:
+- Note taken on [2015-11-14 Sat 23:00] \\
+  I have done enough on this for now - next thing to do is to look at shock structure in more detail and maybe the propagation of the ultra high-energy particles
+:END:
+
+** Important points for kappa paper
+:PROPERTIES:
+:EXPORT_FILE_NAME: kappa-intro
+:END:
++ Deviations from a Maxwellian electron velocity distribution in a plasma arise when significant non-local transport of electrons occurs, which is important if there are steep gradients in physical conditions (such as T). 
++ The dimensionless Knudsen number, Kn = \lambda_{e }/ L, which describes the "collisionality" of the plasma, is the most important parameter in determining the importance of these deviations.  This is the ratio between the electron elastic collisional mean free path, \lambda_{e}, and the relevant length scale, L, which is the distance over which physical conditions change appreciably (for instance, the scale length of the temperature gradient: [d ln T / d s]^{-1})
+  + If Kn \ge 1, then the plasma is "non-collisional" and the electron velocity distribution will be very different from a Maxwellian, and also non-isotropic in the presence of a significant magnetic field.  An extreme example is the terrestrial magnetosphere, where Kn \gg 1. 
+  + If Kn < 1, then the plasma is "collisional" and as Kn \to 0 the electron velocity distribution will tend towards a Maxwellian distribution at the local temperature.  However, the fact that \lambda_{e} increases with electron velocity means that a significant high-energy non-Maxwellian tail can persist for rather small values of Kn.  Quantities that are sensitive to this tail, such as thermal conductivity or the collisional excitation of optical/UV emission lines, can significantly deviate from the Maxwellian values for Kn as low as 0.001
+  + In H II regions, Kn \approx 1e-9 for the region as a whole, but certain sub-structures can have smaller values
+    + Ionization fronts (where hydrogen rapidly changes from being prefominantly ionized to predominantly neutral) have Kn \simeq 1e-6, but the emission from the ionization front is typically a tiny fraction of the total emission from the region (unless the ionization parameter is very low).
+    + Cooling zones behind moderate velocity (20 - 100 km/s) shocks also have Kn \simeq 1e-6
+** Question of magnetic fields
+:PROPERTIES:
+:ID:       24C088E6-C969-49A3-9567-448CCEEE988B
+:END:
++ Although the typical \beta values for H II regions are > 1 (thermal pressure dominates magnetic pressure), that does not preclude the possibility of low-\beta regions of the nebula, where magnetic pressure dominates
++ In fact, this is suggested by simulations (Henney et al 2009; Arthur et al 2011)
++ *However* these will be in approximate balance of total pressure: P_{M }+ P_{gas}= P_{gas} (1 + 1/\beta)
++ So, imagine we have a fraction x of the nebular volume being gas-dominated with \beta_{1} = 100, while a fraction (1 - x) is magnetically dominated with \beta_{2} = 0.01
+  + If T_{2} \approx T_{1}, then n_{2} / n_{1} \approx P_{2} / P_{1}  = (1 + \beta_{1}^{-1}) / (1 + \beta_{2}^{-1}) = (\beta_{2} / \beta_{1}) (\beta_{1} + 1) / (\beta_{2} + 1) \simeq \beta_{2}
+  + Volume Emission Measure: EM \propto V n^{2}
+  + => EM_{2}/EM_{1} = (1 - x) \beta_{2}^{2} / x \simeq \beta_{2}^{2} / x if x is small
+  + So if x = 0.01 (typical filling factor), and \beta_{2} = 0.01, then EM_{2}/EM_{1} = 0.01
++ /This implies that the magnetically dominated gas contributes negligibly to the emission, even if it fills 99% of the volume of the nebula!/
+** General points about filling factor of H II region 
+:PROPERTIES:
+:ID:       2E1B9F16-2028-4B6A-AADD-E47999A9101A
+:END:
++ Filling factor can come from 3 things:
+  1. Density structure within the "normal" ionized gas
+     - ifront closer to star in some directions than others: n^{2} h \propto Q / R^{2} (caused by inhomogeneities in neutral/molecular gas)
+     - density fall along ionized photoevaporation flow n ~ 1 / v r^{2} or Bernoulli: ln n + 1/2 v^{2} = constant
+     - low-velocity shocks (15-100 km/s), either
+       - caused by geometry readjustments (diverging flows on small scales turn into converging flows on larger scales - hello neighbor!)
+       - jets from T Tauri stars, etc
+  2. Magnetically dominated regions (see [[id:24C088E6-C969-49A3-9567-448CCEEE988B][previous]])
+  3. Hot gas from shocked winds
+     - similar arguments as for the low-\beta case, but with T_{2}/T_{1} > 100 instead of 1/\beta_{2}
+     - so EM will be small, even if volume fraction is large
+     - and additionally, emission spectrum will be X-rays rather than optical
+
+** Thermalization without collisions
+:LOGBOOK:
+- Note taken on [2015-11-16 Mon 18:12] \\
+  Original came from a Drafts note from my iPhone
+:END:
+
++ The kappa hypothesis is that the electron velocity distribution is significantly non Maxwellian, despite the fact that all the indications are that the plasma is strongly collisional.
+
++ However, it is more often the case that the opposite is seen. Plasmas can be "thermalized", even if they are non collisional. This is what happens in shocks for instance, and is also what is described in Coulette & Manfredi (2015). In their case, they say it is due to a velocity bunching like effect.
+
++ [2015-11-16 Mon 18:13] Also, Laming (2004) suggests that collisionless lower hybrid waves can cause equilibration of the Te and Ti in the lower corona.  
+** DONE Message sent to Gary [2015-11-14 Sat]
+CLOSED: [2015-11-14 Sat 23:01]
+:PROPERTIES:
+:ID:       5A2596B6-D9A5-4E10-A119-9703EEBA3017
+:END:
+I've been thinking about the kappa paper recently, on and off. I've had some ideas about how to frame it in a positive and constructive way, so that we will have no difficulty in publishing it as a research paper.    The idea would be to show exactly where in photoionized nebulae one should see non Maxwellian electrons.  For a given mechanism, for instance shocks, we can quantitatively estimate the relative contributions of "kappa" and "true" T structure to the apparent observed t^2.  The "kappa" contribution will be shown to be negligible.
+
+[Note that I haven't read a recent draft of your MS, so apologies if I am telling you things that you have already considered]
+
+I think the key to this is the Knudsen number: Kn ~  λ/L where λ is the collisional mean free path and L is the length scale of interest.  If Kn is less than one, then the plasma is said to be "collisional", whereas if it is of order 1 or greater then the plasma is "non-collisional".
+
+https://en.wikipedia.org/wiki/Knudsen_number
+
+All of the fields where kappa distributions are heavily used (solar wind, terrestrial magnetosphere, etc) are plasmas with Kn ≥ 1.  In H II regions, if we take L as the characteristic size of the object, then Kn = 1e-10 to 1e-8 over the whole range from proplyds up to the WIM.
+
+So far, this argument pretty well mirrors your original discussion of timescales, but using length scales instead.  However, H II regions are not spatially homogeneous, and the advantage of discussing length scales is that we can easily accommodate that.
+
+For instance, we see structure at the ionization front on scales of order the ionizing photon mean free path.  For Orion Huygens region, this is about 1e14 cm, giving Kn = 1e-6, so still strongly collisional at this scale.  We can go down even further to the Field length, which is about 1e11 cm in Orion (1e-5 arcsec, so not observable directly).  This is the scale at which heat conduction suppresses the growth of thermal instabilities. Even at this tiny scale, we have Kn = 1e-3, so the plasma is still collisional and deviations from Maxwellian will be small.
+
+There is only one important scale that is smaller than the electron collisional λ, and that is the Larmor radius, which is about 1e4 cm in Orion.  So finally we have arrived at a scale on which the plasma can be considered non-collisional, with Kn = 1e4, so strong deviations from a Maxwellian will occur.  This is the gyroscopic radius of the helical motions of the electrons around the magnetic field lines.
+
+This is important in determining the thickness of shocks in the ionized gas.  The shock itself will be non-collisional, mediated by self-generated MHD turbulence, and with thickness a few times the Larmor radius, so say 1e5 cm.  (The details depend on the angle between the magnetic field and the shock, but this does not matter much for our purposes.)
+
+There will then be an electron thermalization layer of thickness a few times λ, so about 1e9 cm.  this is the region in which the kappa distribution will be most applicable.
+
+After that, we have a non-equilibrium ionization layer, in which the ionization state of the gas adjusts to the  post shock temperature, followed by a cooling layer, in which the temperature will  decline from the post shock value back down to the photoionized equilibrium temperature.    The thickness of the ionization layer is about 1e11 cm and of the cooling layer from 1e12 to 1e14 cm, depending on the Mach number of the shock.  Therefore, their Knudsen numbers are 1e-6 to 1e-3, so the deviation from Maxwellian will be small, but not necessarily completely negligible.  I have ideas about how we could do a simplified Boltzmann equation model of these  regions, which allow us to predict the value of kappa.  Due to the elevated temperature, these are the regions that will contribute directly to t^2.
+
+Finally, we get the equilibrium shocked shell, which has roughly the same temperature as the H II region, but higher density.  The thickness of this depends strongly on the geometry and the shock Mach number, but values of 1e15 to 1e16 cm are typical, so Kn < 1e-7 and deviation from Maxwellian velocities should again be completely negligible.  This final layer will not contribute to the line-of-sight ADF t^2, but it may contribute to the apparent plane-of-sky t^2, since 2 or more different densities along the same line of sight can mimic a high T in the [N II] ratio.
+
+Anyway, this message has got too long already, so I will stop now.  Let me know if you think any of this is worth pursuing.  (After I have finished the WFC3/MUSE analysis of course!). Comments from Bob and Manuel are welcome too
+
+** [2015-11-15 Sun] Material from Bradshaw & Raymond (2013)
++ This is a really excellent article
++ Section 5.1 is the relevant one
+  + Discusses how to solve the Boltzmann equation and find the velocity distributions
+    + Starts with BGK approximation for the collisional term
+      + Improvements to take account of unequal electron and ion masses
+      + And how to 
+        : choose the correct parameters for the Maxwellians in the cross-collision terms to conserve density, momentum and energy.
+      + Greene, J. M. 1973, Physics of Fluids, 16, 2022
+    + Then described Fokker-Planck approach
+      + Spitzer & Härm (1953) was milestone
+        + Found modification to electron velocity distribution due to T and P gradients, and electric field E 
+        + Fractional change in f is of order \lambda/H where \lambda is the electron mean free path and H is the pressure or temperature scale height.  E.g., P/(d P/d z)
+        + But multiplied by a factor that depends on particle speed v, and which can get large for v \gg v_{thermal}
+        + So Spitzer & Härm is only valid up to some critical velocity
+          + [X] Need to check what that is, once I get hold of the paper
+            + SH53 only consider velocities up to 3 times thermal
+            + But the perturbative appproach breaks down for higher speeds
+      + Extended by Ljepojevic, N. N., & Burgess, A. 1990b, Proc. R. Soc. Lond. A, 428, 71
+        + Adds in treatment of high-velocity tail in approximation of neglecting self-interaction of high-velocity particles
+        + [X] Need to read this - *another excellent paper*
+    + Finally, mentions numerical solutions, e.g.
+      + Ljepojevic (1990)
+        + Photosphere to mid-transition region
+        + Nearly Maxwellian
+      + MacNeice et al (1991)
+        + Flaring loop
+        + Enhanced tail populations
++ Section 5.2 has some interesting snippets too:
+  :  Shoub (1983) found significant deviations from Maxwellian in the tail of the distribution for Kn = 10−3,
+  and
+  : Owocki & Canfield (1986) used a BGK-type method to calculate the electron distribution function in the solar transition region to study the effect of a high-energy tail on the heat transport and collisional excitation and ionization rates.
+** Material from Dudik et al (2015)
+*** More attempted observations of kappa in solar wind and corona
++ Solar wind, in  situ : \kappa \ge 2.5
+  + (Collier et al. 1996; Maksimovic et al. 1997a,b; Zouganelis 2008; Le Chat et al. 2011).
++ Si III spectra of transition region: κ ≈ 7
+  + (Dzifčáková & Kulinová 2011)
+*** Mechanisms for producing \kappa distributions
++ Quote from intro
+  : However, [The assumption of Maxwellian distribution] is incorrect if there are correlations between the particles in the system. Such correlations can be induced by any long-range interactions in the system
+  + (Collier 2004; Leubner 2004; Livadiotis & McComas 2009, 2010, 2013)
++ Examples
+  + particle acceleration due to magnetic reconnection
+    + (e.g., Zharkova et al. 2011; Petkaki & MacKinnon 2011; Stanier et al. 2012; Cargill et al. 2012; Burge et al. 2012, 2014; Gordovskyy et al. 2013, 2014)
+  + shocks, or wave- particle interactions
+    + (e.g., Vocks et al. 2008)
++ Carrying on
+  : In such cases, the particle distribution will depart from the Maxwellian one, and will likely exhibit an enhanced high-energy tail. Furthermore, turbulence with the dif- fusion coefficient inversely proportional to particle ve- locity will also lead to the appearance of the non- Maxwellian distributions with characteristic high-energy tails
+  + (e.g., Hasegawa et al. 1985; Laming & Lepri 2007; Bian et al. 2014).
+*** Results of coronal loop ne, Te, \kappa diagnostics 
++ Width of coronal loop is about 3 arcsec
+  + Radius of sun is 900 arcsec
+  + So, about 0.0033 Rsun 
+
+#+name: kappa-CoronalLoop-D15
+| Region       | T / K | n / pcc |       H |  ln \Lambda |     \lambda_{e} |   Kn | \kappa |
+|--------------+-------+---------+---------+-------+--------+------+---|
+| average loop | 3.2e6 |   1.8e9 | 3.33e-3 | 21.26 | 7.02e7 | 0.30 | 2 |
+| y=300-309    | 3.2e6 |   1.6e9 | 3.33e-3 | 21.32 | 7.88e7 | 0.34 | 2 |
+#+TBLFM: $5=9.452 + 1.5 log($2) - 0.5 log($3) ; f2::$6=2.625e5 $2**2 /($3 $5) ;s3::$7=$6/$4 $Rsun; f2
+
++ So \kappa is very low (2), but the Knudsen number is relatively large, although not that large
++ Also, we haven't included any radial T gradients
+  + If they are on smaller scale than 2e8 cm then they will affect Kn
++ And we haven't taken into account time-dependence
++ The microflares evolve on a timescale of minutes = 60 s
+  + electron speed is ve = sqrt(k T/m) = 7e8 cm/s = 7000 km/s
+  + so electron collision time is 7e7 / ve = 0.33 s
+  + so collision time / evolution time = 5e-3, which is smaller than Kn
+  + *Conclusion:* It is steep spatial gradients rather than fast timescales that produce the non-Maxwellian distributions
+
+** Material from Dzifcakova & Kulinova (2011) 
++ Diagnostics of the \kappa-distribution using Si III lines in the solar transition region
++ Scale heights we can calculate from hydrostatic equilibrium:
+  + H = c^2 / g
+  + g = G M / R^2 = 6.673e-8 1.989e33 / 6.96e10**2 = 2.74e4
+  + \rho c^2 = 2 n k T => c^2 = 2 k T / m
+  + => H = 2 k T / m g 
++ But these are far too large!
+  + The important thing is the T gradient (increasing outward), not the pressure gradient (decreasing outward)
+  + From Table 3 of Shoub (1983), for n0 T0 = 6e14 K/cm3, we get this:
+    |     z |     T |      n |    H_{T} |  ln \Lambda |     \lambda_{e} |   Kn |
+    |-------+-------+--------+-------+-------+--------+------|
+    |     0 | 8.1e3 | 7.4e10 | 4.2e2 | 10.44 | 2.23e1 | 0.05 |
+    | 2.1e2 | 1.1e4 | 5.5e10 | 5.9e2 | 11.05 | 5.23e1 | 0.09 |
+    | 1.1e3 | 2.0e4 |   3e10 | 3.2e3 | 12.24 | 2.86e2 | 0.09 |
+    | 4.6e3 | 3.2e4 | 1.9e10 | 1.5e4 | 13.18 | 1.07e3 | 0.07 |
+    | 1.6e4 | 4.6e4 | 1.3e10 | 5.3e4 | 13.91 | 3.07e3 | 0.06 |
+    | 4.6e4 | 6.3e4 |  9.5e9 | 1.5e5 | 14.54 | 7.54e3 | 0.05 |
+    | 1.7e5 | 9.3e4 |  6.5e9 | 5.9e5 | 15.31 | 2.28e4 | 0.04 |
+    #+TBLFM: $3=6e14/$2;s2::$5=9.452 + 1.5 log($2) - 0.5 log($3) ; f2::$6=2.625e5 $2**2 /($3 $5) ;s3::$7=$6/$4; f2
+
+*** DK11 Results of transition region diagnostics for T, n, \kappa 
+
+#+name: kappa-TR-DK11
+| Region        | T / K | n / pcc |     H |  ln \Lambda |     \lambda_{e} |   Kn |  \kappa |
+|---------------+-------+---------+-------+-------+--------+------+----|
+| Coronal Hole  | 2.5e4 |  1.4e10 |   6e3 | 12.96 | 9.04e2 | 0.15 | 13 |
+| Quiet Sun     | 3.5e4 |   1.8e9 | 1.5e4 | 14.49 | 1.23e4 | 0.82 | 10 |
+| Active Region |   1e4 |  1.3e10 | 5.9e2 | 11.62 | 1.74e2 | 0.29 |  7 |
+#+TBLFM: $5=9.452 + 1.5 log($2) - 0.5 log($3) ; f2::$6=2.625e5 $2**2 /($3 $5) ;s3::$7=$6/$4; f2
+
+Note that the Kn that 
+** Material from Ljepojevic & Burgess (1990)
++ Extends Spitzer & Härm (1953) to include high-velocity electrons in a strong T gradient
+*** LB90 Methodology
++ Velocity in thermal units is \xi \equiv (m v^{2 }/ 2 k T)^{1/2}
++ Collision mean free path increases with elctron velocity as \lambda \propto v^{4}
++ Divide electrons into two parts:
+  1. Bulk is a nearly-thermal core (\xi < \xi_{c}), treated by SH53 perturbation method
+  2. Plus a high-velocity tail, treated by a their "High-velocity Vlassov-Landau" (HVL) approximation (pretty complicated!)
++ Solutions are matched at \xi_{c} = 2, where both approximations are valid. 
++ They calculate results for a plane-parallel slab with a T gradient between two constant regions at T_{1} and T_{2}
++ Boundary conditions are Maxwellian velocities at the two temperatures as \(z \to \pm\infty\)
++ To conserve charge neutrality an electric field E builds up, which gives a return current of thermal particles to balance the current of HV particles that stream down the T gradient: \[E = -0.703 \frac{4\pi \epsilon_{0}k}{e} \, \frac{d T}{d z}\]
++ The equations are non-dimensionalized:
+  + \[\tau(z) = \int_{0}^{z} \frac{1}{\lambda(z')}  d z'\]is like a "collisional depth".  Note the obvious analogy with radiative transfer here: 1/\lambda is an absorption coefficient.  It gets lower as the T gets higher.   The difference with stellar atmospheres is that there is no vacuum boundary on the RHS.  Instead, we tend to thermalization on both sides.  
+  + Their quantity \[\alpha(\tau) = \lambda \frac{1}{T} \frac{dT}{dz}\] is basically the same as Kn
+  + The distribution function f is transformed to \[\phi = \frac{v_\text{th}^{3}}{n_{e}} f_{e}\]
++ Then they do /another/ transformation to deal with the fact that \phi varies by many orders of magnitude:
+  + \[ \phi = \pi^{-3/2} C \exp(-\xi^{2} g)\]
+  + or \[ g = -\xi^{-2} \ln(\pi^{3/2} \phi / C)\], where C is a constant determined from normalization condition
+*** LB90 Results
++ They use empirical T, n distributions for the transition region from McWhirter et al (1977) and Burton et al (1971)
+  + The lowest regions have T = 15,000 (McWhirter) - 25,000 (Burton )K, n \approx 1e10 pcc and \alpha of order 1e-4 (Burton) to 1e-3 (McWhirter)
+  + In the McWhirter data, \alpha is roughly constant at 1e-3 from 15,000 - 50,000 K (\tau = 0 \to 1000), then increases gradually to 3.5e-3 from 50,000 to 800,000 K (\tau = 1000 \to 2500), then falls quickly to 4e-4 from 800,000 to 1.2e6 K (\tau = 2500 \to 2600), as the T profile levels off.  So, in all positions the plasma is quite collisional for thermal speeds
+  + In the Burton data, \alpha increases monotonically with height from 2e-4 at 24,000 K, through 2.5e-3 at 50,000 K (\tau = 1000), then 2e-2 at 100,000 K (\tau = 1170), then 6e-2 at 200,000 K (\tau = 1191), up to 0.1 at 300,000 K (\tau = 1198).  The T profile never turns over in this data.
+  + For our purpose, we are really only interested in the velocity distributions in the lower part of the T ramp, where we expect fat tails from the hotter electrons coming down the gradient
++ They calculate what they call the "isotropic part of the normalized distribution function", which is akin to the mean intensity in radiative transfer: \[\phi_{_{0}} = \frac12 \int_{0}^{\pi} \phi \sin\theta\, d\theta\]
++ Then they also show results as function of \theta
++ [X] Tables of results are given below
+  + They are plotted 
+**** LB90 Table from McWhirter data
++ Results for \phi_{0}/\phi_{M} from Table 4, incorporating Kn, or \alpha, from Table 2 
+#+name: LB90-McWhirter
+|     | 2.5e4 |   3.2e4 |  6.4e4 | 1.28e5 | 2.56e5 | 5.12e5 | 1.17e6 | <- T  |
+|   \xi |  1e-3 | 1.05e-3 | 1.3e-3 | 2.1e-3 | 2.6e-3 | 3.2e-3 | 3.8e-4 | <- Kn |
+|-----+-------+---------+--------+--------+--------+--------+--------+-------|
+| 2.5 |  0.99 |     1.0 |    1.0 |    1.0 |    1.0 |    1.0 |   0.99 |       |
+|   3 |  0.99 |    0.99 |   0.99 |    1.0 |    1.0 |    1.0 |   0.97 |       |
+| 3.5 |  0.99 |     1.0 |   1.01 |   1.03 |   1.06 |   1.09 |   0.93 |       |
+|   4 |  1.03 |    1.04 |   1.10 |   1.24 |   1.38 |   1.59 |   0.86 |       |
+| 4.5 |  1.20 |    1.22 |   1.49 |   2.20 |   3.03 |   4.70 |   0.78 |       |
+|   5 |  1.89 |    1.96 |   3.39 |   9.01 |   20.0 |   39.0 |   0.71 |       |
+| 5.5 |  4.96 |    4.96 |   25.6 | 1.60e2 | 5.56e2 | 7.99e2 |   0.68 |       |
+|   6 |  32.3 |    43.7 | 1.36e3 | 1.21e4 | 4.39e4 | 2.84e4 |   0.68 |       |
+**** LB90 Table from Barlow data 
++ Results for \phi_{0}/\phi_{M} from Table 4, incorporating Kn, or \alpha, from Table 3 
+#+name: LB90-Barlow
+|     |  2.5e4 |  3.2e4 |  6.4e4 | 1.28e5 | 2.56e5 | <- T  |
+|   \xi | 2.2e-4 | 6.2e-4 | 5.9e-3 | 2.8e-2 | 7.9e-2 | <- Kn |
+|-----+--------+--------+--------+--------+--------+-------|
+| 2.5 |    1.0 |   1.01 |   1.03 |   1.16 |   1.17 |       |
+|   3 |    1.0 |   1.03 |   1.23 |   2.37 |   2.30 |       |
+| 3.5 |    1.0 |   1.12 |   2.92 |   12.4 |   8.97 |       |
+|   4 |   1.01 |   1.50 |   32.3 | 1.50e2 |   67.7 |       |
+| 4.5 |   1.01 |   12.7 | 1.18e3 | 3.31e3 | 9.64e2 |       |
+|   5 |   1.02 | 1.15e3 | 1.02e5 | 1.55e5 | 2.66e4 |       |
+| 5.5 |   3.64 | 1.37e5 | 8.07e6 | 6.38e6 | 9.37e5 |       |
+|   6 |   85.3 | 1.66e7 | 3.34e9 | 1.79e9 | 1.40e8 |       |
+*** LB90 Discussion
++ Departures of \phi_{0} from Maxwellian occur for \xi > 3, so (E / kT) > 9
+  + Similar to \kappa distributions for \kappa > 10 
++ Backscattering of downward moving electrons is the main source of upward moving electrons in the high-velocity tail
++ Turbulence was neglected.  This would increase collision frequency and decrease the deviations from Maxwellian.
+  + Ion-acoustic turbulence in presence of strong dT/dz was studied by Gray & Kilkenny (1980)
+  + Important for Kn > 0.4, above the values considered in this paper
+
+
+** Fit kappa distro to LB90 
++ Take the kappa that gives the same E where f/fM = 10
+
+#+name: kappa-fit-LB90-Barlow
+|     Kn | kappa |
+|--------+-------|
+| 2.2e-4 |   160 |
+| 6.2e-4 |    50 |
+| 5.9e-3 |    20 |
+| 2.8e-2 |    10 |
+
+
+#+name: kappa-fit-LB90-McWhirter
+|      Kn | kappa |
+|---------+-------|
+|    1e-3 |   160 |
+| 1.05e-3 |   160 |
+|  1.3e-3 |   110 |
+|  2.1e-3 |    90 |
+|  2.6e-3 |    80 |
+|  3.2e-3 |    70 |
+
+
+#+header: :var dataM=LB90-McWhirter dataB=LB90-Barlow
+#+header: :prologue "from __future__ import print_function"
+#+BEGIN_SRC python :eval no :tangle lm90-fit-kappa.py
+  import sys
+  import numpy as np
+  from matplotlib import pyplot as plt
+  from astropy.table import Table
+  import seaborn as sns
+  from kappa_utils import f_M, f_CH, f_kappa
+
+  tab1 = Table(names=dataM[1], rows=dataM[2:])
+  tab2 = Table(names=dataB[1], rows=dataB[2:])
+
+
+  energy = np.logspace(-2, 2, 500)
+
+  sns.set_palette('hls', 7)
+  fig, ax = plt.subplots(1, 1)
+  ax.plot(energy, 1e7*f_M(energy),
+          lw=7, alpha=0.1, color='k', label='Maxwellian, $10^{7} f_M$')
+  for kappa in 5.0, 10.0, 20.0, 40.0, 80.0, 160.0, 320.0:
+      ax.plot(energy, f_kappa(energy, kappa)/f_M(energy),
+              lw=1, alpha=0.5, label=r'$\kappa = {:.1f}$'.format(kappa))
+
+  for Kn in tab1.colnames[1:-2]:
+      ax.plot(tab1[r'\xi']**2, tab1[Kn], '--', lw=3,
+              label='McWhirter, Kn = {}'.format(Kn))
+
+  for Kn in tab2.colnames[1:-2]:
+      ax.plot(tab2[r'\xi']**2, tab2[Kn], '-.', lw=3,
+              label='Barlow, Kn = {}'.format(Kn))
+
+  ax.set_xscale('log')
+  ax.set_yscale('log')
+  ax.set_xlim(1.0, 100.0)
+  ax.set_ylim(0.1, 3e10)
+  ax.legend(fontsize='x-small', loc='best', ncol=2)
+  ax.set_xlabel(r'$E\, /\, k T$')
+  ax.set_ylabel(r'Excess over Maxwellian: $f\, /\, f_M$')
+  ax.set_title('Comparison of Ljepojevic & Burgess (1990) with kappa distributions')
+  figname = sys.argv[0].replace('.py', '.pdf')
+  fig.set_size_inches(7, 7)
+  fig.tight_layout()
+  fig.savefig(figname)
+  print(figname)
+#+END_SRC
+
+#+BEGIN_SRC sh :results file
+python lm90-fit-kappa.py
+#+END_SRC
+
+#+RESULTS:
+[[file:lm90-fit-kappa.pdf]]
+
+** Make a graph of \kappa versus Kn
+
+
++ This would use some of the papers cited in the Bradshaw & Raymond review
++ \kappa = 2.5 in velocity filtration models of coronal heating
+  + Anderson, S.W., Raymond, J.C. & van Ballegooijen, A. 1996, ApJ, 457, 939
++ Base of corona, up through solar wind acceleration site, up to a few solar radii
+  + Maxwellian at base, but very non-Maxwellian at few solar radii
+  + Esser, R., & Edgar, R. J. 2000, ApJ, 532, 71
+  + This is important because will cover a range of Kn I hope
+  +
+*** Collecting all the data and plotting it  
++ Empirical data is
+  + [[kappa-SolarWind-EE00]] is base of solar wind
+  + [[kappa-TR-DK11]] is transition region
+    + This has densities that seem too low
+  + [[kappa-CoronalLoop-D15]] is a coronal loop
++ Model data is
+  + [[kappa-fit-LB90-McWhirter]]
+  + [[kappa-fit-LB90-Barlow]] 
+
+#+header: :var data_1=kappa-SolarWind-EE00 
+#+header: :var data_2=kappa-TR-DK11
+#+header: :var data_3=kappa-CoronalLoop-D15
+#+header: :var data_A=kappa-fit-LB90-McWhirter
+#+header: :var data_B=kappa-fit-LB90-Barlow
+#+header: :prologue "from __future__ import print_function"
+#+header: :colnames no
+#+BEGIN_SRC python :eval no :tangle plot-kappa-kn.py
+  import sys
+  import numpy as np
+  from astropy.table import Table
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+
+  def clean_data(data):
+      """Replace empty strings with nans"""
+      for row in data:
+          for x in row:
+              x = x or -1.0
+      return data
+
+  d = {}
+  for label, data in (
+          ['SolarWind-EE00', data_1],
+          ['TR-DK11', data_2],
+          ['CoronalLoop-D15', data_3],
+          ['LB90-McWhirter', data_A],
+          ['LB90-Barlow', data_B],
+  ):
+      cdata = clean_data(data)
+      d[label] = Table(names=cdata[0], rows=cdata[1:])
+
+  sns.set_palette('hls', 7)
+  fig, ax = plt.subplots(1, 1)
+  ax.set_xscale('log')
+  ax.set_yscale('log')
+  ax.set_xlim(1e-10, 10.0)
+  ax.set_ylim(1.0, 1.e6)
+  ax.set_xlabel(r'Knudsen number: $\mathsf{Kn} = \lambda/L$', fontsize='x-large')
+  ax.set_ylabel(r'Velocity distribution parameter: $\kappa$', fontsize='x-large')
+  ax.xaxis.set_ticks([1e-9, 1e-6, 1e-3, 1.0])
+
+  Kn = np.array([1e-12, 1.0, 100.0])
+  kappa1 = 1.5/np.sqrt(Kn)
+  kappa1[-1] = 1.5
+  kappa2 = 10/np.sqrt(Kn)
+  plt.fill_between(Kn, kappa1, kappa2, alpha=0.1, lw=0.0, color='k')
+
+  for dataset in d:
+      Kn = d[dataset]['Kn'].astype('float')
+      try:
+          kappa = d[dataset]['kappa'].astype('float')
+      except KeyError:
+          kappa = d[dataset][r'\kappa'].astype('float')
+      m = kappa > 0.0
+
+      if 'LB90' in dataset:
+          plotstyles = {'ls': '-', 'lw': 3}
+      else:
+          plotstyles = {'marker': 'o', 'ls': ''}
+      plt.plot(Kn[m], kappa[m], label=dataset, **plotstyles)
+
+
+  plt.legend()
+  figfile = sys.argv[0].replace('.py', '.pdf')
+  fig.set_size_inches(6, 6)
+  fig.tight_layout()
+  fig.savefig(figfile)
+  print(figfile)
+
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results file
+  python plot-kappa-kn.py 
+#+END_SRC
+
+#+RESULTS:
+[[file:plot-kappa-kn.pdf]]
+
+*** Add indication of T/T_0 where medium becomes collisionally thin
+:PROPERTIES:
+:ID:       428A9D53-A4F8-47CF-96C1-53B58F946F38
+:END:
++ The plasma formulary has equations for three relaxation times:
+  + slowing down time: \(\tau_{s}\)
+    + For equal masses, this is the same as the deflection time for high velocities
+  + deflection time: \(\tau_{D}\)
+    + This one is most relevant, since for \(t > \tau_{D}\) the electrons will be diffusing rather than streaming 
+  + energy exchange time: \(\tau_{E}\)
++ Their (\(\beta u\)) is the same as \(\xi\) in Ljepojevic
++ \[\alpha_{r} = \frac{8 \pi e^4 n_{e} \log\Lambda}{m_{e}^{2}}\]
+  + src_calc{8 3.1415926535897932385e0 4.8032e-10**4 1e4 18.66 / 9.10938188e-28**2} {{{results(=3.00812835769e23=)}}}
++ The self relaxation timescale for thermal particles is
+  + \[ \tau \simeq \frac{(2 k T / m)}{4 \alpha_{r} \psi(1)} \]
++ The time for two Maxwellian distributions at (slightly) different temperatures to relax to a single distribution, via electron-electron collisions is
+  + \[\tau_{ee} \approx 
+      \frac{\sqrt{108} \pi (k T_{e})^{3/2} m_{e}^{1/2}}
+           {16 \pi n_{e} e^{4} \log\Lambda}
+    \]
+  + This is translated from SI to CGS, using the equivalence
+    + \( \epsilon_{0} \to 1 / 4 \pi\)
+  + Using this, we can rewrite \(\alpha_{r}\) as
+    + \[ \alpha_{r} = \frac{\sqrt{108} \pi (k T_{e})^{3/2} m_{e}^{1/2}}{2\tau_{ee} m_{e}^{2}} = \pi \left(\frac{3}{2}\right)^{3/2} \frac{\langle u \rangle^{3}}{\tau_{ee} } = 5.77 \frac{\langle u \rangle^{3}}{\tau_{ee} }\]
+    + where we use \(\langle u \rangle^{2} =  2 k T_{e} / m_{e}\) where \(\langle u \rangle\) is the thermal electron speed. Formulary uses \(\beta_{r} = 1/\langle u \rangle\)
++ [ ] I do have the doubt with their formula, whether or not the \pi should be inside the \sqrt or not
++ For the limit \(\beta u \gg 1\), which is equivalent to \(u \gg \langle u\rangle\):
+  + \[\tau_{D} \to \frac{u^{3}}{\alpha_{r}} = 0.173 \left(\frac{u}{\langle u \rangle}\right)^{3} \, \tau_{ee}\]
+  + \[ \tau_{E} = \frac{\beta_{r}^{2} u^{5} }{2 \alpha_{r}} = 0.0866 \left(\frac{u}{\langle u\rangle}\right)^{5} \tau_{ee}\]
++ Collisional mean free path for thermal electrons will be
+  + \(\langle\lambda\rangle = \langle u \rangle \tau_{ee}\)
++ So the effective mean free path for high-energy electrons is
+  + \[\lambda = u \tau_{D} = 0.173 \left(\frac{u}{\langle u \rangle}\right)^{4} \langle\lambda\rangle = 0.173 (T/T_{0})^{2} \langle\lambda\rangle\]
+  + Where the last step is for if we have a high-temperature population (T) interacting with a low-temperature population (T_0)
+  + [ ] I really need to double-check the constant, and solve the full equations with the erfs
+  + So a collisionally thick region at \(T_{0}\) with Knudsen number \(Kn = \langle \lambda\rangle / L\) is collisionally thin when \(\lambda > L\), which implies \(\lambda / \langle\lambda\rangle > 1/Kn\)
+  + So \(T > 2.4 \, (Kn)^{-1/2} \, T_{0}\)
+  + In fact, \(\lambda = L\) is still marginally collisional. A better criterion might be \(\lambda > 10 L\), which makes sure it is really thin.
+    + This would give \(T_{\text{thin}} = 7.6 \, (Kn)^{-1/2} \, T_{0}\)
+  + Here is a table, assuming \(T_{0} = 10^{4}\) pcc
+    |     Kn |     T | T_{thin} | T(Kn = 1) |
+    |--------+-------+-------+-----------|
+    |   5e-2 | 1.1e5 | 3.4e5 |     4.5e4 |
+    | 5.5e-3 | 3.2e5 | 1.0e6 |     1.3e5 |
+    |   5e-4 | 1.1e6 | 3.4e6 |     4.5e5 |
+    |   5e-6 | 1.1e7 | 3.4e7 |     4.5e6 |
+    |   5e-8 | 1.1e8 | 3.4e8 |     4.5e7 |
+    |  5e-10 | 1.1e9 | 3.4e9 |     4.5e8 |
+    #+TBLFM: $2=2.4e4/sqrt($1); s2::$3=7.6e4/sqrt($1); s2::$4=1e4/sqrt($1); s2
+    1. The first column is for \lambda = L,
+    2. while the second is for \lambda = 10 L
+    3. and the third is asking at what T would Kn = 1 be for this density
+       - this gives lower T, but it is asking a slightly different question (and a totally unrealistic one because of course a much hotter population would have much lower densities), and it also neglects that \ln \Lambda is increasing with T, which amounts to a factor of 2 or between 1e4 and 1e7 K
+       - All in all, I am tempted to stick with the first one
+  + Note that Kn itself scales as \(T^{2} / n\) for ionized gas
+  + [ ] For an H II region, Kn will scale with ionization parameter U,
+    + since column density \(R\, n \propto U\) in photoionization equilibrium for ionization-bounded region
+      + Does it need to be ionization bounded or does it hold more generally?
+      + Also, I am neglecting the T dependence of the recombination rate
+        + We get it from \alpha n^2 R = F => F/n = R n \alpha_0 (T_0/ T) for a 1/T recomb rate
+        + => \(R\, n \propto U\, T\)
+    + \(Kn \propto T^{2} / n L \propto T / U\)
+
+
+*** DONE Esser & Edgar analysis
+CLOSED: [2015-11-16 Mon 00:45]
++ I will calculate Kn for different radii in their model (Fig 1)
++ And will also estimate \kappa from their arguments about their Fig 2
+  + They have a halo/core T ratio and n ratio, which we will have to translate into a \kappa
++ This works great - see table! 
+
+#+name: kappa-SolarWind-EE00
+| R/Rsun | T / K | n / pcc |    H |  ln \Lambda |      \lambda_{e} |     Kn | n_{h}/n_{c} | T_{h}/T_{c} |  \kappa |
+|--------+-------+---------+------+-------+---------+--------+-------+-------+----|
+|    1.0 |   5e5 |   3.8e8 | 0.07 | 19.26 |  8.97e6 | 1.8e-3 |  0.05 |    <2 | 20 |
+|   1.25 |   9e5 |     1e7 | 0.07 | 21.96 |  9.68e8 |   0.20 |  0.05 |     5 |  3 |
+|    1.5 |   9e5 |     1e6 |  0.2 | 23.11 |  9.20e9 |   0.66 |       |       | -1 |
+|    2.0 |   7e5 |     2e5 |  0.4 | 23.54 | 2.73e10 |   0.98 |       |       | -1 |
+|    2.4 |   6e5 |     1e5 |  0.4 | 23.65 | 4.00e10 |   1.44 |   0.2 |    18 |  2 |
+#+TBLFM: $5=9.452 + 1.5 log($2) - 0.5 log($3) ; f2::$6=2.625e5 $2**2 /($3 $5) ;s3::$7=$6/$4 $Rsun; f2
+
+*** DONE Equivalences between \kappa and core/halo distros  
+CLOSED: [2015-11-16 Mon 18:09]
+
+**** Kappa
+\[
+f_{\kappa}(E) = 
+A_{\kappa} \frac{2}{\sqrt{\pi}}
+\left(\frac{1}{k T}\right)^{3/2}
+\frac{\sqrt{E}}{
+\left(1 + \frac{E}{(\kappa - 3/2)\, k T}\right)^{\kappa + 1}
+}
+\] 
+where
+\[
+A_{\kappa} = \frac{ \Gamma(\kappa + 1) }{\Gamma(\kappa - 0.5) \, (\kappa - 1.5)^{3/2}}
+\]
+
+
+**** Core/halo
+Single Maxwellian energy distribution per dE is 
+\[
+f_{M}(E) = \frac{2}{\sqrt{\pi}}
+\left(\frac{1}{k T}\right)^{3/2} E^{1/2}\, e^{-E/k T}
+\]
+
+So a core-halo will be the sum of two of these.  Putting \(a = T_{H} / T_{C}\) and \(b = n_{H}/n_{C}\), we have
+\[
+f_{C-H}(E) = \frac{2}{\sqrt{\pi}}
+\left(\frac{1}{k T}\right)^{3/2} (1 + b)^{-1} E^{1/2}\,
+\left[e^{-E/kT} + (b / a^{3/2}) e^{-E/akT}\right]
+\]
+in which T is the core temperature
+
+**** Plot the distributions 
++ Put kT = 1 and ditch the \((m / 2 \pi k T)^{3/2}\) term since it is the same for all
++ I am plotting ratio with maxwell, sonce that seems best
++ There are still a few problems
+  + I had to multiply the others by sqrt(E) to get them to look like the kappa ones
+  + The kappa distros don't seem to integrate to the same value
+    + [X] how are they normalized? /fixed now/ [2015-11-16 Mon 19:38]
++ Now to compare the core-halo to the kappa
+  + I am looking around E = 10 k T
+  + Seems that the TH/TC = 2 curve is close to \kappa = 20
+  + TH/TC = 5 => \kappa = 3
+  + TH/TC = 18 => \kappa \sim 2
+  + All these are approximate since the core halo distros are closely Maxwellian for E < 5 kT, wheras \kappa start deviating at about 3 k T
+#+BEGIN_SRC python :eval no :tangle kappa_utils.py
+  from scipy.special import gamma
+  import numpy as np
+  from numpy import exp, sqrt
+
+  def A_kappa(kappa):
+      return gamma(kappa+1)/gamma(kappa-0.5)/(kappa-1.5)**1.5
+
+
+  def f_M(E):
+      return sqrt(E) * exp(-E)
+
+
+  def f_CH(E, a, b):
+      return sqrt(E) * (exp(-E) + (b/a**1.5)*exp(-E/a))/(1 + b)
+
+  def f_kappa(E, kappa):
+      return A_kappa(kappa) * sqrt(E) / (1 + E/(kappa - 1.5))**(kappa + 1)
+#+END_SRC
+
+#+BEGIN_SRC python :eval no :tangle non-maxwell-distros.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  from kappa_utils import f_M, f_CH, f_kappa
+
+  energy = np.logspace(-2, 2, 500)
+
+  fig, ax = plt.subplots(1, 1)
+  ax.plot(energy, 1e7*f_M(energy), lw=7, alpha=0.1, color='k', label='Maxwellian, $10^{7} f_M$')
+  for kappa in 1.75, 3.0, 5.0, 10.0, 20.0, 100.0:
+      ax.plot(energy, f_kappa(energy, kappa)/f_M(energy), lw=3, alpha=0.5, label=r'$\kappa = {:.1f}$'.format(kappa))
+  for a, b in (2, 0.05), (5, 0.05), (18, 0.2):
+      ax.plot(energy, f_CH(energy, a, b)/f_M(energy), ls='--', lw=1.5, label='$T_C/T_H = {}$; $n_C/n_H = {:.2f}$'.format(int(a), b))
+
+  ax.set_xscale('log')
+  ax.set_yscale('log')
+  ax.set_ylim(0.1, 3e7)
+  ax.legend(fontsize='small', loc='middle left', ncol=2)
+  ax.set_xlabel(r'$E\, /\, k T$')
+  ax.set_ylabel(r'Excess over Maxwellian: $f\, /\, f_M$')
+  figname = sys.argv[0].replace('.py', '.pdf')
+  fig.set_size_inches(7, 5)
+  fig.tight_layout()
+  fig.savefig(figname)
+  print(figname)
+#+END_SRC
+
+#+BEGIN_SRC sh :results file
+python non-maxwell-distros.py
+#+END_SRC
+
+#+RESULTS:
+[[file:non-maxwell-distros.pdf]]
+** Material from Livi & Marsch - validity of BGK
++ They find that the "velocity-space friction" timescale is the one that makes BGK best agree with full Fokker--Planck results.
+  + Mind you, their idea of a big T difference is a factor of 4
++ Their experiment is for an initially anisotropic distribution
++ So this has timescale:
+  \[
+  \frac{\tau_{f}} {\tau_{0}} = \frac{\xi^{2}} {\text{erf}(\xi) - \xi \text{erf}'(\xi)}
+  \]
++ This goes to zero both for low and high velocities
+** Material from Ljepjevic & MacNeice (1988) - BGK versus Landau--Fokker--Planck
++ This test of the validity of BGK is much closer to being relevant to what we want to do
++ They are looking at a flaring coronal loop
+  + Apex: N = 1e10 pcc; T = 3e6 K => \lambda = 1.3e4 T^2/N = 1e7
+  + Base: N = 3e12 pcc; T = 1e4 K => \lambda = 0.43 cm
+  + Total height: 1.5e8 cm
+  + T scale height:
+    + 1e6 cm or even less for T = 1e4 to 1e6 K
+      + \lambda goes as T^3 at constant pressure
+      + So Kn = 1e-6 to 1.0 if L is constant
+    + 1e7 cm for T ~= 2e6 K => Kn = 1
++ So these conditions are very similar to those at contact discontinuity
++ *Results*
+  + BGK fails to capture the sub-Maxwellian distribution at the apex 
+  + It is also inaccurate for upward-moving electrons at all heights
+    + But not completely terrible
+  + But it works pretty well for downward-moving electrons
+    + And that is what we want
+  + Strangely, say they are using the deflection timescale
+    + They also have an unexplained factor of 4
+** Material from Owocki & Canfield 1988 
++ They are doing the transition region with the BGK approximation
++ They investigate different temperature profiles between chromosphere and corona
+  + Shoub (1983) had used constant classical conductive heat flux \(F_{0} = T^{5/2} dT/dz\)
+  + Apparently, this agrees well with empirically inferred T(z) for T > 200,000 K, but is too steep in lower transition region
+  + Theoretically, F should be << F_0 at lower temperatures due to radiative heat loss: \( \nabla F = H - L\)
+  + The use
+** Material from Bian (2014)
+:PROPERTIES:
+:EXPORT_FILE_NAME: comments-on-bian2014
+:END:
++ Models of acceleration of solar flares
+  + Coronal loops have n = 1e11 pcc, T = 2e7K, length L = 1e9 cm
+    + => Kn = 0.005 or so
+    + Thermal electron energy is about 2 keV
+    + Flares produce deka-keV electrons, so 10 times more energetic than thermal
+    + X-ray spectra suggest \(\kappa \simeq 5\)
++ Their Section 5: Spatial transport and escape
+  + Isotropization of the distribution function on deflection timescale \(\tau_{D}\)
+    + They call this the "pitch-angle scattering timescale"
+  + Then pitch-angle dependent diffusion along the field lines
++ From their section 7
+  + They derive a relationship for kappa:
+    \[ \kappa = \frac{3}{2} \frac{\lambda_{c}}{\lambda} \Bigl(\frac{E_{D}}{E_{\parallel}}\Bigr)^{2} \]
+  + where \(\lambda_{c}\) is the collisional mean free path
+  + \(\lambda\) is the turbulent mean free path
+    + we need to unpack this further, but it seems to be roughly equal to the scale of their system
+  + \(E_{D} = k T / e \lambda_{c}\) is the Dreicer field, which is field required to accelerate an electron to the thermal velocity over one mean free path
+  + \(E_{\parallel}\) is the accelerating electric field in the flare
+  + This has the bizarre property that \(\kappa\) is smaller when the collisional mean free path is smaller
+    + /This is an illusion/ (see below). There is a hidden factor of \(\lambda_{c}^{-2}\) in the Dreicer field
+  + All this requires that the turbulent pitch-angle scattering timescale is a decreasing function of v
+    + Contrast with collisional pitch-angle scattering timescale \(\lambda_{c} / v \sim v^{3}\)
+    + If turbulent mean free path \(\lambda(v)\) is independent of v, then this leads to the acceleration time and collisional deacceleration term having the same v dependence: \(\sim v^{3}\).  This allows for convergence towards a stationary kappa distribution
++ In the introduction they have the collision parameter:
+  \[
+  \Gamma = \frac{4 \pi e^{4} \ln\Lambda n} {m_{e}^{2}}
+  \]
+  + This is half the \(\alpha_{r}\) from the plasma formulary
+  + In terms of which they have a collisional deceleration time:
+    \[ \tau_{c}(v) \simeq v^{3} / \Gamma \]
+    - More precisely, using the [[id:428A9D53-A4F8-47CF-96C1-53B58F946F38][Plasma Formulary equations]], we have
+      \[\tau_{c}(v) = 2.885 v^{3} / \Gamma \]
+  + Which would mean collisional mean free path \[\lambda_{c} = 2.885 v^{4}/\Gamma\]
++ *Recasting their equation in terms of Kn*
+  + They say in equation (76) that 
+    \[
+    \kappa = \frac{\Gamma}{2 D_{0}}
+    \]
+  + This is just repeating their equation (14), where they had it as
+    \[
+    \kappa = \tau_{acc} / 2 \tau_{c}
+    \]
+    + where the acceleration time is \(\tau_{acc} = v^{2} / D_{\text{turb}}(v)\) and the turbulent diffusion coefficient has the form \(D_{\text{turb}}(v) = D_{0}/v\)
+      + At this point it is just "the diffusion coefficient in velocity space associated with an as yet unspecified stochastic acceleration mechanism."
+    + This version makes sense because \(\kappa\) increases as collisions become more important (\(\tau_{c} \to 0\))
+  + But then in section 7, they talk about the specific acceleration mechanism and  we get
+    \[D_{0} = \frac{e^{2} E_{\parallel}^{2} \lambda} {2 m^{2}}\]
+    where \(\lambda\) is turbulent mean free path 
+  + So, subbing into the \(\kappa\) equation gives
+    \[ \kappa = 2.885  v^{4} m^{2} / \lambda_{c} e^{2} E_{\parallel}^{2} \lambda\]
+  + When subbing in the Dreicer field, this gives the equation I give above that seems to have \(\kappa \propto \lambda_{c}\), but because of the hidden dependency of \(E_{D}^{2}\) on \(\lambda_{c}^{-2}\) everything is OK and we really have \(\kappa \propto \lambda_{c}^{-1}\)
+  + A better way of presenting things would be to define a length scale: \(z_{E} e E_{\parallel} = 10 k T = 5 m v^{2}\)
+    + so that \(z_{E}\) is the distance required for the field \(E_{\parallel}\) to accelerate an electron to 10 times the thermal energy, as required by the flare observations
+    + Self-consistency requires that the acceleration region has a size \(L \approx z_{E}\)
+  + With that, we get \(\kappa = 0.1154 (L/\lambda_{c}) (L/\lambda)\)
+    + It seems that turbulent mfp \(\lambda \approx L\) so that we get \(\kappa \approx 0.1 /\text{Kn}\)
+    + So \(\kappa = 5\) requires \(\text{Kn} = 0.02\), which is not too different from the inferred value
+    + If we rescale it to \(\text{Kn} = 0.005\) at \(\kappa = 5\), then it becomes \(\kappa \approx 0.025 /\text{Kn}\)
+    + Although if turbulent mean free path < size of acceleration region, then this would also make kappa larger for a given Kn
+
+
+
+
+
+** Calculate BGK model for cooling zone behind 30-100 km/s shock
++ Use Cloudy models for post-shock region
+  + So everything is totally determined
+  + Diffusion of high energy electrons down into the equilibrium shell
+** Calculate BGK model for stellar wind contact discontinuity
++ Consider two (or maybe 3) cases:
+  1. LV wind shells
+     - V(wind) = 1200 km/s -> shocked T = 3.6e7 K
+       - But shocked wind may not be thermalised
+  2. Million-Kelvin gas in EON
+     - T is 30 times lower than the post-shock temperature one would get from the unperturbed stellar wind.  There are several possible reasons for this:
+       1) work done by the expanding bubble in pushing the cool dense shell
+       2) wind velocity lowered by mass loading from inner proplyds before it shocks
+       3) bubble has cooled due to mixing and/or conduction
+       4) observational selection effect
+          - but are x-ray telescopes really insensitive to 1e7 K gas?
+          - in pressure equilibrium it would have a much lower emission measure
+  3. General stellar wind bubble - more appropriate to bigger, older regions
+     - omega nebula, rosette nebula, etc
+     - what is bubble T in these regions?
+*** Temperature profile across CD
++ These are the physical processes in play
+  1) Thermal conduction
+     + Spitzer conductivity
+     + Saturation limiting
+     + Magnetic field suppresses perpendicular transport
+  2) Evaporative mass flux
+     + This is what primarily balances heat conduction flux in the energy equation in the Weaver wind bubble models
+     + But what causes it? it would require a pressure gradient
+  3) Radiative Cooling (minus heating)
+     + This is what balances divergence of heat conduction flux in the solar transition region
+  4) Turbulent spreading, Kelvin-Helmholtz instability and Rayleigh-Taylor
+     + This might be important in proplyd shells
+     + transverse velocity of shocked stellar wind ~ 1200 sin\theta
+       + where \theta increases from 0 on axis up to about 0.05 (depending on momentum ratio \beta)
+     + transverse velocity of shocked proplyd wind at head of bowshock will be much smaller, so we will have a transverse \Delta v of 60 km/s or so
+     + We also have the possibility of Rayleigh-Taylor
+       + The working surface is curved, producing an effective gravity directed towards the fast stellar wind side
+       + But the proplyd shell is much denser than the stellar wind shell, so the interface should be RT unstable
+     + It all depends on whether the growth times are less than the flow time in the bowshock head
+       + Also may be supressed by magnetic fields
+**** STARTED Constant pressure conductive evaporation flow
+**** Effects of magnetic field
++ Conductivity perpendicular to B
+  + parallel conductivity is the same as in the non-magnetic case
+  + perpendicular conductivity is smaller by a factor of \((r_{L}/\lambda )^{2}\) where \(r_{L}\) is the Larmor radius, and \(\lambda\) is the mean free path
+    + For H II regions we have \(r_{L}/\lambda\) in the range 1e-5 to 1e-3.  Higher ratio at higher density for constant plasma beta
+    + For the stellar wind at proplyd, we have 1e-12, so heat conduction perpendicular to field is suppressed by factor of 1e-24 !!!
+    + This means that the ionic heat conduction is actually larger than the electronic heat conduction by a factor of \(\sqrt{m_{i}/m_{e}}\), which is 43 in case of protons.  
++ Electron transport across the B field
+  + This will also be suppressed
+  + The effective deflection length is now the Larmor radius
+  + For example, consider 3e7 K electrons in the H II region with n = 1e4 and B = 100 microgauss = 1e-4 G
+    + v = sqrt(2 k T / m) = 1.74e9 cm/s = 0.06 c = 17,500 km/s
+    + r_L = v m c / e B = sqrt(m k T) c / e B = 7e5 cm for electrons
+      + Cyclotron frequency is v / r_L = 2500 rad/s
+      + for protons it is 3e7 cm
+    + whereas collisional mfp for deflection is 0.174 (3e7/1e4)**2 1.4e8 = 2.1924e14 cm (in the 1e4 pcc gas)
+      + and the mfp in the shocked wind is 1.4e17 cm = 10,000 AU = 20 arcsec in Orion
+  + The energy loss timescale will still be long, so we can work out how far the electrons can diffuse across the field lines in that time:
+    + The average distance travelled will be r = sqrt(D t), where D \approx u r_L
+    + From [[id:428A9D53-A4F8-47CF-96C1-53B58F946F38][down here]] I have that
+      + \tau_E = 0.0866 (T/T_0)^{5/2} \tau_0 = 4.2e7 \tau_0 where \tau_0 = \lambda/ubar is the relaxation timescale for thermal electrons
+      + \lambda_0 = 1.4e8 cm and ubar is 5.5e7 cm/s => \tau_0 = 2.5 s
+      + This means that \tau_E = 1.07e8 s = 3.4 years
+      + So, in the energy loss time, they could potentially stream 1.87572e17 cm = 0.06 pc
+        + We can call that the free-streaming thermalization distance (but it is a fiction)
+      + But they will only diffuse a distance sqrt(u r_L \tau_E) = u sqrt(\tau_E / \omega_c)
+        + => perpendicular diffusive thermalization distance is 1.74e9 sqrt(1.07e8 / 2500) = 3.6e11 cm = 0.024 AU
+      + While I am here, I should also calculate the parallel energy diffusion distance (should be 10 times smaller than the streaming distance)
+        + Deflection timescale \tau_D = 0.173 (T/T_0)^{3/2} \tau_0 = 2.84e4 \tau_0 = 7.11e4 s
+        + Deflection mean free path = 1.24e14 cm = 4e-5 pc = 8 AU
+        + So parallel diffusive thermalization distance = u sqrt(\tau_D \tau_E) = 4.8e15 cm = 320 AU = 1.55e-3 pc
++ Suppression of instabilities
+*** Literature on wind bubbles 
++ Original: Pik'elner (1968); Dyson & de Vries (1972); Dyson (1973);
++ Add conduction: Castor et al (1975); Weaver et al (1977)
+
+** Calculate BGK model for photoionized equilibrium 
+
+*** Relaxation timescales
+*** Photoelectric heating and supra thermal electrons
+:LOGBOOK:
+- Note taken on [2015-11-23 Mon 10:03] \\
+  Note from Drafts on iPhone, copied via Evernote Monthly Journal
+:END:
+
+Gary sent a plot of photo electron production rate versus energy. Energy is measured in Rydbergs.
+
+For 1e4 K, kT = 0.063 Rydbergs
+
+It is approximately exponential from 1 to 3 Ryd. Falling from 3e-4 to 1e-6. That is 2.5 dex in 2 Rydbergs, giving e-folding energy interval of 2 / (2.5 * 2.303) = 0.3474 Rydbergs = 55,000 K. A bit hotter than the effective T but in the same ballpark.
+*** Note on Solving the Boltzmann equation
+:LOGBOOK:
+- Note taken on [2015-11-15 Sun 18:55] \\
+  These are notes from Drafts on my iPhone
+:END:
+
+
+For small deviations from Maxwellian we can use the Crook approximation to the elastic collisional terms. This is a simple relaxation term and saves having to solve the full Boltzman collision integral. This should be sufficient for calculating the effects of photoionization and recombination on the electron velocity distribution.
+
+The simplest version has an interaction timescale τ that is independent of velocity, but extensions to τ increasing with v are simple I think.
+
+We would be looking for steady state solutions to the Boltzmann equation. And to start with, ignoring the advection terms and the Lorentz force due to B field.
+
+So it would just be
+(df/dt)[ioniz] + (df/dt)[recomb] + (df/dt)[coll] = 0
+
+The recomb rate (negative (df/dt)) is higher for lower velocities (sub thermal), while photoionization (positive (df/dt)) will produce super thermal electrons, particularly for hard ionizing spectrum. However, if we want to conserve energy and have a realistic T, we need to add in extra cooling processes. The simplest one would be a collisionally excited emission line, with a threshold energy ε > k T. This would give an extra term in the Boltzmann equation: (df/dt)[cool], which will have a negative and positive part. Negative for electron energies E > ε, to represent the electrons that excite the line, with a mirrored positive part for E - ε, to represent the post collision electrons.
+
+*** Where the Crook approach breaks down
+:LOGBOOK:
+- Note taken on [2015-11-16 Mon 13:58] \\
+  Written in Drafts on iPhone, transferred via Evernote Monthly Journal
+:END:
+
+Suppose we start off with the sum of two Maxwellian distributions, and we let them evolve with time, under the influence of only elastic collisions. We have N1 particles with temperature T1 and N2 particles with temperature T2. The average temperature is T* = (N1 T1 + N2 T2) / (N1 + N2), which characterizes f_M, which is the distribution we will relax towards.
+
+Crook formula will work ok so long as there is substantial overlap between the three distributions. But in more extreme situations it will maybe fail.
+
+For instance, consider N1=1e2 pcc, T1=1e4 K; N2= 1 pcc, T2=1e6 K, so that T*=2e4 K, more or less.
+
+Around 1e5 K we will initially have f ≅ 0.1, or so from the low energy side of the second component. Whereas f_M(T*) will be around 1e2 e^-10 = 0.0045, which is 20 times smaller. So the crook collisions will make f fall with time here. But this actually seems reasonable.
+
+The problem is that this will not conserve energy in the medium term. The low velocity electrons will quickly accommodate to the resolved temperature, but the relaxation time scale is much longer for the high velocity electrons, so the energy for the resolved Maxwellian is not available yet!
+
+One solution would be to have a time-dependent resolved Maxwellian, which would have the energy of all the low-T component, plus that fraction of the high-T component with v < v’, where v’ is the velocity where the relaxation time is equal to A t, where t is the current time, and A is a constant of order unity.
+
+This way, T* will evolve from 10,000 up to 20,000 K with time (in my example), as more and more of the high T component start to have collisions. The low velocity electrons will relax to the current f_M( T* ) quicker than T* is changing, so they will just follow the evolving Maxwellian, whereas the highest velocity electrons will have an f that slowly drops down with time. Once v’ has got past the peak of the initial T2 distribution, then T* will have almost reached its final value, so the core of f will hold steady thereafter. Meanwhile, the high velocity remnant tail of still-uncollided electrons will be of higher and higher velocity, but lower and lower amplitude.
+
+Next job: include cooling as well! The heating/cooling timescales (~1e10 s @ 100 pcc) are much slower than the collisional timescales at 10,000 K (200 s), but at 1,000,000 K the collisions are 1e5 times slower (τ goes as v^5 at high energies). But this is still much smaller than the cooling timescale, so the thermalization takes about 1 year, producing a 2 times T increase, which is then radiated away over 300 years. (If we used 1e4 for the density instead of 100, then all the timescales would be 100 times shorter.) So, once again we find that the non Maxwellian effects are far less important than the T fluctuations that would ineluctably follow them.
+
+On the other hand, if the initial high T component were at 1e7 K instead, then the timescales would be comparable, since the collision times would be 10^5/2 = 300 times longer.
+
+And if we took 1e8 K, as in a 2000 km/s shock, then we would have the opposite regime where the cooling is much faster than the collisions of the high velocity gas. In this case we can hold the "target" f_M fixed at 10^4 K, since cooling allows the T to remain constant while the high-velocity electrons are being thermalized.
+
+But in this case, the total density of the high velocity component is only 1e-4 of the total, so f in the intermediate velocity range is hardly effected.
+*** [2015-11-19 Thu] First message to Gary
+#+BEGIN_QUOTE
+Ah, well that’s the question, isn’t it?  We know that H II regions have very low Knudsen numbers (very collisional), but there are no calculations yet of what kappa should be.  Common sense says that kappa should be high, and Orion will be in the upper left of the diagram (possibly off the scale).  But common sense is sometimes mistaken, so we ought to do something quantitative.  
+
+I have a plan for calculating the electron velocity distribution (and hence kappa) for two cases: 
+
+1. The time-steady electron speed distribution that results from the standard processes in H II regions (your “primary mechanism”): (A) photoionization, (B) radiative recombination, and (C) collisional excitation of IR/optical/UV cooling lines.  This will be very easy because we can use the  BGK approximation, or one of the many extensions of it, which should be perfectly valid for this case (naive BGK violates several conservation laws, but that doesn’t matter if we are only interested in the steady state).  Basically, we just replace the whole complicated Boltzmann collision integral with a simple relaxation to Maxwellian on the e-e collision timescale. 
+
+Here is the wikipedia page (short and sweet): https://en.wikipedia.org/wiki/Bhatnagar–Gross–Krook_operator
+
+And here is a more detailed explanation of BGK: https://books.google.com.mx/books?id=fC52SR5yxRwC&pg=PA167&lpg=PA167&dq=BGK+approximation&source=bl&ots=hkGXbEqTGz&sig=JB7wCKuF3_cm-bG0OuFoiwd8GTA&hl=en&sa=X&ved=0CEEQ6AEwBWoVChMI9f-WjNKdyQIVgVs-Ch1iDQ1n#v=onepage&q=BGK%20approximation&f=false
+
+Suppose phi(xi) is the velocity distribution as a function of xi = u/ubar, where ubar is the average thermal speed.  And suppose phi*(xi) is the Maxwellian distribution.  Then the steady state solution under BGK will be phi(xi) = phi*(xi) + tau(xi) [ SourceRate(xi) - SinkRate(xi) ] where tau is the electron-electron collision timescale and SourceRate and SinkRate come from the (A), (B), and (C) listed above.   I order to be as fair as possible to Dopita et al, we should consider the case of a hard ionizing source where (A) will produce a source rate that is heavily biased to xi >> 1.  Whereas (B) will be a SinkRate biased to xi <~= 1 and (C) will be a SinkRate with xi dependence that varies according to the energy of the cooling line’s upper level, but will be biased towards xi > 1 for optical/UV lines.  Since the cooling, recombination and ionization rates all have timescales >> tau, the relative deviation from maxwellian (phi - phi*)/phi* should be small.   But the important point is that we can quantify it as a function of, e.g., metallicity and hardness of ionizing spectrum.  We can fit a kappa distribution (for instance to phi/phi* in the range xi = 3-5) and plot kappa as a function of our parameters.
+
+2. Is the case of diffusion of high energy electrons (e.g., from shocked stellar wind) through the H II region gas.  This is more tricky, but I can outline possible approaches tomorrow
+
+#+END_QUOTE
+*** [2015-11-19 Thu] Second message to Gary
+#+BEGIN_QUOTE
+A couple of things I forgot to mention with respect to project 1:
+
+Pretty well all the ingredients for calculating phi(xi) can come from a Cloudy model.  I was thinking of just running a model with a few zones for the parameters of interest and then taking the top 5 heating and cooling agents (plus recombination cooling even if it doesn’t make the top 5).  Although it may be worthwhile looking further down the list of coolants and heatants (if that is not a word, it should be) to see which ones disproportionately affect higher energy electrons.  The other thing we will need of course is the unintegrated velocity-dependent collision strengths for the important cooling lines.  Do you know where we could get these from? Mendoza?
+
+Second, I glossed over the fact that SinkRate_C(xi) is proportional to phi(xi), so the equation as I wrote it is implicit.  (The _C refers to process C, collisional line excitation).  However, we can easily convert it to an explicit form by rearranging terms, as I outline below.  Also, collisional excitations of the same line by electrons with a higher velocity xi’ = sqrt[ xi^2 + (2 E_12 / m ubar^2) ] produce a complementary SourceRate_C(xi) to go with the SinkRate_C(xi), in which E_12 is the excitation energy of the transition.   This introduces an unfortunate coupling between the different electron velocities, xi.  However, I think it is probably sufficient to use the maxwellian phi* for evaluating this - and if not, a couple of iterations would sort it out quickly.   Process (C) only needs to be considered when we are below the critical density of the line - at higher densities we will have de-excitation terms that almost exactly cancel the excitation terms.  
+
+SinkRate_B(xi), which is the radiative recombinations, is also proportional to phi(xi), but in this case there is no associated source rate because the electrons disappear by becoming bound.  
+
+Anyway, for both B and C we can write SinkRate(xi) = R(xi) phi(xi) where R(xi) = xi ubar sigma(xi ubar) Ne, with Ne being the electron density and sigma(u) the velocity-dependent cross-section.  Solving for phi, we get:
+
+          {phi*(xi) + tau(xi) [SourceRateA(xi) + R_C(xi’) phi*(xi’)]}
+phi(xi) = ————————————————————————————————————————————————————————————-
+                   {1  + tau(xi) [R_B(xi) + R_C(xi)]} 
+
+
+Note that the R_C terms are really each a summation of several sub-terms corresponding to different emission lines. 
+
+It is interesting that both sources and sinks have “high-energy biased” and “low-energy biased” terms.  In the sources we have the photoelectrons, SourceRateA, which are biased towards high energies, but we also have the “tired” electrons R_C(xi’) phi(xi’), which have just excited a cooling line and are biased towards low energies.  On the side of the sinks, we have the recombinations R_B(xi), which are biased towards low energies, but also the collisional line excitation R_C(xi), which is biased towards high-ish energies (e.g., xi >= sqrt(3) = 1.73 for [O III] 5007). 
+
+So, for xi > 1, we would expect to see generally a slight excess over a Maxwellian, which is driven by the photoionization SourceRateA, but just above the threshold energies of important cooling lines we will have a _deficit_ of electrons, driven by the R_C terms in the denominator.  Of course, the deviations (both up and down) will be small since tau is much shorter than the ionization or cooling timescale.  However, as xi increases as we go further out in the wings, phi(xi) is falling as exp(-xi^2), so the relative deviations from maxwellian will rapidly increase, and also tau(xi) is increasing as xi^3.  The resultant distribution will not be a kappa distribution, but we could calculate an effective value of kappa by comparing over a certain range of xi. 
+
+Time for washing up and bed now - talk to you tomorrow
+
+#+END_QUOTE
+*** Simple application of relaxation
++ Just use the following ingredients:
+  1. Photoelectrons from photoionization:
+     - If \(E = h(\nu - \nu_{0})\) is electron energy, then electron production rate is 
+       \[
+       \Gamma(E) \, dE = \frac{4 \pi J_{\nu}}{h^{2} \nu} \alpha_{\nu}\,  dE 
+       \]
+       where the extra \(h\) on the bottom comes from \(d \nu / d E\)
+     - For H we have \(\alpha_{\nu} = \alpha_{0} (\nu/\nu_{0})^{-3}\)
+     - Add in He too since it will dominate for higher energies
+     - And maybe add in grains too
+  2. Spontaneous radiative recombination sink term
+     - 
+  3. Inelastic collisions
+     - Restricted to 1 or 2 lines
+
+*** Different collision timescales
+:LOGBOOK:
+- Note taken on [2015-11-21 Sat 22:31] \\
+  Copied from Drafts note via Evernote monthly journal
+:END:
+At high energies, the energy loss timescale is much longer than the cumulative 90 degree deviation timescale.
+
+But, everyone always seems to use the latter. After one deviation time the electrons will be diffusing rather than streaming, so they won't get anywhere fast.
+
+So the distance travelled will be r = u t for t < τ. For longer times we will have diffusion so r = sqrt(D t), where the diffusion coefficient D = u λ cm^2/s. And λ = u τ
+
+This means that if the energy loss timescale is τ', then the energy loss will occur over a length λ' = u sqrt(τ τ'), which is large than λ by a factor of sqrt( τ' / τ ).
+
+Of course this is ignoring the diffusion in energy, but that should be relatively unimportant for t < τ'. So the extra factor will be significant for very high energy electrons. Since τ ~ ξ^3 and τ' ~ ξ^5, the factor is ≅ ξ = sqrt(T/T0), which is 10 for T = 10^6 K and 100 for T = 10^8 K.
+** Summary of conclusions about collisionality
++ H II regions are "non-collisional" plasmas in the sense that r_{L} \ll \lambda_{e}
++ But they are strongly "collisional" in the sense that r_{L} \ll R
++ It all depends on the scale that one is interested in.
++ See discussion in [[id:5A2596B6-D9A5-4E10-A119-9703EEBA3017][letter sent to Gary]]
+** TODO Write up that table I did of the Knudsen number
++ Knudsen number Kn is the ratio between electron mean free path and size of region
++ Kappa distribution is used for the
+  + Solar wind :: Kn = 1 -- 10
+  + Terrestial Magnetosphere :: Kn \simeq 10^{8}
++ H II regions have
+  + Galactic WIM :: Kn \simeq 4 \times 10^{-8} (\lambda_{e} = 10^{13} cm)
+  + Extended Orion Nebula :: Kn \simeq 4 \times 10^{-9} (\lambda_{e} = 10^{10} cm)
+  + Orion Nebula Core :: Kn \simeq 5 \times 10^{-10} (\lambda_{e} = 10^{8} cm)
+  + Proplyd :: Kn \simeq 5 \times 10^{-10} (\lambda_{e} = 10^{6} cm)
++ Of course, if we look at a tiny region of the nebula, then the Knudsen number would be larger
+  + But there is no evidence for structure to the nebula on such tiny scales
+  + And thermal conduction should smooth things out below 1e11 cm
+    + (Field length is proportional to 1/n, same as mean free path, so it is always 1000 times mean-free-path)
++ For all photoionized regions we have:
+  + \ell \ll \lambda_{D} \ll r_{L} \ll \lambda_{e} \ll l_{f} \ll \lambda_{\gamma} \ll R
+  + New one here is \lambda_{\gamma} = 10 / n \sigma_{0} \simeq 2e14 cm for n = 1e4 and \sigma  = 6e-18
++ For Orion core this is
+  + 0.05 \ll 7 \ll 2.2e4 \ll *1.41e8* \ll 1e11 \ll 2e14 \ll 3e17 cm
+  + The electron mean free path is highlighted in bold
+** What about the Braginskii x parameter 
++ This is the ratio of cyclotron frequency to collision frequency. E.g., x_{e} = \omega_{c,e} \tau_{e} 
++ So it should be about the same as mean free path over Larmor radius
+  + Which is about x = 6400 for Orion
+** Plasma parameter and plasma frequency
++ See Howard (2002), Introduction to Plasma Physics C17 Lecture Notes 
++ /Plasma parameter/ \Lambda = n  \lambda_{D}^{3} is number of particles inside a Debye volume
+  + In principle, this is the same as in the ln \Lambda that we use in the mean free path calculation
+  + Quote from Howard:
+    #+BEGIN_QUOTE
+    Λ is known as the plasma parameter. It is the only dimensionless parameter that characterises unmagnetized plasma systems. We idenitify two limits for Λ – the strongly coupled case Λ ≪ 1 in which the potential energy of the interacting particles is more significant than thier kinetic motions and the weakly coupled case Λ ≫ 1 where the particle thermal motions are more important. This is the case almost always encountered for naturally occurring and man-made plasmas.
+    #+END_QUOTE
+  + For H II regions this always very high: 10^{7} to 10^{9}, being higher at lower densities
++ /Plasma frequency/ ω_{p} ∼ v_{th }/ λ_{D}
+  + For electrons, this is (k T / m λ_{D}^{2})^{1/2} = 5.6 MHz for n = 1e4 pcc, dropping as n^{-1/2} 
+** NEXT Use equations in Plasma Formulary
++ [[file:~/Dropbox/Documents/Ebooks/Wiley/Diver-PlasmaFormulary/ch6.pdf]]
++ Section 6.3.1.3 looks relevant for Gary's kappa paper
++ Use equation 6.8 to find Maxwellian relaxation time as a function of particle energy
+** NEXT Solve Boltzmann equation and estimate kappa
++ Use the Krook collision term, which is a good approzimation for interactions between like particles (e.g., electron-electron collisions)
++ Use equations from Howard (2002)
+** What does it mean for a plasma to be "collisionless"
+:PROPERTIES:
+:ID:       EB728D11-1477-4406-BFA7-C113178566E0
+:END:
++ According to Wikipedia
+  : In plasma physics of tokamaks, collisionality is a dimensionless parameter which expresses the ratio of the electron-ion collision frequency to the banana orbit frequency.
++ In our case, we want to substitute cyclotron frequency for "banana orbit frequency", in which case this becomes similar to 1/x where x is the Braginskii parameter
++ Except that it talks about electron-ion collisions, whereas \tau_{e} is all about electron-electron I think
++ Neglecting that little detail, this implies that H II regions are still "collisionless" in this sense
++ So a shock transition can be mediated at scales of r_{L }but the post shock particles would not thermalise until \lambda_{e}
++ And all this is for electrons - ions will be different
++ But other authors compare with the size of the system L
+  + This is what Howard says:
+    #+BEGIN_QUOTE
+    The plasma “collisionality” often refers to a dimensionless measure such as ν/ω_{T} where ν is the actual collision frequency and ω_{T} is the system transit frequency. An alternative and more intuitive measure is the ratio 
+
+                 λ_{mfp} / L ∼ ω_{T} / ν (1.18) 
+
+    where
+  
+                 λ_{mfp} ≡ v_{th }/ ν (1.19)
+
+    defines the mean free path between collisions. A “collisionless” plasma satisfies the condition λ_{mfp} >> L. 
+    #+END_QUOTE
+  + All this is reconciled in the [[id:5A2596B6-D9A5-4E10-A119-9703EEBA3017][message sent to Gary]] 
+

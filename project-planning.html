@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2015-11-03 Tue 18:29 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project Planning</title>
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="William Henney" />
+<style type="text/css">
+<!--/*--><![CDATA[/*><!--*/
+html {
+    font-family: Lucida Grande, Tahoma, Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    /* color:  rgb(224, 224, 224); */
+    /* background: rgb(48, 48, 48); */
+}
+
+/* Links */
+a:link {color: #333399; }
+a:visited {color: #777788; }
+a:hover {color: #2222ff; }
+
+
+/* 08 Mar 2015 - we want more definite distinguishing of blockquotes */
+blockquote {
+    background: #E3E3E3;
+    font-size: 90%
+}
+
+/* Added by Will 03 Sep 2007 */
+li {padding: 4px; }
+
+/* Added by Will 08 Oct 2007 */ 
+
+/* Headings shamelessly copied from MoinMoin theme "sinorca4moin" by David Linke*/
+
+h1, h2, h3, h4, h5 {
+	margin: 1em 0 0.5em 0;
+	padding: 0.5em 0.5em 0.5em 0.5em;
+        font-weight: bold;
+	/* Why did I remove the color? */
+	/* background-color: #fafada; */
+	line-height: 1.2em;
+}	
+
+/* h5, h6 { */
+/*     border-bottom: 1px dashed rgb(135,135,135); */
+/* }   */
+/* h1, h2, h3, h4 { */
+/*     /\* border-left: 1px solid rgb(135,135,135); *\/ */
+/*     border-bottom: 2px solid rgb(135,135,135); */
+/* }   */
+
+h1, h2, h3, h4 {
+    color: #f0f0f0;
+    background-color: #404040;
+}
+h4 {
+    color: #f0f0f0;
+    background-color: #606060;
+}
+h5, h6 {
+    color: #f0f0f0;
+    background-color: #808080;
+}
+h1 {font-size: 140%;}
+h2 {font-size: 120%;}
+h3, h4, h5, h6 {font-size: 100%;}
+h6 {font-style: italic;}
+
+p {margin: 0.5em 0.0em;}
+/* .src:before {  */
+/*     background: #3F3F3F; */
+/*     border-right: 1px solid #DCDCDC; border-bottom: 1px solid #DCDCDC; */
+/* } */
+
+.src {
+    background: #4F4F4F;
+    color: #ECECEC;
+}
+.example, thead {
+    background: #E3E3E3;
+}
+
+pre.src:before {
+    color: black;
+}
+
+pre.src {
+    overflow: auto;
+}
+
+/* pre.src-python:before { content: 'Python'; } */
+
+.wjhfig {
+    background-color: #eee;
+    padding: 10pt;
+    margin: 10pt;
+}
+.figure, img {
+    padding: 0pt;
+    margin: 0pt;
+}
+
+/* Make sure paragraphs are no thinner than a certain width, even if
+   there is a floating div eating up their space - based on this tip:
+   http://css-tricks.com/minimum-paragraph-widths */ 
+/* p:before { */
+/*   content: ""; */
+/*   width: 20em; */
+/*   display: block; */
+/*   overflow: hidden; */
+/*   /\* For Demonstration *\/ */
+/*   /\* border: 1px solid green; *\/ */
+/* } */
+
+/* ul { */
+/*     /\* try and fix item indentation when the list is to the right pf a */
+/*        "float:left" div.  Initially inspired by advice from */
+/*        http://wordpress.org/support/topic/left-float-and-bullet-lists-not-playing-well-together */
+/*        although in the end I had to do things differently*\/ */
+/*     list-style: inside; */
+/*     text-indent: 10pt; */
+/* } */
+/* ul > li > ul { text-indent: 20pt; } */
+/* ul > li > ul > li > ul { text-indent: 30pt; } */
+
+.src, .example, table {
+    font-size: 80%;
+}
+
+tbody {
+    background-color: #fafada;
+    /* background-color: rgb(250, 250, 200); */
+}
+
+
+#table-of-contents {
+    background-color: #f0f0f0;
+}
+
+
+
+
+/*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Project Planning</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline15">1. Short term goals</a>
+<ul>
+<li><a href="#orgheadline13">1.1. <code>[4/11]</code> Skype call Nashville+2</a>
+<ul>
+<li><a href="#orgheadline1">1.1.1. <span class="done nilDONE">DONE</span> Make little cubes to cover borders between the wavsecs</a></li>
+<li><a href="#orgheadline6">1.1.2. <span class="done nilDONE">DONE</span> <code>[4/4]</code> Estimate noise in MUSE maps</a></li>
+<li><a href="#orgheadline3">1.1.3. <span class="done nilDONE">DONE</span> Improve presentation of histograms and put in draft paper</a></li>
+<li><a href="#orgheadline2">1.1.4. <span class="done nilDONE">DONE</span> Investigate upward bias in fuzzing + binning</a></li>
+<li><a href="#orgheadline7">1.1.5. <span class="todo nilSTARTED">STARTED</span> Analyse apparent and real t^2 as function of brightness</a></li>
+<li><a href="#orgheadline8">1.1.6. <span class="todo nilSTARTED">STARTED</span> Discuss [Fe III] knots</a></li>
+<li><a href="#orgheadline9">1.1.7. <span class="todo nilSTARTED">STARTED</span> <code>[2/3]</code> Make some color images of the line maps</a></li>
+<li><a href="#orgheadline10">1.1.8. <span class="todo nilSTARTED">STARTED</span> Generate line maps for the new lines I added to the table</a></li>
+<li><a href="#orgheadline11">1.1.9. <span class="todo nilTODO">TODO</span> Do extinction correction for all lines</a></li>
+<li><a href="#orgheadline4">1.1.10. <span class="todo nilTODO">TODO</span> Look at noise behavior with binning for "constant" ratios</a></li>
+<li><a href="#orgheadline12">1.1.11. <span class="todo nilTODO">TODO</span> Pad images to multiple of 256 before binning</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">1.2. Skype call Nashville+3</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline30">2. Medium term goals</a>
+<ul>
+<li><a href="#orgheadline16">2.1. <span class="todo nilTODO">TODO</span> Improved robust measure of scale</a></li>
+<li><a href="#orgheadline17">2.2. <span class="todo nilTODO">TODO</span> Make profile cuts perpendicular to the Bright Bar</a></li>
+<li><a href="#orgheadline18">2.3. <span class="todo nilTODO">TODO</span> Repeat the fuzzing for the WFC3 data</a></li>
+<li><a href="#orgheadline20">2.4. <span class="todo nilTODO">TODO</span> Deal better with sky subtraction</a></li>
+<li><a href="#orgheadline21">2.5. <span class="todo nilTODO">TODO</span> Write script to generate figures of MUSE maps</a></li>
+<li><a href="#orgheadline19">2.6. <span class="todo nilTODO">TODO</span> How can we deal with the systematic pattern "noise"</a></li>
+<li><a href="#orgheadline5">2.7. <span class="todo nilTODO">TODO</span> Generate maps with constant signal-noise</a></li>
+<li><a href="#orgheadline22">2.8. <span class="todo nilTODO">TODO</span> Improve continuum subtraction in extracting lines</a></li>
+<li><a href="#orgheadline23">2.9. <span class="todo nilTODO">TODO</span> Calculate maps line-of-sight depth of emission zones for different ions</a></li>
+<li><a href="#orgheadline24">2.10. <span class="todo nilTODO">TODO</span> Fit Gaussians to blended lines in MUSE data</a></li>
+<li><a href="#orgheadline25">2.11. Write up WFC3 calibration material</a></li>
+<li><a href="#orgheadline26">2.12. <span class="todo nilTODO">TODO</span> Reorganise Latex documents</a></li>
+<li><a href="#orgheadline27">2.13. <span class="todo nilTODO">TODO</span> Write up Dust extinction complications stuff</a></li>
+<li><a href="#orgheadline28">2.14. <span class="todo nilTODO">TODO</span> Write up the CEL-ORL T indicator stuff for O++</a></li>
+<li><a href="#orgheadline29">2.15. Write about plane-of-sky t^2 theory</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-2">
+<h2 id="orgheadline15"><a id="ID-706697F5-E600-4446-A4A4-C467A96CBD2C"></a><span class="section-number-2">1</span> Short term goals</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-orgheadline13" class="outline-3">
+<h3 id="orgheadline13"><span class="section-number-3">1.1</span> <code>[4/11]</code> Skype call Nashville+2</h3>
+<div class="outline-text-3" id="text-1-1">
+</div>
+<div id="outline-container-orgheadline1" class="outline-4">
+<h4 id="orgheadline1"><span class="section-number-4">1.1.1</span> <span class="done DONE">DONE</span> Make little cubes to cover borders between the wavsecs</h4>
+<div class="outline-text-4" id="text-1-1-1">
+<ul class="org-ul">
+<li>The window used in the line extraction is 24 Ang wide and sometimes this straddles two different wavsec sections</li>
+<li>One way to deal with this would be to make separate little cubes covering +/- 12 Angstrom either side of the dividing lines</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-4">
+<h4 id="orgheadline6"><span class="section-number-4">1.1.2</span> <span class="done DONE">DONE</span> <code>[4/4]</code> Estimate noise in MUSE maps</h4>
+<div class="outline-text-4" id="text-1-1-2">
+<ul class="org-ul">
+<li class="on"><code>[X]</code> Use the error cube from the original FITS file
+<ul class="org-ul">
+<li>Need to do this on server (or maybe on hypatia)</li>
+<li><span class="timestamp-wrapper"><span class="timestamp">[2015-10-29 Thu 11:28] </span></span> I now have the cubes on hypatia (or on their way from nil)</li>
+<li>I have put them in the <code>BigFiles/</code> folder, <b>which is excluded from Dropbox</b></li>
+<li>They are 6.8GB each = 47.6 GB all together
+<ul class="org-ul">
+<li>There is not enough disk space on my laptop for them</li>
+</ul></li>
+</ul></li>
+<li class="on"><code>[X]</code> Make fuzzed versions of the line maps
+<ul class="org-ul">
+<li class="on"><code>[X]</code> First I <a href="orion-muse.html#ID-9B385AF1-5AA5-4EA2-B1A3-8802C0959808">refactored</a> extract-em-line.py to use windows of the cube</li>
+<li class="on"><code>[X]</code> Then I do a <a href="orion-muse.html#ID-12C8CC0B-4F79-4726-B0E2-6DA1F9DFABA3">version</a> that fuzzes each window first</li>
+<li>I am doing 10 fuzzes of each line, which takes about 45 sec per line on my iMac</li>
+<li class="on"><code>[X]</code> 5192 is a special case, since it straddles two wavsecs - use the F%$7M window instead, but I need to extract that from the big variance cube</li>
+<li>Lines I have fuzzed <span class="timestamp-wrapper"><span class="timestamp">[2015-10-30 Fri 08:19]</span></span>:
+<ul class="org-ul">
+<li>Reddening: H I 6563, 4861, 9229</li>
+<li>Te: [S III] 6312, 9069, [N II] 5755, 6583, [Ar III] 5192, 7751, [O I] 5577, 6300</li>
+<li>Ne: [Cl III] 5518, 5538, [S II] 6731, 6716, [Fe III] 4702, 4658</li>
+<li>Constant: [O III] 5007, 4959, [Ar III] 7136, [N II] 6548, [O I] 6364</li>
+<li>Other: [Cl IV] 8046, [C I] 8727</li>
+</ul></li>
+</ul></li>
+<li class="on"><code>[X]</code> Propagate the variance through all the data reduction steps
+<ul class="org-ul">
+<li class="on"><code>[X]</code> First <a href="orion-muse.html#ID-3D36AC7E-5321-420E-B0A4-29EC2068083D">multibinning</a>
+<ul class="org-ul">
+<li>There might be an issue here with the fuzzing producing a bias towards higher brightness in the binned maps</li>
+<li>I think this is because the binning masks out negative pixels, which is not appropriate for the weak lines (added <a href="#orgheadline2">task</a> to fix this)</li>
+</ul></li>
+<li class="on"><code>[X]</code> Then calculation of <a href="orion-muse.html#ID-55C78FE2-2D64-4EE3-9222-FA65A68FC55A">ratios</a></li>
+<li class="on"><code>[X]</code> Then extinction correction</li>
+<li class="on"><code>[X]</code> Then <a href="orion-muse.html#ID-4DD175B0-88A8-4F96-B7B7-1DB2B241A3F6">calculation of Te, Ne</a></li>
+</ul></li>
+<li class="on"><code>[X]</code> Look at &Delta; T, &Delta; N and so on as function of brightness and binning
+<ul class="org-ul">
+<li>Where the &Delta;'s are the std among the different fuzzies</li>
+<li>This is done in the section <a href="orion-muse.html#ID-8793FA29-D493-4859-A5E7-BD522D218497">Delta Te, Ne from the fuzzing</a> where we produce fits files of (&Delta; T / T) and log(N'/N)</li>
+<li>Then the histograms are plotted in the section <a href="orion-muse.html#ID-7DB9EEBF-F83B-4D93-8C0D-8665AC9881AD">Fuzzy Deltas distribution histograms</a> where I have used the same plotting range as in <a href="orion-muse.html#ID-B85FB5E5-A541-4862-AEA4-796B64172022">Te - Ne distribution histograms</a> so that they can be directly compared
+<ul class="org-ul">
+<li>Separate task: <a href="#orgheadline3">Improve presentation of histograms and put in draft paper</a></li>
+</ul></li>
+</ul></li>
+<li>Repeat for the "constant" ratios, to check that the fuzzies correctly predict the march towards the correct value as the binning is increased
+<ul class="org-ul">
+<li>This has been moved to its <a href="#orgheadline4">own task</a></li>
+</ul></li>
+<li><i>Original note</i> Then we can fuzz the line maps by adding Gaussian noise.
+<ul class="org-ul">
+<li>Actually it would be best to fuzz the data cubes directly. And then to follow exactly the same steps with the fuzzed data. We can then calculate the pixel by pixel differences between T from fuzzed and original cubes. The dispersion in this is then our best estimate for the noise contribution to t-squared.</li>
+<li>We can also then use this to generate maps with a guaranteed signal to noise by using multi scale binning. Important here in the case of ratios to use the same mask hierarchy for all lines that contribute to the final quantity.
+<ul class="org-ul">
+<li>This also now has its own <a href="#orgheadline5">task</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-4">
+<h4 id="orgheadline3"><a id="ID-08241C4F-6455-4B2F-8042-4E5FA58599BC"></a><span class="section-number-4">1.1.3</span> <span class="done DONE">DONE</span> Improve presentation of histograms and put in draft paper</h4>
+<div class="outline-text-4" id="text-1-1-3">
+<ul class="org-ul">
+<li>Use color to distinguish the real data from the fuzzing estimates of noise</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-4">
+<h4 id="orgheadline2"><a id="ID-4FBBD1CF-34BD-4B32-AF39-AB459DB44A18"></a><span class="section-number-4">1.1.4</span> <span class="done DONE">DONE</span> Investigate upward bias in fuzzing + binning</h4>
+<div class="outline-text-4" id="text-1-1-4">
+<ul class="org-ul">
+<li>Weak lines after binning are brighter in fuzzed versions</li>
+<li>Presumably due to masking out negative pixels, which eliminates the negative part of the noise</li>
+<li><span class="timestamp-wrapper"><span class="timestamp">[2015-10-31 Sat 16:25] </span></span> I have modified <a href="multibin-map.py">multibin-map.py</a> from the section <a href="orion-muse.html#ID-3D36AC7E-5321-420E-B0A4-29EC2068083D">Multi-resolution MUSE line maps</a> so that it no longer masks out negative pixels in the line maps
+<ul class="org-ul">
+<li>I have rerun the rebinning for the regular and fuzzed maps</li>
+<li>Then rerun all the following steps</li>
+<li>Things are <b>much improved</b>
+<ul class="org-ul">
+<li>The [Cl III] density now behaves much more reasonably in the faint parts.  It no longer tends to a constant value</li>
+<li>We have also eliminated the high apparent [N II] temperatures in the Dark Bay</li>
+<li>Other weak lines are also now much better, such as [C I] 8727 and [Cl IV]</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7"><span class="section-number-4">1.1.5</span> <span class="todo STARTED">STARTED</span> Analyse apparent and real t^2 as function of brightness</h4>
+<div class="outline-text-4" id="text-1-1-5">
+<ul class="org-ul">
+<li>Modify the histogram plotting programs to calculate mean and variance for each brightness bin
+<ul class="org-ul">
+<li>And maybe plot mean +/- sigma on the graphs (although that might get too fussy)</li>
+</ul></li>
+<li>Decompose the total t^2 into the (brightness-weighted) average over the variances within each brightness bin <b>plus</b> the variance in the mean values <i>between</i> the brightness bins
+<ul class="org-ul">
+<li>Check that this works out OK for the total apparent t^2</li>
+</ul></li>
+<li>Then we can subtract off the noise variance (obtained via fuzzing) from each brightness bin and recalculate the total t^2 to get the noise-corrected value for each degree of spatial binning</li>
+<li>Plots of partial t-squared in section <a href="orion-muse.html#ID-6B630292-2F8F-4192-89C1-AF07F5462505">Compare the observed and fuzzed variances in Te,Ne</a>
+<ul class="org-ul">
+<li>It turns out that we need to use robust statistics because the variance is too sensitive to wings of the distribution</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-4">
+<h4 id="orgheadline8"><a id="ID-994ED1D9-55BD-4577-8C0A-72B05614C763"></a><span class="section-number-4">1.1.6</span> <span class="todo STARTED">STARTED</span> Discuss [Fe III] knots</h4>
+<div class="outline-text-4" id="text-1-1-6">
+<ul class="org-ul">
+<li>In the [Fe III] maps we see enhanced emission from jets and shocks (due to increased gas phase Fe abundance following dust destruction in shocks)</li>
+<li>These should be compared with the WFC3 F469N image, which has an important contribution from the 4702 line</li>
+<li>From Orion S we see two linear chains of knots
+<ul class="org-ul">
+<li>PA114 flow
+<ul class="org-ul">
+<li>Probably associated with the strange [S II] bright tongue coming from 143-353 and then continues WSW through 159-402 (west side of this knot just caught in WFC3 field) and 165-406
+<ul class="org-ul">
+<li>On the other side to ENE (PA294) there are knots at 118-345 and 116-345, seen in WFC3 image and in MUSE line map.
+<ul class="org-ul">
+<li>Before getting to these there is a fainter knot at 126-346</li>
+<li>There are W-facing [N II]-bright bowshocks wrapping around each of these.</li>
+<li class="on"><code>[X]</code> Need to check if this is a cataloged HH flow
+<ul class="org-ul">
+<li>They might possibly be related to HH507 (main bow at 109-347) but I think not.  HH507 has lower ionization and is at PA315 according to BOM00 (see their Fig 22).</li>
+<li>In OD15 the proper motion of 118-345 and other related knots is discussed in Sec 5.12.2., entitled <i>Shocks near but Probably Unrelated to HH 507</i> so it looks like Bob agrees with me!</li>
+<li>OD15 Table 6 gives Vt = 46, 53, 40, 48 and PA278, 279, 298, 269 for knots at 118-346, 116-346, 116-344, which all fall within the [Fe III] knots in the F649N image
+<ul class="org-ul">
+<li>Interestingly, there are other motion features, slightly below at 116-348 and 118-348, which have similar POS velocities, but <b>no [Fe III] emission</b> at all</li>
+</ul></li>
+<li>OD15 gives the mean PA as 284, as opposed to 294, but given the uncertainties in the proper motions I think this is consistent</li>
+<li>OD15 mentions the possibility of connection to the blueshifted SiO from Coup 554
+<ul class="org-ul">
+<li>But Coup 554 is at 135.6-355.3, whereas the [Fe III] knot chain points to 143-353 as the source (DR 1186, ZRK 15, 142.9-353.1)</li>
+</ul></li>
+<li>OD15 also mentions the possibility of connection to HH269
+<ul class="org-ul">
+<li>That seems unlikely since the PAs are different</li>
+</ul></li>
+<li>OD15 also talks about the knot 126-346, but in section 5.6, which is about HH 1127
+<ul class="org-ul">
+<li>However 126-346 is clearly not part of HH 1127</li>
+<li>Tab 6 gives Vt = 40 at PA270</li>
+<li>It is also shown as 125.5-346.5 in Fig 41, where it looks clearly to be part of same flow as 118-345</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>MUSE has a possible further knot at 091-340
+<ul class="org-ul">
+<li>OD15 has motions measured for 090-339 and 090-340 of Vt = 21, 52, 39 and PA284, 274, 304 - <i>this is consistent with being the same flow</i></li>
+</ul></li>
+<li>This flow is unlikely to be driving HH 203 unless it has bent to the south</li>
+</ul></li>
+<li>This flow is likely unrelated to the PA120 filament starting around 152-358 that may also pass through 149-355 (high T filament) and might have its source in 146-351 (near-IR source).  This PA120 flow is the perfect candidate for driving HH203</li>
+</ul></li>
+<li>PA090 to PA093 flow
+<ul class="org-ul">
+<li>probably associated with HH529</li>
+<li>knot at 152-353 corresponds to a flat shock just to E of the corkscrew jet
+<ul class="org-ul">
+<li>OD15 has Vt=89 PA087, which cis in the right direction</li>
+</ul></li>
+<li>further E there is a very compact knot at 160-353, but that is probably the proplyd 159-350, knot related to the flow</li>
+<li>on the W side there is a knot at 143-352
+<ul class="org-ul">
+<li>OD15 has a very slow-moving knot there: 143-351 with Vt = 8 at PA284</li>
+</ul></li>
+</ul></li>
+<li>The <b>contested knot</b> at 137-352
+<ul class="org-ul">
+<li>It is knot(!) clear whether this is part of the PA114 or PA090 flow.
+<ul class="org-ul">
+<li>The alignment seems equally good with either of them
+<ul class="org-ul">
+<li><b>not true</b> see below: certainly PA090</li>
+</ul></li>
+</ul></li>
+<li>It is the brightest [Fe III] knot of all</li>
+<li>It has a strange morphology in the F469N image (it is poorly resolved in the MUSE maps)
+<ul class="org-ul">
+<li>It looks like a west-pointing comma-shaped bowshock with a line slashed across the S wing of the bow</li>
+<li>But it can also be seen in the other filters, such as F673N, where it looks more like it is the superposition of two bowshocks, an upper one heading almost due W (PA270) and a lower one, heading more at PA260</li>
+<li>It appears in OD15 as 137-352 with Vt = 49 at PA271</li>
+<li>The shock just above it 137.3-350.2 is discussed in sec 5.12.6 and is classified as the first knot in HH1151 - other knots are 125.5-346.5 and 094-336
+<ul class="org-ul">
+<li>Note that 137.3-350.2 itself does not show [Fe III] emission, but 125.5-346.5 certainly does - it is the same as 126-346 discussed above!</li>
+</ul></li>
+</ul></li>
+<li><b>Revisionist version</b>
+<ul class="org-ul">
+<li>Some of the above classification is probably wrong</li>
+<li>Better assignment of knots to flows is here
+<ul class="org-ul">
+<li><a href="file:///Users/will/Work/RubinWFC3/Tsquared/feiii-knots-MUSE.reg">file:///Users/will/Work/RubinWFC3/Tsquared/feiii-knots-MUSE.reg</a></li>
+</ul></li>
+<li>Also, I did the same for the [Fe II] knots here
+<ul class="org-ul">
+<li><a href="file:///Users/will/Work/RubinWFC3/Tsquared/feii-knots-MUSE.reg">file:///Users/will/Work/RubinWFC3/Tsquared/feii-knots-MUSE.reg</a></li>
+</ul></li>
+<li>I have several apparent groupings of the knots along straight monopolar or bipolar lines</li>
+<li>But I am still not entirely convinced
+<ul class="org-ul">
+<li>Partly due to looking at the proper motions
+<ul class="org-ul">
+<li><img src="file:///Users/will/Work/RubinWFC3/Tsquared/proper-motion-orion-s-vslow.gif" alt="proper-motion-orion-s-vslow.gif" /></li>
+<li>The proper motions make it look like the HH529 corkscrew is coming from 145.7-350.8 (HC209 radio source)</li>
+<li>Also that the westward knots at 138-351 and 137-352  might be coming from the same source - it looks like their proper motion is close to due W (PA270) or even slightly southward (PA260). So they are certainly not related to the</li>
+</ul></li>
+</ul></li>
+<li>Orange flow at PA110 seems to correspond to HH 1149 from OD15
+<ul class="org-ul">
+<li>This shows an offset between the [Fe III] and the [Fe II] knots, where [Fe II] is consistentlydisplaced a bit fiurhter from the Trapezium</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9"><span class="section-number-4">1.1.7</span> <span class="todo STARTED">STARTED</span> <code>[2/3]</code> Make some color images of the line maps</h4>
+<div class="outline-text-4" id="text-1-1-7">
+<ul class="org-ul">
+<li class="on"><code>[X]</code> This is done in the section <a href="orion-muse.html#ID-EB04009B-1EF8-468D-8B04-C823074CF185">Grab color images from ds9</a></li>
+<li class="on"><code>[X]</code> The channels are as follows:
+<ul class="org-ul">
+<li><img src="rgb-C1-O1-N1.jpg" alt="rgb-C1-O1-N1.jpg" /> (bin002)
+<dl class="org-dl">
+<dt>red</dt><dd>C_I-8727</dd>
+<dt>green</dt><dd>O_I-8446</dd>
+<dt>blue</dt><dd>N_I-5199</dd>
+<dt>(no term)</dt><dd>Shows fluorescent emission from neutral gas just behind the ionization front in blue-green and collisional neutral carbon emission from deep in the PDR in red</dd>
+<dt>(no term)</dt><dd>Note offset of [C I] emission behind the i-front at the Bright Bar</dd>
+<dt>(no term)</dt><dd>Also bright filament pointing down SSW from Orion S</dd>
+</dl></li>
+<li><img src="rgb-Fe2.jpg" alt="rgb-Fe2.jpg" /> (bin004)
+<dl class="org-dl">
+<dt>red</dt><dd>Fe_II-8617</dd>
+<dt>green</dt><dd>Fe_II-7453</dd>
+<dt>blue</dt><dd>Fe_II-5262</dd>
+</dl></li>
+<li><img src="rgb-Fe3.jpg" alt="rgb-Fe3.jpg" /> (bin004)
+<dl class="org-dl">
+<dt>red</dt><dd>Fe_III-4658</dd>
+<dt>green</dt><dd>Fe_III-4702</dd>
+<dt>blue</dt><dd>Fe_III-5270</dd>
+<dt>(no term)</dt><dd>In principle 4702/4658 is a density indicator but it is very noisy
+<ul class="org-ul">
+<li>This looks much better in the <a href="../../Work/RubinWFC3/Tsquared/recomb-lines.html#ID-9FF99B23-1472-425D-B8DB-99370939AD43">Manu PPAK data</a></li>
+<li>But the results are consistent - range of 0.2 to 0.35</li>
+</ul></dd>
+<dt>(no term)</dt><dd>We see diffuse emission from the nebula (pink tint)
+<ul class="org-ul">
+<li>Annoyingly, this is an intermediate ionization, unlike any other ion stage.  It is higher ionization than [N II], [O II], but lower ionization than [S III], [Ar III], [Cl III]</li>
+</ul></dd>
+<dt>(no term)</dt><dd>Emission from jets and knots - discussion was getting out of hand so broken out into a new task: <a href="#orgheadline8">Discuss {Fe III} knots</a></dd>
+</dl></li>
+
+<li><img src="rgb-He1-O3-Cl4.jpg" alt="rgb-He1-O3-Cl4.jpg" /> (bin008)
+<dl class="org-dl">
+<dt>red</dt><dd>Cl_IV-8046</dd>
+<dt>green</dt><dd>O_III-5007</dd>
+<dt>blue</dt><dd>He_I-6678</dd>
+</dl></li>
+<li><img src="rgb-N2-permitted.jpg" alt="rgb-N2-permitted.jpg" /> (bin064)
+<dl class="org-dl">
+<dt>red</dt><dd>N_II-5952</dd>
+<dt>green</dt><dd>N_II-5942</dd>
+<dt>blue</dt><dd>N_II-5932</dd>
+</dl></li>
+<li><img src="rgb-O1-S2-O2.jpg" alt="rgb-O1-S2-O2.jpg" /> (bin004)
+<dl class="org-dl">
+<dt>red</dt><dd>O_I-6364</dd>
+<dt>green</dt><dd>S_II-6731</dd>
+<dt>blue</dt><dd>O_II-7330</dd>
+</dl></li>
+<li><img src="rgb-Si2-permitted.jpg" alt="rgb-Si2-permitted.jpg" /> (bin004)
+<dl class="org-dl">
+<dt>red</dt><dd>Si_II-5041</dd>
+<dt>green</dt><dd>Si_II-5056</dd>
+<dt>blue</dt><dd>Si_II-6347</dd>
+</dl></li>
+<li><img src="rgb-chlorine-234.jpg" alt="rgb-chlorine-234.jpg" /> (bin004)
+<dl class="org-dl">
+<dt>red</dt><dd>Cl_II-8579</dd>
+<dt>green</dt><dd>Cl_III-5538</dd>
+<dt>blue</dt><dd>Cl_IV-8046</dd>
+</dl></li>
+<li><img src="rgb-continuum.jpg" alt="rgb-continuum.jpg" /> (no binning)
+<dl class="org-dl">
+<dt>red</dt><dd>continuum-H_I-8438</dd>
+<dt>green</dt><dd>continuum-Cl_IV-8046</dd>
+<dt>blue</dt><dd>continuum-O_II-4650</dd>
+</dl></li>
+</ul></li>
+<li class="off"><code>[&#xa0;]</code> Add descriptions to figure captions</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="orgheadline10"><span class="section-number-4">1.1.8</span> <span class="todo STARTED">STARTED</span> Generate line maps for the new lines I added to the table</h4>
+<div class="outline-text-4" id="text-1-1-8">
+<ul class="org-ul">
+<li>Most importantly [Ar IV]
+<ul class="org-ul">
+<li>From looking at the <a href="../../Work/RubinWFC3/Tsquared/recomb-lines.html#ID-907D4EED-69C9-4B01-9ECB-E8A2C9757E80">Manu PPAK results for {Ar IV}</a>, the distribution is similar to [Cl IV], but it is slightly more extended</li>
+</ul></li>
+<li>I also have a lot more [Fe III] lines in the blue</li>
+<li>And the stellar absorption lines too</li>
+<li class="on"><code>[X]</code> This has to be done on <code>hypatia</code> or on <code>nil</code> since I have removed the big data cubes from my laptop</li>
+<li>The [Ar IV] 4740 line looks great - very similar distribution to [Cl IV]
+<ul class="org-ul">
+<li>Shows the proplyd bowshocks very well</li>
+<li>We also see [Ar IV] 4711 contamination in the He I 4713 map
+<ul class="org-ul">
+<li>The proplyd bowshocks show up in that too</li>
+</ul></li>
+</ul></li>
+<li>The three semi-forbidden Ca I] lines look very strange
+<ul class="org-ul">
+<li>The red one 9095 looks like fluorescence, but 9052 looks like it comes from the i-front and 7890 like it comes from intermediate ionization gas
+<ul class="org-ul">
+<li>Could 7890 be contaminated with something else? Looks a bit like [Fe III]</li>
+</ul></li>
+</ul></li>
+<li>The red C II 7231 7236 permitted lines are very strong
+<ul class="org-ul">
+<li>Also show up the proplyd bowshocks and very strong in the Big ARc as expected</li>
+</ul></li>
+<li class="off"><code>[&#xa0;]</code> Now I need to do rebinning for them</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="orgheadline11"><span class="section-number-4">1.1.9</span> <span class="todo TODO">TODO</span> Do extinction correction for all lines</h4>
+<div class="outline-text-4" id="text-1-1-9">
+<ul class="org-ul">
+<li>This means first settling on a reddening curve</li>
+<li>Simplest approach is to use Hb/Ha and then apply Blagrave to everything
+<ul class="org-ul">
+<li>pyneb.extinction.red_corr.RedCorr(law='CCM89 Bal07') could help</li>
+<li>I think they mean <code>Bla</code> instead of <code>Bal</code></li>
+</ul></li>
+<li>Of course, there are issues with that since E(Hb-Ha) plus R_V=5 reddening law seems to underpredict the extinction, at least in the dark bay</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4"><a id="ID-C0999AF9-C941-4063-952D-F3B34CDE80AD"></a><span class="section-number-4">1.1.10</span> <span class="todo TODO">TODO</span> Look at noise behavior with binning for "constant" ratios</h4>
+<div class="outline-text-4" id="text-1-1-10">
+<ul class="org-ul">
+<li>Such as 6363/6300, 6583/6548, 5007/4959, etc</li>
+<li>This will be a clear test that the fuzzing procedure is correctly estimating the noise contribution to line-ratio variations</li>
+<li>It does require that I have the general reddening correction working</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12"><span class="section-number-4">1.1.11</span> <span class="todo TODO">TODO</span> Pad images to multiple of 256 before binning</h4>
+<div class="outline-text-4" id="text-1-1-11">
+<ul class="org-ul">
+<li>This is so that all the binned maps are the same size,
+<ul class="org-ul">
+<li>which would look nicer</li>
+<li>and would avoid having to cnotinually align to WCS in ds9</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14"><span class="section-number-3">1.2</span> Skype call Nashville+3</h3>
+<div class="outline-text-3" id="text-1-2">
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline30" class="outline-2">
+<h2 id="orgheadline30"><span class="section-number-2">2</span> Medium term goals</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Holding area for tasks that will get moved to <a href="#orgheadline15">Short term goals</a>
+</p>
+</div>
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="orgheadline16"><span class="section-number-3">2.1</span> <span class="todo TODO">TODO</span> Improved robust measure of scale</h3>
+<div class="outline-text-3" id="text-2-1">
+<ul class="org-ul">
+<li>We need a robust measure so we are not too sensitive to fat tails!</li>
+<li>Currently we use the interquartile range (IQR)</li>
+<li>Another simple possibility would be the median absolute deviation (MAD)
+<ul class="org-ul">
+<li>These are equivalent (IQR = 2 MAD) for symmetric distributions, but are different if there is non-zero skew</li>
+</ul></li>
+<li>The problem with both of these is low "efficiency" for Gaussian distributions
+<ul class="org-ul">
+<li>We see this in the fact that the robust partial t^2 looks noisier than the regular t^2 for high binning</li>
+</ul></li>
+<li>Supposedly, Rouusseuw and Croux (1993) have better measures
+<ul class="org-ul">
+<li>But they are more complicated</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline17" class="outline-3">
+<h3 id="orgheadline17"><span class="section-number-3">2.2</span> <span class="todo TODO">TODO</span> Make profile cuts perpendicular to the Bright Bar</h3>
+<div class="outline-text-3" id="text-2-2">
+<ul class="org-ul">
+<li>Every other paper does this, so why not</li>
+<li>To make things more interesting, we could "correct" for the Ne, Te variations</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18"><span class="section-number-3">2.3</span> <span class="todo TODO">TODO</span> Repeat the fuzzing for the WFC3 data</h3>
+<div class="outline-text-3" id="text-2-3">
+<ul class="org-ul">
+<li>We need to use the ERR array from the original data</li>
+<li>Look into the astropy affiliated CCD analysis packages to see if they might be of any use</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="orgheadline20"><span class="section-number-3">2.4</span> <span class="todo TODO">TODO</span> Deal better with sky subtraction</h3>
+<div class="outline-text-3" id="text-2-4">
+<ul class="org-ul">
+<li><span class="timestamp-wrapper"><span class="timestamp">[2015-11-01 Sun 11:11] </span></span> This task demoted in importance because it turns out that it was <a href="#orgheadline4">masking out noisy negative values</a> that was causing most of the problems wit faint lines
+<ul class="org-ul">
+<li>But this is still important for the [O I] lines, particularly 5577</li>
+</ul></li>
+<li>Plot weak line brightness against similar ionization strong line brightness</li>
+<li>Look for an obvious floor to the weak line brightness to give estimate of the sky brightness</li>
+<li>Subtract from line maps before taking ratios</li>
+<li>See also <a href="#orgheadline19">How can we deal with the systematic pattern "noise"</a>
+<ul class="org-ul">
+<li>If we could fix that at the same time it would be great</li>
+</ul></li>
+<li>Note that this issue seriously effects the [Cl III] 5518/5538 ratio
+<ul class="org-ul">
+<li>The extinction in the Dark Bay can be clearly seen in the ratio, which makes no sense
+<ul class="org-ul">
+<li>This is because there is a constant added to both line strengths</li>
+</ul></li>
+<li>It is the reason why the [Cl III] density appears to tend to a constant value of about 1300 as the surface brightness tends to zero</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-3">
+<h3 id="orgheadline21"><span class="section-number-3">2.5</span> <span class="todo TODO">TODO</span> Write script to generate figures of MUSE maps</h3>
+<div class="outline-text-3" id="text-2-5">
+<ul class="org-ul">
+<li>Use WCSAxes or APLpy?
+<ul class="org-ul">
+<li>Example of WCSAxes from <a href="../SinfoniProplyd/sinfoni-phase2.html#ID-37AA7727-E86E-424E-BCC2-764E8EC8EBA6">sinfoni notes</a></li>
+<li>Looks really easy to use</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="orgheadline19"><a id="ID-C28F4B1F-E911-4C87-8AEB-E199C645CC4D"></a><span class="section-number-3">2.6</span> <span class="todo TODO">TODO</span> How can we deal with the systematic pattern "noise"</h3>
+<div class="outline-text-3" id="text-2-6">
+<ul class="org-ul">
+<li>The most obvious pattern is the square grid where the different fields overlap
+<ul class="org-ul">
+<li>In principal, the overlap strips should just be a reduction in noise, but in reality the values themselves change</li>
+<li>Often seen as dark strips on the</li>
+</ul></li>
+<li>None of this is captured by the fuzzing, so we will be underestimating the total noise contribution to fluctuations if this is important</li>
+<li>Possible solution:
+<ul class="org-ul">
+<li>Take FFT of image</li>
+<li>Look for peak at (6, 5) in k-space and interpolate it away</li>
+<li>Take iFFT to get back to the image</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5"><a id="ID-F6FE685C-CBCB-4B44-884B-873C0C39E8A0"></a><span class="section-number-3">2.7</span> <span class="todo TODO">TODO</span> Generate maps with constant signal-noise</h3>
+<div class="outline-text-3" id="text-2-7">
+<ul class="org-ul">
+<li>Multiple binning scales</li>
+<li>For each pixel take least binning with s/n above required value</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22"><span class="section-number-3">2.8</span> <span class="todo TODO">TODO</span> Improve continuum subtraction in extracting lines</h3>
+<div class="outline-text-3" id="text-2-8">
+<ul class="org-ul">
+<li>Some lines such as O II 4650 complex need more attention</li>
+<li>Need more flexible sizing of line and continuum windows</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23"><span class="section-number-3">2.9</span> <span class="todo TODO">TODO</span> Calculate maps line-of-sight depth of emission zones for different ions</h3>
+<div class="outline-text-3" id="text-2-9">
+<ul class="org-ul">
+<li>Once we know the Ne, Te (and assuming known elemental abundances)</li>
+<li>And once we have extinction-corrected surface brightness maps</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline24" class="outline-3">
+<h3 id="orgheadline24"><span class="section-number-3">2.10</span> <span class="todo TODO">TODO</span> Fit Gaussians to blended lines in MUSE data</h3>
+<div class="outline-text-3" id="text-2-10">
+<ul class="org-ul">
+<li>Only way to get the [Ar IV] density</li>
+<li>Would also help with the O II lines</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-3">
+<h3 id="orgheadline25"><span class="section-number-3">2.11</span> Write up WFC3 calibration material</h3>
+<div class="outline-text-3" id="text-2-11">
+<ul class="org-ul">
+<li>This will be in an appendix</li>
+<li>We already have the figures sorted</li>
+<li>Copy material from the original draft of the paper</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26"><span class="section-number-3">2.12</span> <span class="todo TODO">TODO</span> Reorganise Latex documents</h3>
+<div class="outline-text-3" id="text-2-12">
+<ul class="org-ul">
+<li>Split out the future papers stuff into another document</li>
+<li>Split out the source code stuff into another document</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline27" class="outline-3">
+<h3 id="orgheadline27"><span class="section-number-3">2.13</span> <span class="todo TODO">TODO</span> Write up Dust extinction complications stuff</h3>
+<div class="outline-text-3" id="text-2-13">
+<ul class="org-ul">
+<li>Show all the different reddening indicators
+<ul class="org-ul">
+<li>Balmer decrement</li>
+<li>Paschen decrements</li>
+<li>Balmer-Paschen decrement
+<ul class="org-ul">
+<li>This is the longest wavelength range (if we used 4861 to 9229)</li>
+<li>With 6563/9229 we have
+<ul class="org-ul">
+<li>1.41 factor in ratio</li>
+<li></li>
+</ul></li>
+</ul></li>
+<li>[Ar III] and [O III] ratio
+<ul class="org-ul">
+<li>Small wavelength range, but high S/N and rock solid intrinsic ratio</li>
+<li>[Ar III] 7751/7136 is 9% change in wavelength
+<ul class="org-ul">
+<li>15% change in ratio between SW cloud and HH 202 region</li>
+</ul></li>
+<li>[O III] 5007/4959 is a 1% change in wavelength
+<ul class="org-ul">
+<li>1% change in ratio between SW cloud and HH 202 region</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline28" class="outline-3">
+<h3 id="orgheadline28"><span class="section-number-3">2.14</span> <span class="todo TODO">TODO</span> Write up the CEL-ORL T indicator stuff for O++</h3>
+<div class="outline-text-3" id="text-2-14">
+<ul class="org-ul">
+<li>Even though this is not for the current paper, I don't want to forget about it and it would be good to get Manuel's input</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline29" class="outline-3">
+<h3 id="orgheadline29"><span class="section-number-3">2.15</span> Write about plane-of-sky t^2 theory</h3>
+<div class="outline-text-3" id="text-2-15">
+<ul class="org-ul">
+<li>Suppression of fluctuations on scales smaller than LOS depth</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: William Henney</p>
+<p class="date">Created: 2015-11-03 Tue 18:29</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,4 +1,5 @@
 *~
+ltxpng
 BigFiles
 LineMaps
 OrigImages
@@ -6,6 +7,7 @@ muse-hr-window-*.fits
 muse-hr-image-*.fits
 muse-hr-transwin-*.fits
 muse-hr-data-*.fits
+muse-hr-variance-*.fits
 bump*.fits
 subcube*.fits
 *.bck
@@ -15,9 +17,12 @@ auto
 .DS_Store
 *.pyc
 muse-hr-fullcube-rebin05x05.fits
+*.log
 *.aux
 *.blg
+*.dvi
 *.fls
 *.fdb_latexmk
 *.synctex.gz
 *.pyg
+
