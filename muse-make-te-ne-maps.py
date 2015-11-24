@@ -1,8 +1,6 @@
 import sys
 import numpy as np
 from astropy.io import fits
-t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
-sys.path.append(t2dir)
 from derive_ne_te_1phase import T_den_from_rsii_rnii
 
 prefix = 'Linemaps/'

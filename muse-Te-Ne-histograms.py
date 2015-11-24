@@ -3,11 +3,13 @@ import sys
 import numpy as np
 from astropy.io import fits
 from matplotlib import pyplot as plt
+import seaborn as sns
 import pyregion
 t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
 sys.path.append(t2dir)
 from pyneb_utils import rsii_T_den, rnii_T_den
 from misc_utils import sanitize_string
+from stats_utils import stats_vs_x
 
 
 try:
@@ -33,22 +35,17 @@ minmax = {
     'N([S II])'  : [100.0, 1e5],
     'T([S III])' : [5000.0, 15000.], 
     'N([Cl III])': [100.0, 1e5],
-    'S(Pa 9)'    : [0.01, 8.0],
-    'S(5755)'    : [0.01, 8.0],
-    'S(6716)'    : [0.01, 8.0],
-    'S(6312)'    : [0.01, 8.0],
-    'S(5518)'    : [0.01, 8.0],
+    'S(Pa 9)'    : [600.0, 6.0e5],
+    'S(5755)'    : [600.0, 6.0e5],
+    'S(6716)'    : [600.0, 6.0e5],
+    'S(6312)'    : [600.0, 6.0e5],
+    'S(5518)'    : [600.0, 6.0e5],
 }
 
 
 
 hdus = {k: fits.open('Linemaps/' + v.format(suffix))['SCALED']
         for k, v in file_patterns.items()}
-
-# Rescale brightnesses to give nicer numbers
-for k in hdus:
-    if k.startswith('S'):
-        hdus[k].data /= 1.e5
 
 pairs = [
     ['T([N II])', 'T([S III])'],
@@ -124,6 +121,8 @@ for xlabel, ylabel in pairs:
     for wlabel in set(wlabels):
         w += hdus[wlabel].data[m]
     gamma = 1.5
+    # Blue tinted colormap for the data histograms
+    cmap = sns.light_palette((260, 50, 30), input="husl", as_cmap=True)
     fig, ax = plt.subplots(1, 1)
     # Use a log scale for surface brightnesses and densities
     if xlabel.startswith('S') or xlabel.startswith('N'):
@@ -134,24 +133,27 @@ for xlabel, ylabel in pairs:
         y = np.log10(y)
         ymin, ymax = np.log10(ymin), np.log10(ymax)
         ylabel = 'log10[ {} ]'.format(ylabel)
-    H, xedges, yedges = np.histogram2d(x, y, 50,
+    H, xedges, yedges = np.histogram2d(x, y, 51,
                                        [[xmin, xmax], [ymin, ymax]],
                                        weights=w)
+    stats_table = stats_vs_x(x, y, xedges)
     ax.imshow((H.T)**(1.0/gamma), extent=[xmin, xmax, ymin, ymax],
               interpolation='nearest', aspect='auto', origin='lower', 
-              cmap=plt.cm.gray_r, alpha=1.0)
+              cmap=cmap, alpha=1.0)
 
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.grid()
+    ax.set_xlabel(xlabel, fontsize='large')
+    ax.set_ylabel(ylabel, fontsize='large')
+    ax.grid(color='w', lw=0.5, alpha=0.5, zorder=100)
 
-    fig.set_size_inches(4, 4)
+    fig.set_size_inches(3, 3)
     fig.tight_layout()
     pltfile = 'muse-{}-{}-histogram-{}{}.pdf'.format(sanitize_string(xlabel),
                                                      sanitize_string(ylabel),
                                                      region, suffix)
 
     fig.savefig(pltfile)
+    statsfile = pltfile.replace('.pdf', '.tab').replace('-histogram-', '-stats-')
+    stats_table.write(statsfile, format='ascii.tab')
     print(pltfile)

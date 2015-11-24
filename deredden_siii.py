@@ -22,8 +22,8 @@ if __name__ == '__main__':
     except IndexError:
         suffix = ''
       
-    rha_pa9 = fits.open('Linemaps/ratio-6563-9229{}.fits'.format(suffix))['SCALED'].data
-    siii_hdu = fits.open('Linemaps/ratio-6312-9069{}.fits'.format(suffix))['SCALED']
+    rha_pa9 = fits.open('LineMaps/ratio-6563-9229{}.fits'.format(suffix))['SCALED'].data
+    siii_hdu = fits.open('LineMaps/ratio-6312-9069{}.fits'.format(suffix))['SCALED']
     siii_hdu.data = deredden_siii_ratio(siii_hdu.data, rha_pa9)
-    siii_hdu.writeto('Linemaps/ratio-6312-9069-deredden{}.fits'.format(suffix),
+    siii_hdu.writeto('LineMaps/ratio-6312-9069-deredden{}.fits'.format(suffix),
                     clobber=True)

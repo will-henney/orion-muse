@@ -1,0 +1,27 @@
+Group	Numerator	Denominator	Comment
+Basic	S_III-6312	S_III-9069	[S III] T sensitive
+Basic	Cl_III-5538	Cl_III-5518	[Cl III] N sensitive
+Basic	N_II-5755	N_II-6583	[N II] T sensitive
+Basic	S_II-6716	S_II-6731	[S II] N sensitive
+Basic	H_I-4861	H_I-6563	Reddening Balmer decrement
+Extra-N-T	Ar_III-5192	Ar_III-7751	[Ar III] T sensitive
+Extra-N-T	Fe_III-4702	Fe_III-4658	[Fe III] N sensitive
+Paschen	H_I-6563	H_I-9229	Reddening Paschen-Balmer
+Paschen	H_I-8545	H_I-9229	Reddening Paschen decrement
+Paschen	H_I-8750	H_I-9229	Reddening Paschen decrement
+Paschen	H_I-8863	H_I-9229	Reddening Paschen decrement
+Doublet	N_II-6548	N_II-6583	[N II] sanity check
+Doublet	O_III-4959	O_III-5007	[O III] sanity/reddening
+Doublet	O_II-7318	O_II-7330	[O II] red doublet
+Doublet	Ar_III-7136	Ar_III-7751	[Ar III] sanity/reddening
+Helium	He_I-5876	He_I-6678	He Triplet/Singlet
+Ionization	O_I-6300	O_I-8446	[O I] Collisional/ O I Fluorescent
+Ionization	O_II-7318	O_I-6300	[O II] / [O I]
+Ionization	O_III-5007	O_II-7318	[O III] /[O II]
+Ionization	Ar_IV-4740	Ar_III-7751	[Ar IV] / [Ar III]
+Ionization	Cl_IV-8046	Cl_III-5518	[Cl IV] / [Cl III]
+Ionization	Cl_III-5518	Cl_II-8579	[Cl III] / Cl II
+Fluorescent	N_I-5199	O_I-7002	[N I] / O I
+Fluorescent	O_I-7002	O_I-8446	O I red / far red
+Permitted	C_II-7236	H_I-6563	C II / H I
+Permitted	C_II-7231	C_II-7236	C II fluor indicator

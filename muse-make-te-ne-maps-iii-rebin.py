@@ -1,15 +1,19 @@
 import sys
 import numpy as np
 from astropy.io import fits
-t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
-sys.path.append(t2dir)
 from derive_ne_te_1phase import T_den_from_rcliii_rsiii
 
-prefix = 'Linemaps/'
+prefix = 'LineMaps/'
 nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
+try:
+    extra = sys.argv[1]
+except IndexError:
+    extra = ''
+
+
 for n in nlist:
-    suffix = '-bin{:03d}'.format(n)
+    suffix = '{}-bin{:03d}'.format(extra, n)
 
     hduA = fits.open(prefix + "ratio-5538-5518{}.fits".format(suffix))[1]
     hduB = fits.open(prefix + "ratio-6312-9069-deredden{}.fits".format(suffix))[1]
