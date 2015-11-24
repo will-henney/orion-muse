@@ -8,41 +8,817 @@
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 #+TODO: TODO NEXT STARTED | DONE CANCELED
-* Short term goals
+
+* Project Planning
+:PROPERTIES:
+:EXPORT_FILE_NAME: project-planning
+:END:
++ Everything in this section should be a well-defined task
++ Milestones (mainly Skype calls) are level-3 headings under [[id:706697F5-E600-4446-A4A4-C467A96CBD2C][Short term goals]] with deadlines
+  + Tasks should be assigned as level-4 headings under those
++ Less imminent tasks can be dumped under [[id:CF91729B-5B8B-4A7A-B7BB-3F268F9C38EA][Medium term goals]] until they have a place to go
+** Short term goals
 :PROPERTIES:
 :ID:       706697F5-E600-4446-A4A4-C467A96CBD2C
 :END:
-** [0/7] Before Skype meeting Nashville+2 
-DEADLINE: <2015-11-04 Wed>
-*** TODO Improve continuum subtraction in extracting lines
-+ Some lines such as O II 4650 complex need more attention
-+ Need more flexible sizing of line and continuum windows
-*** TODO Do extinction correction for all lines
-+ This means first settling on a reddening curve
-+ Simplest approach is to use Hb/Ha and then apply Blagrave to everything
-  + pyneb.extinction.red_corr.RedCorr(law='CCM89 Bal07') could help
-  + I think they mean =Bla= instead of =Bal=
-+ Of course, there are issues with that since E(Hb-Ha) plus R_V=5 reddening law seems to underpredict the extinction, at least in the dark bay
-*** NEXT Deal with sky subtraction
-+ Plot weak line brightness against similar ionization strong line brightness
-+ Look for an obvious floor to the weak line brightness to give estimate of the sky brightness
-+ Subtract from line maps before taking ratios
-*** STARTED [/] Estimate noise in MUSE maps
+*** DONE [7/7] Skype call Nashville+2 
+CLOSED: [2015-11-04 Wed 15:42] DEADLINE: <2015-11-04 Wed>
+**** DONE Make little cubes to cover borders between the wavsecs
+CLOSED: [2015-10-30 Fri 10:24]
++ The window used in the line extraction is 24 Ang wide and sometimes this straddles two different wavsec sections
++ One way to deal with this would be to make separate little cubes covering +/- 12 Angstrom either side of the dividing lines
+**** DONE [4/4] Estimate noise in MUSE maps
+CLOSED: [2015-10-30 Fri 22:37]
 + [X] Use the error cube from the original FITS file
   + Need to do this on server (or maybe on hypatia)
   + [2015-10-29 Thu 11:28] I now have the cubes on hypatia (or on their way from nil)
   + I have put them in the =BigFiles/= folder, *which is excluded from Dropbox*
   + They are 6.8GB each = 47.6 GB all together
     + There is not enough disk space on my laptop for them
-+ [ ]Make fuzzed versions of the line maps 
-+ [ ]Propagate the variance through all the data reduction steps
-+ Then we can fuzz the line maps by adding Gaussian noise.
++ [X] Make fuzzed versions of the line maps
+  + [X] First I [[id:9B385AF1-5AA5-4EA2-B1A3-8802C0959808][refactored]] extract-em-line.py to use windows of the cube
+  + [X] Then I do a [[id:12C8CC0B-4F79-4726-B0E2-6DA1F9DFABA3][version]] that fuzzes each window first
+  + I am doing 10 fuzzes of each line, which takes about 45 sec per line on my iMac
+  + [X] 5192 is a special case, since it straddles two wavsecs - use the F%$7M window instead, but I need to extract that from the big variance cube
+  + Lines I have fuzzed [2015-10-30 Fri 08:19]:
+    + Reddening: H I 6563, 4861, 9229
+    + Te: [S III] 6312, 9069, [N II] 5755, 6583, [Ar III] 5192, 7751, [O I] 5577, 6300
+    + Ne: [Cl III] 5518, 5538, [S II] 6731, 6716, [Fe III] 4702, 4658
+    + Constant: [O III] 5007, 4959, [Ar III] 7136, [N II] 6548, [O I] 6364
+    + Other: [Cl IV] 8046, [C I] 8727
++ [X] Propagate the variance through all the data reduction steps
+  + [X] First [[id:3D36AC7E-5321-420E-B0A4-29EC2068083D][multibinning]]
+    + There might be an issue here with the fuzzing producing a bias towards higher brightness in the binned maps
+    + I think this is because the binning masks out negative pixels, which is not appropriate for the weak lines (added [[id:4FBBD1CF-34BD-4B32-AF39-AB459DB44A18][task]] to fix this)
+  + [X] Then calculation of [[id:55C78FE2-2D64-4EE3-9222-FA65A68FC55A][ratios]]
+  + [X] Then extinction correction
+  + [X] Then [[id:4DD175B0-88A8-4F96-B7B7-1DB2B241A3F6][calculation of Te, Ne]]
++ [X] Look at \Delta T, \Delta N and so on as function of brightness and binning
+  + Where the \Delta's are the std among the different fuzzies
+  + This is done in the section [[id:8793FA29-D493-4859-A5E7-BD522D218497][Delta Te, Ne from the fuzzing]] where we produce fits files of (\Delta T / T) and log(N'/N)
+  + Then the histograms are plotted in the section [[id:7DB9EEBF-F83B-4D93-8C0D-8665AC9881AD][Fuzzy Deltas distribution histograms]] where I have used the same plotting range as in [[id:B85FB5E5-A541-4862-AEA4-796B64172022][Te - Ne distribution histograms]] so that they can be directly compared
+    + Separate task: [[id:08241C4F-6455-4B2F-8042-4E5FA58599BC][Improve presentation of histograms and put in draft paper]]
++ Repeat for the "constant" ratios, to check that the fuzzies correctly predict the march towards the correct value as the binning is increased
+  + This has been moved to its [[id:C0999AF9-C941-4063-952D-F3B34CDE80AD][own task]]
++ /Original note/ Then we can fuzz the line maps by adding Gaussian noise.
   + Actually it would be best to fuzz the data cubes directly. And then to follow exactly the same steps with the fuzzed data. We can then calculate the pixel by pixel differences between T from fuzzed and original cubes. The dispersion in this is then our best estimate for the noise contribution to t-squared.
   + We can also then use this to generate maps with a guaranteed signal to noise by using multi scale binning. Important here in the case of ratios to use the same mask hierarchy for all lines that contribute to the final quantity.
-*** TODO Look at noise behavior with binning for "constant" ratios
+    + This also now has its own [[id:F6FE685C-CBCB-4B44-884B-873C0C39E8A0][task]]
+
+**** DONE Improve presentation of histograms and put in draft paper
+CLOSED: [2015-10-31 Sat 11:36]
+:PROPERTIES:
+:ID:       08241C4F-6455-4B2F-8042-4E5FA58599BC
+:END:
++ Use color to distinguish the real data from the fuzzing estimates of noise
+**** DONE [#A] Investigate upward bias in fuzzing + binning
+CLOSED: [2015-11-01 Sun 11:23]
+:PROPERTIES:
+:ID:       4FBBD1CF-34BD-4B32-AF39-AB459DB44A18
+:END:
++ Weak lines after binning are brighter in fuzzed versions
++ Presumably due to masking out negative pixels, which eliminates the negative part of the noise
++ [2015-10-31 Sat 16:25] I have modified [[file:multibin-map.py]] from the section [[id:3D36AC7E-5321-420E-B0A4-29EC2068083D][Multi-resolution MUSE line maps]] so that it no longer masks out negative pixels in the line maps
+  + I have rerun the rebinning for the regular and fuzzed maps
+  + Then rerun all the following steps
+  + Things are *much improved*
+    + The [Cl III] density now behaves much more reasonably in the faint parts.  It no longer tends to a constant value
+    + We have also eliminated the high apparent [N II] temperatures in the Dark Bay
+    + Other weak lines are also now much better, such as [C I] 8727 and [Cl IV]
+**** DONE [#A] Analyse apparent and real t^2 as function of brightness
+CLOSED: [2015-11-04 Wed 13:14]
+:PROPERTIES:
+:ID:       FC1CAAAF-8A94-4836-A8BE-BA2BC0B955CF
+:END:
++ Modify the histogram plotting programs to calculate mean and variance for each brightness bin
+  + And maybe plot mean +/- sigma on the graphs (although that might get too fussy)
++ Decompose the total t^2 into the (brightness-weighted) average over the variances within each brightness bin *plus* the variance in the mean values /between/ the brightness bins
+  + Check that this works out OK for the total apparent t^2
++ Then we can subtract off the noise variance (obtained via fuzzing) from each brightness bin and recalculate the total t^2 to get the noise-corrected value for each degree of spatial binning
++ Plots of partial t-squared in section [[id:6B630292-2F8F-4192-89C1-AF07F5462505][Compare the observed and fuzzed variances in Te,Ne]]
+  + It turns out that we need to use robust statistics because the variance is too sensitive to wings of the distribution
++ The continuation task for this topic is [[id:6D2E8B3E-1712-4EAF-8F6E-332C834EF9B0][Complete work on noise-corrected t^2 as function of scale/binning]]
+**** DONE [#B] Generate line maps for the new lines I added to the table
+CLOSED: [2015-11-04 Wed 09:24]
++ Most importantly [Ar IV]
+  + From looking at the [[id:907D4EED-69C9-4B01-9ECB-E8A2C9757E80][Manu PPAK results for {Ar IV}]], the distribution is similar to [Cl IV], but it is slightly more extended
++ I also have a lot more [Fe III] lines in the blue
++ And the stellar absorption lines too
++ [X] This has to be done on =hypatia= or on =nil= since I have removed the big data cubes from my laptop
++ The [Ar IV] 4740 line looks great - very similar distribution to [Cl IV]
+  + Shows the proplyd bowshocks very well
+  + We also see [Ar IV] 4711 contamination in the He I 4713 map
+    + The proplyd bowshocks show up in that too
++ The three semi-forbidden Ca I] lines look very strange
+  + The red one 9095 looks like fluorescence, but 9052 looks like it comes from the i-front and 7890 like it comes from intermediate ionization gas
+    + Could 7890 be contaminated with something else? Looks a bit like [Fe III]
++ The red C II 7231 7236 permitted lines are very strong
+  + Also show up the proplyd bowshocks and very strong in the Big ARc as expected
++ [X] Now I need to do rebinning for them
+**** DONE [#B] Pad images to multiple of 256 before binning
+CLOSED: [2015-11-04 Wed 09:22]
++ This is so that all the binned maps are the same size,
+  + which would look nicer
+  + and would avoid having to continually align to WCS in ds9
++ This is now implemented in [[file:multibin-map.py]] from section [[id:3D36AC7E-5321-420E-B0A4-29EC2068083D][Multi-resolution MUSE line maps]]
+*** DONE [3/3] Skype call Nashville+3
+CLOSED: [2015-11-10 Tue 12:23] DEADLINE: <2015-11-10 Tue>
+**** DONE [#A] Write script to generate figures of MUSE maps
+CLOSED: [2015-11-06 Fri 13:43]
++ Use WCSAxes or APLpy?
+  + Example of WCSAxes from [[id:37AA7727-E86E-424E-BCC2-764E8EC8EBA6][sinfoni notes]]
+  + Looks really easy to use
++ This is done [[id:DF6370DF-79C4-4B48-B862-27B74302F9A0][down here]]
+**** DONE [#A] [10/10] Perform line extraction, fuzzing, binning, multimapping all on linux server
+CLOSED: [2015-11-09 Mon 19:46]
+:LOGBOOK:
+- Note taken on [2015-11-09 Mon 19:46] \\
+  This took forever!
+:END:
+This will be a good test that the work flow can be made self-contained
+1. [X] [[id:E29DD76D-0B11-4F52-8B50-8967046D2F0C][Ship over]] the .py, .sh, and .tab files
+   - First had to link helio_utils.py from Alba project since needed in the extraction step src_sh{ln -s ../OrionWest/helio_utils.py .}
+   - And had to add =-L= option to rsync so file is copied, not just dangling link
+2. [X] [[id:9B385AF1-5AA5-4EA2-B1A3-8802C0959808][Extract]] the lines
+   - Command is
+     #+BEGIN_SRC sh :eval no
+     python extract-em-line.py
+     #+END_SRC
+   - First I had to build and install [[https://github.com/scottransom/pyslalib][pyslalib]]
+   - Seems to run slower than on iMac, presumably because it has spinning drives instead of SSDs
+     - Finally, it took 13m4.796s
+   - Had to correct another issue with straddling boundaries for DIB line
+3. [X] Fuzz the lines and continua
+   - This takes even longer
+     - [2015-11-06 Fri 07:53] Finally finished - took 350m30.584s
+   - Command is
+     #+BEGIN_SRC sh :eval no
+     python extract-em-line-fuzz.py
+     #+END_SRC
+4. [X] [[id:D49AD965-AFDC-4D58-9341-8202DD8508D3][Bin]] the lines and continua
+   - Command is 
+     #+BEGIN_SRC sh :eval no
+       time sh all-lines-multibin.sh
+       time sh all-continuum-multibin.sh
+     #+END_SRC
+   - There was a problem with missing f547m image file.  Needed to do the following
+     #+BEGIN_SRC sh :eval no
+       source activate py27
+       export PYSYN_CDBS=/fs/nil/other0/will/CDBS
+       time python filter-flatten.py wfc3 f547m
+     #+END_SRC
+   - Repeat for the fuzzed ones using =all-fuzz-multibin.sh= which takes an argument of the fuzzing number.  So we can run them all in parallel easily
+   - [X] We missed the 92?? Angstrom lines because they hadn't finished from the previous step, so we need to do those again
+   - [X] Also the continuum ones, which I had messed up
+     - [2015-11-06 Fri 08:31] Now running on nil, but they are going really slowly
+     - Most processes are stuck in "disk sleep" state
+     - Had to nurse them by hand in small batches
+     - It turns out that the trick is not to run more than 4 jobs at once that are trying to access the disk
+5. [X] [[id:4B6B5B8C-94C8-456D-90CB-2CF7B0D73099][Calculate EW]] for all lines (binned and fuzzed)
+   - [X] Normal =python muse-ew-all.py=
+   - [X] Binned and Fuzzed
+     - =sh batch-ew.sh= or =sh batch-ew.sh -fuzz000=, etc
+     - I'm doing this 4 fuzzies at a time on the server so we don't have any disk sleep issues
+6. [X] [[id:DED61F19-3303-4D94-BB1C-12B4BC789D65][Calculate the noise and signal-to-noise]] for each map
+   - [X] First for =linesum= maps - this took several hours
+   - [X] Next for =ew= maps, but not all of them
+     - See [[id:5E28C927-CB18-45CB-87E0-C52109A04F79][Make a list of all the absorption lines]]
+7. [X] [[id:92671F18-9117-4B7E-8315-8C74DC4FF786][Generate multibin-combined maps]] of
+   - All lines at
+     - SN=5
+     - SN=10
+     - SN=30
+   - Selected EWs (absorption lines mainly)
+8. [X] Generate [[id:07D1CD25-8319-4634-904D-A3A4CBC10E8D][ratio maps]]
+   + This needs to be formalised a lot better
+   + [X] Save the ratios we want to table files
+   + [X] Use Make or similar for dependencies
+     + Plumped for =distutils.dep_util.newer()= from the standard library, which works great
+9. Do multibin combination for the ratios at constant s/n
+   - [X] Pilot study for selected ratios.  Highlights are:
+     - C II 7236 / H\alpha 6563 - shows wonderful swirls, presumably where thet fluorescent excitation of the C II line is highest, which should trace the inner edge of dense ionized gas in the nebula.  This has peaks (from inside to outside) at the LV bowshocks; at the *Ney-Allen Nebula*; at the filament behind LV6; /possibly/ the 177-341 bowshock; in a *270 degree shell* that starts in front of 177-341 and curves round to W past 159-350 shocks, then runs NW parallel to the SW lane (and yes, that is an extinction feature, the superposition may be conicidental), then bends to the E to run along just inside the high-ionization inner arm of the E-W bar (of course the appearance of a 270 deg shell may be illusory); then the E side of the *Big Arc*, which is the largest scale feature (to the W it becoes less prominent, which coincides in PA with where the inner 270 deg shell gets brighter - maybe it is blocking it); then finally, around \theta2A.  There is also a dip at the Bright Bar i-front, which must be due the C++/C+ transition
+     - Various extinction ratios
+   - [X] All ratios
+10. [X] Generate fuzzed Te and Ne maps
+    - [X] For the sii-nii case
+      - Used command like
+#+BEGIN_EXAMPLE
+nohup time python muse-make-te-ne-maps-rebin.py -fuzz009 > job009.out
+#+END_EXAMPLE
+    - [X] For the cliii-siii case
+    - Also, extend to [Fe III] density?
+      - Not now
+   
+**** DONE [#A] Generate maps with constant signal-noise
+CLOSED: [2015-11-06 Fri 22:26]
+:PROPERTIES:
+:ID:       F6FE685C-CBCB-4B44-884B-873C0C39E8A0
+:END:
++ Multiple binning scales
++ For each pixel take least binning with s/n above required value
++ Calculate s/n from fuzzed versions
+  + It turns out that N=10 fuzzed versions is a definite advantage with this, whereas N=1 was enough for the t^{2} statistics
+  + We need enough fuzzed images that we get a /good/ estimate of the s/n in each pixel.  Only 3 is not good enough because a small but non-negligible fraction of the pixels have s/n overestimated (just by chance) and these can produce bright or dark spots in the results 
++ [2015-11-05 Thu 14:07] This is working great now, but I need to do it at scale, which will generate 100s of GB of files
+  + For instance, I currently have 9.6GB of N_III-6634 files
+  + And then my laptop takes ages to sync it all with Dropbox
+  + One solution would be to do all the fuzz-binning in the =BigFiles/= folder
+    + But keep the raw fuzz and the regular binning ones in =LineMaps/=
+  + It only takes 20 s to generate all the fuzz???-bin??? files for a single line and they represent 90% of the disk space
+    + They can be deleted again once the multibin files have been created
+***** All the steps for a single line
+As an example we use the unidentified absorption line 6634
+#+BEGIN_SRC sh
+  linelist=LineMaps/linesum-N_III-6634-fuzz???.fits 
+  time (for line in $linelist; do     echo "Processing $line";     time python multibin-map.py $line; done)
+  linelist=LineMaps/continuum-N_III-6634-fuzz???.fits 
+  time (for line in $linelist; do     echo "Processing $line";     time python multibin-map.py $line; done)
+  linelist=LineMaps/linesum-N_III-6634-fuzz???-bin???.fits 
+  for line in linelist; do python muse-ew.py $line; done
+  for line in $linelist; do python muse-ew.py $line; done
+  linelist=LineMaps/linesum-N_III-6634-bin???.fits 
+  for line in $linelist; do python muse-ew.py $line; done
+  linelist=LineMaps/linesum-N_III-6634-bin???.fits 
+  for line in $linelist; do python muse-ew.py $line; done
+#+END_SRC
+***** Redoing the fuzzed Te, Ne maps
+#+BEGIN_SRC sh :eval no
+  time python muse-make-te-ne-maps-rebin.py
+  time python muse-make-te-ne-maps-iii-rebin.py
+  for i in $(seq 0 9); do
+      time python muse-make-te-ne-maps-rebin.py -fuzz00$i
+      time python muse-make-te-ne-maps-iii-rebin.py -fuzz00$i
+  done
+#+END_SRC
+*** [2/16] Skype call Nashville+4
+DEADLINE: <2015-11-18 Wed>
+**** DONE [#A] Package up fits files for Bob 
+CLOSED: [2015-11-10 Tue 12:24]
++ Bob wants the constant s/n maps
+#+BEGIN_SRC sh :results verbatim
+date
+files=LineMaps/muse-derived-[TN]e*-multibin-SN0???.fits
+zip files-for-Bob-2015-11-10.zip  $files
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Tue Nov 10 12:26:07 CST 2015
+updating: LineMaps/muse-derived-Ne-iii-multibin-SN0003.fits (deflated 98%)
+updating: LineMaps/muse-derived-Ne-iii-multibin-SN0010.fits (deflated 99%)
+updating: LineMaps/muse-derived-Ne-iii-multibin-SN0030.fits (deflated 100%)
+updating: LineMaps/muse-derived-Ne-iii-multibin-SN0100.fits (deflated 100%)
+updating: LineMaps/muse-derived-Ne-multibin-SN0003.fits (deflated 36%)
+updating: LineMaps/muse-derived-Ne-multibin-SN0010.fits (deflated 86%)
+updating: LineMaps/muse-derived-Ne-multibin-SN0030.fits (deflated 98%)
+updating: LineMaps/muse-derived-Ne-multibin-SN0100.fits (deflated 99%)
+updating: LineMaps/muse-derived-Ne-multibin-SN0300.fits (deflated 100%)
+updating: LineMaps/muse-derived-Te-iii-multibin-SN0003.fits (deflated 78%)
+updating: LineMaps/muse-derived-Te-iii-multibin-SN0010.fits (deflated 88%)
+updating: LineMaps/muse-derived-Te-iii-multibin-SN0030.fits (deflated 93%)
+updating: LineMaps/muse-derived-Te-iii-multibin-SN0100.fits (deflated 98%)
+updating: LineMaps/muse-derived-Te-iii-multibin-SN0300.fits (deflated 99%)
+updating: LineMaps/muse-derived-Te-multibin-SN0003.fits (deflated 31%)
+updating: LineMaps/muse-derived-Te-multibin-SN0030.fits (deflated 92%)
+updating: LineMaps/muse-derived-Te-multibin-SN0100.fits (deflated 99%)
+updating: LineMaps/muse-derived-Te-multibin-SN0300.fits (deflated 99%)
+#+end_example
+
+**** NEXT [#A] Write to the MUSE people
++ Be polite
++ Compliment them on the new paper
++ Draw their attention to the Sac paper
++ The effect of noise on the structure function is well known - you just have to subtract its variance from the (\Delta v)^2 values
+
+
+**** DONE [#A] [2/2] Complete work on noise-corrected t^2 as function of scale/binning
+CLOSED: [2015-11-12 Thu 21:23]
+:PROPERTIES:
+:ID:       6D2E8B3E-1712-4EAF-8F6E-332C834EF9B0
+:END:
++ Continuation of previous task [[id:FC1CAAAF-8A94-4836-A8BE-BA2BC0B955CF][Analyse apparent and real t^2 as function of brightness]]
++ [X] Do average over all brightnesses
++ [X] And add in the trend of T with brightness
++ First we [[id:E7AFCF19-3976-4FD9-A91F-464A2EDD9C86][Calculate the total noise-corrected t2 versus binning scale]]
++ Then we make the [[id:BB997AAB-0452-497F-84A0-69713FB7228C][Plot of t2 versus scale]]
++ This seems to work great, but I have made another task to [[id:0A73C539-4A97-4C97-9F39-DA83032B340F][try alternative way of calculating the noise effects on t2]]
++ And another continuation of this task is to [[id:1B2D2809-A54A-4372-913C-F8DE9E5F5E65][make maps of the small-scale t2]]
+**** STARTED [#B] [1/3] Try alternative way of calculating the noise effects on t2
+:PROPERTIES:
+:ID:       0A73C539-4A97-4C97-9F39-DA83032B340F
+:END:
+There are a couple of niggling things worying me about how I did [[id:6D2E8B3E-1712-4EAF-8F6E-332C834EF9B0][the work on noise-corrected t^2 as function of scale/binning]]
++ [X] First, I never really subtracted the noise separately in each brightness bin, but rather calculated the weighted average of both the variations and the noise and /then/ subtracted
+  + But that should not make any difference at all, so I should stop worrying about that
++ [ ] Also, I never calculated the total t-squared directly from the maps, to check that it comes out the same
++ [ ] And lastly, it would make more sense to calculate the noise directly as the mean of the std maps (like muse-derived-Te-STD-bin008.fits), rather than as the variance of the (fuzz - observed) maps.  That way, we have a value per-pixel.  
+**** TODO Extend the analysis to the density fluctuations
++ Instead of t^2 use variance of log(n/\langle{}n\rangle)
++ 
+**** STARTED Make maps of the small-scale t2 
+:PROPERTIES:
+:ID:       1B2D2809-A54A-4372-913C-F8DE9E5F5E65
+:END:
++ From the [[id:6D2E8B3E-1712-4EAF-8F6E-332C834EF9B0][t2 vs scale plots]] we get a clean separation between
+  1. Large scales (> 30 arcsec) that produce half the t^{2}
+  2. Small scales (< 3 arcsec) that produce the other half
++ That means that it makes sense to make intermediate-resolution maps /of/ the small-scale variations.
+  + Let's call this the *inner t^{2}*
+  + Binning of 16 or 32 would probably work best
+  + We can subtract off the square of the STD to account for the noise
+  + I have checked and bin=16 will work fine for [N II] over most of the map
+    + We are looking for a signal of order 4e-3
+    + Noise t2 ranges from 3e-6 in Orion S to 2e-3 in Dark bay (average is 5e-5)
+  + For [S III], bin=16 will only work for brighter parts
+    + Signal is now only 1e-3
+    + Noise t2 is 1e-5 in bright part, up to 5e-4 (or more) in Dark Bay
+    + So it actually might be alright - if not bin=32 would have to do
+**** TODO Take power spectrum of fluctuations
+To confirm that we do indeed have a separate large-scale and small-scale mode of fluctuations
+**** NEXT Extend the fluctuations down to the Field scale
++ We could maybe argue that the small scale fluctuations carry on down to the Field length
++ Although this only really applies to the case of thermal instabilities - can this really apply here?
+  + It is well known that neutral gas is thermally unstable in the range around 1000 K, but how can this be the case for ionized gas?
+  + We need that dP/dn is negative, or at least be small - so that compression can produce large T jumps
++ From the [N I] paper I had that this is (1e15/ n) cm, which is probably just for neutral gas - better to use the equation: 
+  + \[ l_{f} = \sqrt(\kappa T / |\rho L|)]
+  + \kappa is coefficient of conductivity;
+  + L is net cooling rate per mass, where \rho L is in units erg/s/cm3
+  + See Iwasaki and Inutsuka (2012)
+    + We can use \kappa = 1e4 erg/s/cm/K, so \kappa T = 1e8 erg/s/cm
+    + \rho L = n^{2} \Lambda is of order (1e4)**2 3e-24 = 3e-16 erg/s/cm3
+    + So l_{f} = 5.77e11 cm for n = 1e4 and is proportional to 1/n
++ How does conductivity compare with advection in energy equation
+  + Conductive flux is -\kappa dT/dx
+  + Advective flux is v (5/2 P + 1/2 \rho v^2)
+    + For roughly sonic velocities, v \simeq a, so that is about 3 a P, or 6 a n k T if we put P = 2 n k T for fully ionized pure H 
+  + So Cond/Advec \simeq \kappa dT/dx / 6 a n k T
+    + We can put (1/T) (dT/dx) = t/H, where t is the fractional temperature fluctuation (t = dT/T) and H is the scale of the fluctuation
+    + F_{cond} = \kappa t T / H
+    + => Cond/Advec = (\kappa t / 6 a n k H)
+    + So Cond > Advec for H < \kappa t / 6 a n k
+    + In fact, we should also take into account that v fluctuations will decline at smaller scales too - for instance v \sim l^{1/3} for Kolmogorov
+      + OK, so if the injection scale is L, then advective flux at scale H becomes F_{ad} = 6 a (H/L)^{1/3} n k T 
+      + Hence F_{cond} / F_{ad} = \kappa t L^{1/3} / 6 a H^{4/3} n k
+      + This is unity when H = (\kappa t L^{1/3} / 6 a n k)^{3/4}
+    + I will use the value derived below of \kappa = 1e4 erg/s/cm/K, which is almost universally valid for photoionized regions
+      + For sonic advection velocities at all scales, this gives H < src_calc{clean(1e4 0.1 / 6 1e6 1e4 1.3806503e-16, 3)} {{{results(=1.21e8=)}}}, which is very small
+      + For Kolmogorov-distributed advection velocities from sonic turbulence injected at a scale of L = 1e16 cm, the result is H = src_calc{(1e4 0.1 1e16**(1/3) / 6 1e6 1e4 1.3806503e-16)**(3/4)} {{{results(=1.15165870203e10=)}}}, which is still small, but is 100 times larger than the electron mean free path 
+  + Lorentzian conductivity (electrons interacting with static ions) is
+    + \[ \sigma = 2^{5/2 }m_{e}^{1/2}  (k T)^{3/2 }/ Z e^{2} (\pi m_{e})^{3/2} \ln \Lambda \]
+    + *Nope* this is the /electrical conductivity/
+    + Units should be erg/s/cm/K, but they aren't so forget this
+    + I take a Coulomb logarithm of 20, which is vaguely what I remember
+    + -> H < src_calc{2e12 0.1 / 6 1e6 1e4 1.3806503e-16} {{{results(=2.41432123206e16=)}}}
+    + That is about (1000 / n_{4}) AU, which is really large - 2 arcsec
+    + [X] But we need to calculate the effects of saturation on the conduction
+      + OK, this just means that for scales smaller than λ_{e} we don't have diffusion any more, we just have free-streaming electrons, so the conductive flux is just \simeq v_{e} P \propto n_{e} T_{e}^{1/2}, independent of dT/dx
+      + Note that in this limit, we always have Cond > Advec by a factor of (v_{e}/v_{ion}) \simeq 43, because the conduction is advection too and the electrons are moving faster
+    + [ ] And magnetic fields - these should suppress conduction \perp to field
+  + Use thermal conductivity formulae from Toalá & Arthur (2011)
+    + They use D instead of \kappa
+    + Citing Steffen (2008) they put
+      + D = 7.04 × 10^{−11} λ_{e} n_{e} T^{1/2}
+    + Where  λ_{e} is the electron mean free path
+      + λ_{e} = 2.625 × 10^{5} T_{e}^{2}/(n_{e} ln Λ)
+      + and ln Λ = 9.452 + (3/2) ln T_{e} − (1/2) ln n_{e} for T_{e} \le 4.2 \times 10^{5} K
+      + So for 1e4 K and 1e4 pcc, ln \Lambda = src_calc{9.452 + 1.5 log(1e4) - 0.5 log(1e4)} {{{results(=18.662340372=)}}}
+      + Better still, here is a table:
+        |                  |   T |   n |    B |    \beta |    R |  ln \Lambda |      \lambda_{e} |       \ell |      \lambda_{D} |    r_{L} |      Kn |      \kappa |
+        |------------------+-----+-----+------+------+------+-------+---------+---------+---------+-------+---------+--------|
+        | ISM WIM          | 1e4 | 0.1 | 1e-6 |  6.9 | 3e20 | 24.42 | 1.07e13 |  2.15e0 |  2.18e3 | 2.2e6 |  3.6e-8 |  7.5e3 |
+        | H II region      | 1e4 | 100 | 1e-5 | 69.4 | 3e18 | 20.96 | 1.25e10 | 2.15e-1 |  6.90e1 | 2.2e5 |  4.2e-9 |  8.8e3 |
+        | H II compact     | 1e4 | 1e4 | 1e-4 | 69.4 | 3e17 | 18.66 |  1.41e8 | 4.64e-2 |  6.90e0 | 2.2e4 | 4.7e-10 |  9.9e3 |
+        | Proplyd          | 1e4 | 1e6 | 1e-3 | 69.4 | 3e15 | 16.36 |  1.60e6 |    1e-2 | 6.90e-1 | 2.2e3 | 5.3e-10 |  1.1e4 |
+        | Stel.Wind @ Prop | 3e7 |  50 | 2e-3 |  2.6 | 3e16 | 33.32 | 1.42e17 | 2.71e-1 |  5.35e3 | 6.1e4 |   4.7e0 | 2.7e12 |
+        | Stel.Wind @ Neb  | 1e6 |   1 | 2e-5 | 17.3 | 3e18 | 30.18 | 8.70e15 |       1 |  6.90e3 | 1.1e6 |  2.9e-3 |  6.1e8 |
+        | Solar Wind       | 1e5 |   1 | 1e-5 |  6.9 | 1e13 | 26.72 | 9.82e13 |       1 |  2.18e3 | 7.0e5 |   9.8e0 |  2.2e6 |
+        | Fast Solar Wind  | 1e5 |  10 | 3e-5 |  7.7 | 1e13 | 25.57 | 1.03e13 | 4.64e-1 |  6.90e2 | 2.3e5 |   1.0e0 |  2.3e6 |
+        | Slow Solar Wind  | 1e5 |   3 | 3e-5 |  2.3 | 1e13 | 26.17 | 3.34e13 | 6.93e-1 |  1.26e3 | 2.3e5 |   3.3e0 |  2.2e6 |
+        | Magnetosphere    | 1e7 |  10 | 1e-4 | 69.4 |  1e9 | 32.48 | 8.08e16 | 4.64e-1 |  6.90e3 | 7.0e5 |   8.1e7 | 1.8e11 |
+        #+TBLFM: $5=2 $3 $k $2 8 $pi / $4**2;f1::$7=9.452 + 1.5 log($2) - 0.5 log($3) ; f2::$8=2.625e5 $2**2 /($3 $7) ;s3::$9=$3**(-1/3); s3::$10=sqrt($k $2 / 4 $pi $3 $e**2) ; s3::$11=sqrt($me $k $2) $c / $e $4;s2::$12=$8/$6;s2::$13=7.04e-11 $8 $3 sqrt($2);s2::@2$6=100 $pc;s1::@5$6=200 $au;s1::@6$6=2000 $au;s1::@8$6..@10$6=1 $au;s1::@11$6=1e4 $km;s1
+
+      + Here we have added mean particle separation \ell = n^{-1/3} and the Debye length \lambda_{D} = (k T / 4 \pi n e^{2})^{1/2}
+      + Some of the numbers came from [[https://en.wikipedia.org/wiki/Debye_length][wikipedia Debye Length page]]
+        + Remembering 1 /m3 = 1e-6 /cm3 and 1 T = 1e4 G
+      + Fast/Slow solar winds come from Hansteen (2009)
+        + Note that T ~ 1e5 K in table is electron temperature
+        + Proton temperatures are different
+          + 2 times lower in slow wind
+          + 2 times higher in fast wind, and also anisotropic: T_{p,\perp} > T_{p,\parallel}
+      + For shocked stellar wind, I took values for positions of LV bowshocks
+        + B = 1 kG at the stellar surface: R \simeq 7e11 cm
+        + Winds with open field lines have (split) monopole fields inside Alfven surface (where rotation is like solid body), and then Parker spiral after that (also from Hansteen 2009)
+          + So B_{r} ~ 1/r^{2} and in equator B_{\phi} \simeq (r \Omega / v_{r}) B_{r}
+          + So along pole, B will fall as r^{-2} (mostly radial field), while in equator, B falls as r^{-1} and is mainly azimuthal (but smaller by factor of R_{*} \Omega / v_{r})
+          + So for th1C, we have v_{r} = 1500 km/s and R_{\star} \Omega =
+            + 15-day period = 1.3e6 s
+            + Circunference: 2 pi R = 4.4e12 cm
+            + => R_{*} \Omega = Circ / P = 3.4e6 cm/s = 34 km/s equatorial rotational velocity
+            + => factor is 0.02 or so
+          + Conclusion, for th1C:
+            + B_{r} = 1000 (R/R_{\star})^{-2}
+            + B_{\phi} = 20 (R/R_{\star})^{-1}
+            + Table:
+              | R (au) | R (pc) |      B_{r} |     B_{\phi} |
+              |--------+--------+---------+--------|
+              |   2100 |   0.01 |  5.0e-7 | 4.5e-4 |
+              |  2.1e4 |   0.10 |  5.0e-9 | 4.5e-5 |
+              |  2.1e5 |   1.02 | 5.0e-11 | 4.5e-6 |
+              #+TBLFM: $2=$1 $au/$pc ;f2::$3=1000 (7e11 / $1 $au)**2;s2::$4=20 (7e11 / $1 $au);s2
+          + So this means that in the equatorial plane, we have a mainly azimuthal field with \beta \sim 1.  It will be a perpendicular (transverse) shock, so fast magnetosonic probably.  B and n will both increase in the shock by a factor of 4.  I include that in the above table
+          + In the poles, we have a purely radial field, but *much* weaker, so that \beta \sim 1e5
+            + However, the equatorial case is more typical, since B_{\phi} \gg B_{r} for all latitudes except /very/ close to 90 degrees
+            + On the other hand, \beta will increase with latitude as cosec^{2} l
+        + Also relevant [[http://www.scholarpedia.org/article/Collisionless_shock_wave][scholarpedia article on collisionless shocks]]
+      + Finally the Larmor radius:
+        + Cyclotron frequency: \omega_{c} = q B / m c
+        + Larmor radius = v_{\perp} / \omega_{c} = v_{\perp} m c / q B
+        + We will calculate it for thermal electrons (q=e) with 1-D velocity component 1/2 m v^{2} = 1/2 k T => v = (k T / m)^{1/2}
+        + So r = (m k T)^{1/2} c / e B
+
+
+**** TODO [#A] Repeat the fuzzing for the WFC3 data
++ We need to use the ERR array from the original data
++ Look into the astropy affiliated CCD analysis packages to see if they might be of any use
+
+**** NEXT Make an atlas of all the constant s/n MUSE maps 
++ This will be a lot of pages
+**** TODO [#B] Correlation of T, n peaks with shocked structures, etc
++ To Complement what Bob is doing
++ T(N II) is high where [O II] red line is strong
++ The arc that Bob found at 176-248 is indeed a shock
+****** Density structure at ionization fronts 
++ [S II] density tends to peak more to neutral side
+  + And is very narrow - evidence for the narrow Ne peak at D-critical i-front found
+    + Although not everywhere has a narrow peak
+    + In the Bar best places are
+      1. Between HH204 and HH528
+      2. In the forked i-front S of the Red Fan
++ [Cl III] densities tend to be higher, and peak in He+ zone
+  + For example, in the Bar N([Cl III]) = 4000 - 5000 while N([S II]) = 3000 - 3700 
++ [ ] Do a model of a cylindrical photoevap flow to check if the density variations can explain the [S II] - [Cl III] density discrepancy
+  + I am skeptical because although critical density will bias [S II] towards  the low density parts along the line of sight, the S++/S+ ionization gradient will bias it towards the high density parts since they are closer to the i-front
+
+***** High T versus density fluctuations
++ We can use the PPAK [S II] 4076/6731 vs 6716/6731 to try and disentangle this
++ Also the plane-of-sky fluctuations in density can put a restriction on it
+***** Shadows of embedded filaments?
+****** Evidence for filaments
++ Some are jets - seen in proper motion, radial velocity
+  + Do they have neutral cores?
+  + Even if they don't,  the bright ones are high enough emission measure to reduce ionizing flux on "shadow" side, eben if they don't eliminate it
++ Some are neutral filaments
+  + seen in O I permitted lines (fluorescent excitation in the near PDR)
+  + some show clear ionization stratification on illuminated side
+****** Correlation with T structures
++ High T([N II]) often seen on shadow side
++ Correlated with bright [O II] 7330
+***** The nature of the 176-248 arc
++ I had wondered whether it was an object that I had investigated in the LL object project, but it appears not
+  + There is a nearby stationary arc (and proplyd) centered at 170-249, which is what I was thinking of - but this is about 10 arcsec to the E
++ From looking at the RGB=(O I, [O II], [Ar III]) image, the 176-248 arc does not look like a neutral filament - it is more orange, so strong in [O II] 
+**** TODO [#B] What is going on with the 6634 absorption line?
++ It is not seen in any of the Trapezium stars except for th1E
++ In the nebula it has a variable absorption EW of 0.1 to 0.4 Angstrom, with the maxima occurring in Orion S (behind the SW Compact Bar), behind the E-W Bright Bar (in N Lane A), and behind the Bright Bar 
++ It does not seem to ba a DIB
+  + There is a DIB at 6278 and I have made images of its EW - gives roughly constant value of 0.4 Angstrom, suggesting it is foreground to nebula
+  + Although there is also a telluric band around the same wavelength, so we need to be careful - looking at the integrated spectrum, I suspect that what ew are seeing is nearly all telluric
+  + [ ] We will also look at the 5782 DIB, even though that is very weak
+**** TODO [#C] Look at noise behavior with binning for "constant" ratios
+:PROPERTIES:
+:ID:       C0999AF9-C941-4063-952D-F3B34CDE80AD
+:END:
 + Such as 6363/6300, 6583/6548, 5007/4959, etc
-*** TODO Write up the CEL-ORL T indicator stuff for O++
-+ Even though this is not for the current paper, I don't want to forget about it and it would be good to get Manuel's input
++ This will be a clear test that the fuzzing procedure is correctly estimating the noise contribution to line-ratio variations
++ It does require that I have the general reddening correction working
+**** TODO [#C] Do extinction correction for all lines
++ This means first settling on a reddening curve
++ Simplest approach is to use Hb/Ha and then apply Blagrave to everything
+  + pyneb.extinction.red_corr.RedCorr(law='CCM89 Bal07') could help
+  + I think they mean =Bla= instead of =Bal=
++ Of course, there are issues with that since E(Hb-Ha) plus R_V=5 reddening law seems to underpredict the extinction, at least in the dark bay
+**** NEXT [#C] [2/3] Make some color images of the line maps
++ [2015-11-05 Thu] Redo this when we have all the multibin-combined maps
++ [X] This is done in the section [[id:EB04009B-1EF8-468D-8B04-C823074CF185][Grab color images from ds9]]
++ [X] The channels are as follows:
+  + [[file:rgb-C1-O1-N1.jpg]] (bin002)
+    + red :: C_I-8727
+    + green :: O_I-8446
+    + blue :: N_I-5199
+    + Shows fluorescent emission from neutral gas just behind the ionization front in blue-green and collisional neutral carbon emission from deep in the PDR in red
+    + Note offset of [C I] emission behind the i-front at the Bright Bar
+    + Also bright filament pointing down SSW from Orion S
+  + [[file:rgb-Fe2.jpg]] (bin004)
+    + red :: Fe_II-8617
+    + green :: Fe_II-7453
+    + blue :: Fe_II-5262
+  + [[file:rgb-Fe3.jpg]] (bin004)
+    + red :: Fe_III-4658
+    + green :: Fe_III-4702
+    + blue :: Fe_III-5270
+    + In principle 4702/4658 is a density indicator but it is very noisy
+      + This looks much better in the [[id:9FF99B23-1472-425D-B8DB-99370939AD43][Manu PPAK data]]
+      + But the results are consistent - range of 0.2 to 0.35
+    + We see diffuse emission from the nebula (pink tint)
+      + Annoyingly, this is an intermediate ionization, unlike any other ion stage.  It is higher ionization than [N II], [O II], but lower ionization than [S III], [Ar III], [Cl III]
+    + Emission from jets and knots - discussion was getting out of hand so broken out into a new task: [[id:994ED1D9-55BD-4577-8C0A-72B05614C763][Discuss {Fe III} knots]]
+
+  + [[file:rgb-He1-O3-Cl4.jpg]] (bin008)
+    + red :: Cl_IV-8046
+    + green :: O_III-5007
+    + blue :: He_I-6678
+  + [[file:rgb-N2-permitted.jpg]] (bin064)
+    + red :: N_II-5952
+    + green :: N_II-5942
+    + blue :: N_II-5932
+  + [[file:rgb-O1-S2-O2.jpg]] (bin004)
+    + red :: O_I-6364
+    + green :: S_II-6731
+    + blue :: O_II-7330
+  + [[file:rgb-Si2-permitted.jpg]] (bin004)
+    + red :: Si_II-5041
+    + green :: Si_II-5056
+    + blue :: Si_II-6347
+  + [[file:rgb-chlorine-234.jpg]] (bin004)
+    + red :: Cl_II-8579
+    + green :: Cl_III-5538
+    + blue :: Cl_IV-8046
+  + [[file:rgb-continuum.jpg]] (no binning)
+    + red :: continuum-H_I-8438
+    + green :: continuum-Cl_IV-8046
+    + blue :: continuum-O_II-4650
+  + [[file:rgb-Cl4-C2-Ar4.jpg]] (bin008)
+    + red :: Cl_IV-8046
+    + green :: C_II-7236
+    + blue :: Ar_IV-4740
+
++ [ ] Add descriptions to figure captions
+
+
+** Medium term goals
+:PROPERTIES:
+:ID:       CF91729B-5B8B-4A7A-B7BB-3F268F9C38EA
+:END:
+Holding area for tasks that will get moved to [[id:706697F5-E600-4446-A4A4-C467A96CBD2C][Short term goals]]
+*** STARTED [#B] Analyze the continuum better
+:LOGBOOK:
+- Note taken on [2015-11-11 Wed 21:19] \\
+  Started this and got a bit carried away.  Further work should aldo include trying to measure the Paschen jump
+:END:
++ Add together continuum windows from different lines in the same wavelength band
++ Maybe take it in 1000 \AA zones
++ Make maps of continuum color
++ Subtract off the atomic continuuum to reveal the scattered light
+  + Using the nearest H line and an assumed T
+  + Just longward of the Paschen jump would be best for the red end
+  + And as blue as possible for the blue end
++ Compare the blue scattered light with the red scattered light
+  + Can we distinguish between foreground scattering and background scattering
+
+***** Empirical analysis of color continuum maps  
++ Visual bands: BGR = 4000->5000, 5000->6000, 6000->7000 \AA
+  + [[file:rgb-cont-4000-5000-6000-sat-enhanced.jpg]]
+  + Average wavelengths: 4800-5500-6500
+  + A bit like B-V-R
+  + I have enhanced the saturation to better show the changes in color
++ Near IR bands: BGR = 7000->8000, 8200->9000, 9000+ \AA
+  + [[file:rgb-cont-7000-8000-9000-sat-enhanced.jpg]]
+  + Average wavelengths: 7500-8600-9100
+  + A bit like Sloan i'- ACS z - Sloan z'
+  + For the 8000 channel I excluded \lambda < 8204 \AA so that blue-green comparison is giving you the Paschen jump
++ I also took ratios.  These 
+  + RGB = (6000->7000)/(7000->8000), (5000->6000)/(6000->7000), (4000->5000)/(5000->6000)
+    + [[file:rgb-cont-slopes-67-56-45.jpg]]
+  + RGB = (8200->9000)/(9000+), (7000->8000)/(8200->9000), (6000->7000)/(7000->8000)
+    + [[file:rgb-cont-slopes-89-78-67.jpg]]
+  + Note that they overlap by one band
++ There are clear variations in the colors
+  + The main emitting layer is slightly pink in the Visual image, indicating recombination continuum
+  + The Region around th2A and (to a much lesser extent the Trap stars) is a beautiful blue color indicating dust scattering
+  + Could the mauve color around the Big Arc be due to scattering - enhanced by forward-throwing scattering phase function?
+    + Or could it be due to a different T?  I don't think so
+    + Or even due to two-photon emission?
+    + It also shows up as relatively bluer in the Infrared image (the difference is a lot subtler though), which can't be due to two-photon, but also argues against it being optically thin dust scattering
+  + The scattered light behind the bar shows up as green in the Infrared color image
+    + This is because the green band is red of the Paschen jump, where the recombination continuum is at a minimum, so scattered light makes a relatively larger contribution
+    + It can be seen in the Visual image too - but it is partially swamped by the scattered halo around th2A
+    + We don't see the scattered halos around the stars in the infrared very prominently - this is probably because it is optically thin (or almost) and \tau falls with wavelength
+    + But the diffuse reflection should be a lot grayer, since it will only depend on the albedo and the phase function
++ [ ] Should we deredden the continuum images?
+  + This certainly makes sense for the atomic continuum, since it comes from the same volume as the emission lines
+  + But for scattered starlight it is not really appropriate - this is enhanced in the dark bay and the sw cloud anyway.  De-reddening would only enhance it further, but I suppose that is OK
++ [ ] We should plot the full continuum spectra integrated in selected regions of interest:
+  1. The main emitting layer parallel to the Bar
+  2. The scattered bit behind the Bar
+  3. The flat bit of Orion S
+  4. The SW compact bar
+  5. HH 202
+  6. The Dark Bay
+  7. The Bright Arc
+  8. The SW cloud
+  9. The E-W Bar
+  10. Etcetera
+**** Add up some continum maps
+#+BEGIN_SRC python :tangle muse-continuum-combine.py
+  import glob
+  import numpy as np
+  from astropy.io import fits
+
+  wavrange = ['4?', '5?', '6?', '7?', '8[2-9]', '9?']
+  binnings = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+
+  for binning in binnings:
+      for wavpat in wavrange:
+          wav000 = wavpat[0]
+          pattern = 'LineMaps/continuum-*-{}??-bin{:03d}.fits'.format(wavpat, binning)
+          cfiles = glob.glob(pattern)
+          average = None
+          for fn in cfiles:
+              hdu = fits.open(fn)['SCALED']
+              if average is None:
+                  average = np.zeros_like(hdu.data)
+              average += hdu.data
+          average /= len(cfiles)
+          out_fn = 'LineMaps/continuum-average-{}000-bin{:03d}.fits'.format(wav000, binning)
+          print('Saving', out_fn)
+          fits.PrimaryHDU(header=hdu.header, data=average).writeto(out_fn, clobber=True)
+
+        
+#+END_SRC
+
+#+BEGIN_SRC sh :eval no
+python muse-continuum-combine.py
+#+END_SRC
+
+**** Take some ratios
+#+BEGIN_SRC python :tangle muse-continuum-ratios-diffs.py
+  import numpy as np
+  from astropy.io import fits
+
+  def cfile(wav, binning):
+      return 'LineMaps/continuum-average-{}-bin{:03d}.fits'.format(wav, binning)
+
+  def rfile(wav1, wav2, binning):
+      return 'LineMaps/continuum-ratio-{}-{}-bin{:03d}.fits'.format(wav1, wav2, binning)
+
+  def dfile(wav1, wav2, binning):
+      return 'LineMaps/continuum-diff-{}-{}-bin{:03d}.fits'.format(wav1, wav2, binning)
+
+
+  pairs = [
+      ['4000', '6000'],
+      ['4000', '5000'],
+      ['5000', '6000'],
+      ['6000', '7000'],
+      ['7000', '8000'],
+      ['8000', '9000'],
+      ]
+  binnings = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+  for binning in binnings:
+      for wavA, wavB in pairs:
+          hduA = fits.open(cfile(wavA, binning))['SCALED']
+          hduB = fits.open(cfile(wavB, binning))['SCALED']
+
+          fn = rfile(wavA, wavB, binning)
+          print('Writing', fn)
+          fits.PrimaryHDU(header=hduA.header,
+                          data=hduA.data/hduB.data).writeto(fn, clobber=True)
+
+          fn = dfile(wavA, wavB, binning)
+          print('Writing', fn)
+          fits.PrimaryHDU(header=hduA.header,
+                          data=hduA.data-hduB.data).writeto(fn, clobber=True)
+        
+#+END_SRC
+
+#+BEGIN_SRC sh :eval no
+python muse-continuum-ratios-diffs.py
+#+END_SRC
+
+*** STARTED [#C] Discuss [Fe III] knots
+:PROPERTIES:
+:ID:       994ED1D9-55BD-4577-8C0A-72B05614C763
+:END:
++ In the [Fe III] maps we see enhanced emission from jets and shocks (due to increased gas phase Fe abundance following dust destruction in shocks)
++ These should be compared with the WFC3 F469N image, which has an important contribution from the 4702 line
++ From Orion S we see two linear chains of knots
+  + PA114 flow
+    - Probably associated with the strange [S II] bright tongue coming from 143-353 and then continues WSW through 159-402 (west side of this knot just caught in WFC3 field) and 165-406
+      - On the other side to ENE (PA294) there are knots at 118-345 and 116-345, seen in WFC3 image and in MUSE line map.
+        - Before getting to these there is a fainter knot at 126-346 
+        - There are W-facing [N II]-bright bowshocks wrapping around each of these.
+        - [X] Need to check if this is a cataloged HH flow
+          - They might possibly be related to HH507 (main bow at 109-347) but I think not.  HH507 has lower ionization and is at PA315 according to BOM00 (see their Fig 22).
+          - In OD15 the proper motion of 118-345 and other related knots is discussed in Sec 5.12.2., entitled /Shocks near but Probably Unrelated to HH 507/ so it looks like Bob agrees with me!
+          - OD15 Table 6 gives Vt = 46, 53, 40, 48 and PA278, 279, 298, 269 for knots at 118-346, 116-346, 116-344, which all fall within the [Fe III] knots in the F649N image
+            - Interestingly, there are other motion features, slightly below at 116-348 and 118-348, which have similar POS velocities, but *no [Fe III] emission* at all
+          - OD15 gives the mean PA as 284, as opposed to 294, but given the uncertainties in the proper motions I think this is consistent
+          - OD15 mentions the possibility of connection to the blueshifted SiO from Coup 554
+            - But Coup 554 is at 135.6-355.3, whereas the [Fe III] knot chain points to 143-353 as the source (DR 1186, ZRK 15, 142.9-353.1)
+          - OD15 also mentions the possibility of connection to HH269
+            - That seems unlikely since the PAs are different
+          - OD15 also talks about the knot 126-346, but in section 5.6, which is about HH 1127
+            - However 126-346 is clearly not part of HH 1127
+            - Tab 6 gives Vt = 40 at PA270
+            - It is also shown as 125.5-346.5 in Fig 41, where it looks clearly to be part of same flow as 118-345
+      - MUSE has a possible further knot at 091-340
+        - OD15 has motions measured for 090-339 and 090-340 of Vt = 21, 52, 39 and PA284, 274, 304 - /this is consistent with being the same flow/ 
+      - This flow is unlikely to be driving HH 203 unless it has bent to the south
+    - This flow is likely unrelated to the PA120 filament starting around 152-358 that may also pass through 149-355 (high T filament) and might have its source in 146-351 (near-IR source).  This PA120 flow is the perfect candidate for driving HH203
+  + PA090 to PA093 flow
+    - probably associated with HH529
+    - knot at 152-353 corresponds to a flat shock just to E of the corkscrew jet
+      - OD15 has Vt=89 PA087, which cis in the right direction
+    - further E there is a very compact knot at 160-353, but that is probably the proplyd 159-350, knot related to the flow
+    - on the W side there is a knot at 143-352
+      - OD15 has a very slow-moving knot there: 143-351 with Vt = 8 at PA284
+  + The *contested knot* at 137-352
+    + It is knot(!) clear whether this is part of the PA114 or PA090 flow.
+      + The alignment seems equally good with either of them
+        + *not true* see below: certainly PA090
+    + It is the brightest [Fe III] knot of all
+    + It has a strange morphology in the F469N image (it is poorly resolved in the MUSE maps)
+      + It looks like a west-pointing comma-shaped bowshock with a line slashed across the S wing of the bow
+      + But it can also be seen in the other filters, such as F673N, where it looks more like it is the superposition of two bowshocks, an upper one heading almost due W (PA270) and a lower one, heading more at PA260
+      + It appears in OD15 as 137-352 with Vt = 49 at PA271
+      + The shock just above it 137.3-350.2 is discussed in sec 5.12.6 and is classified as the first knot in HH1151 - other knots are 125.5-346.5 and 094-336
+        + Note that 137.3-350.2 itself does not show [Fe III] emission, but 125.5-346.5 certainly does - it is the same as 126-346 discussed above!
+    + *Revisionist version*
+      + Some of the above classification is probably wrong
+      + Better assignment of knots to flows is here
+        + [[file:~/Work/RubinWFC3/Tsquared/feiii-knots-MUSE.reg]]
+      + Also, I did the same for the [Fe II] knots here
+        + [[file:~/Work/RubinWFC3/Tsquared/feii-knots-MUSE.reg]]
+      + I have several apparent groupings of the knots along straight monopolar or bipolar lines
+      + But I am still not entirely convinced
+        + Partly due to looking at the proper motions
+          + [[file:~/Work/RubinWFC3/Tsquared/proper-motion-orion-s-vslow.gif]]
+          + The proper motions make it look like the HH529 corkscrew is coming from 145.7-350.8 (HC209 radio source)
+          + Also that the westward knots at 138-351 and 137-352  might be coming from the same source - it looks like their proper motion is close to due W (PA270) or even slightly southward (PA260). So they are certainly not related to the  
+      + Orange flow at PA110 seems to correspond to HH 1149 from OD15
+        + This shows an offset between the [Fe III] and the [Fe II] knots, where [Fe II] is consistentlydisplaced a bit fiurhter from the Trapezium
+
+        + 
+*** TODO [#C] Improved robust measure of scale 
++ We need a robust measure so we are not too sensitive to fat tails!
++ Currently we use the interquartile range (IQR)
++ Another simple possibility would be the median absolute deviation (MAD)
+  + These are equivalent (IQR = 2 MAD) for symmetric distributions, but are different if there is non-zero skew
++ The problem with both of these is low "efficiency" for Gaussian distributions
+  + We see this in the fact that the robust partial t^2 looks noisier than the regular t^2 for high binning
++ Supposedly, Rouusseuw and Croux (1993) have better measures
+  + But they are more complicated
+*** TODO [#B] Make profile cuts perpendicular to the Bright Bar
++ Every other paper does this, so why not
++ To make things more interesting, we could "correct" for the Ne, Te variations
++ One problem with this is that there are no "clean" parts of the bar
+  + There are multiple strands everywhere
+    + Best seen in the O I 8446 fluorescence line
+    + But also in the mosaic WFPC2 image of [[file:~/Work/BobPC/2002/masterf547-f656-radec.fits]]
+*** TODO [#C] Deal better with sky subtraction 
++ [2015-11-01 Sun 11:11] This task demoted in importance because it turns out that it was [[id:C0999AF9-C941-4063-952D-F3B34CDE80AD][masking out noisy negative values]] that was causing most of the problems wit faint lines
+  + But this is still important for the [O I] lines, particularly 5577
++ Plot weak line brightness against similar ionization strong line brightness
++ Look for an obvious floor to the weak line brightness to give estimate of the sky brightness
++ Subtract from line maps before taking ratios
++ See also [[id:C28F4B1F-E911-4C87-8AEB-E199C645CC4D][How can we deal with the systematic pattern "noise"]]
+  + If we could fix that at the same time it would be great
++ Note that this issue seriously effects the [Cl III] 5518/5538 ratio
+  + The extinction in the Dark Bay can be clearly seen in the ratio, which makes no sense
+    + This is because there is a constant added to both line strengths
+  + It is the reason why the [Cl III] density appears to tend to a constant value of about 1300 as the surface brightness tends to zero
+*** TODO [#B] How can we deal with the systematic pattern "noise"
+:PROPERTIES:
+:ID:       C28F4B1F-E911-4C87-8AEB-E199C645CC4D
+:END:
++ The most obvious pattern is the square grid where the different fields overlap
+  + In principal, the overlap strips should just be a reduction in noise, but in reality the values themselves change
+  + Often seen as dark strips on the 
++ None of this is captured by the fuzzing, so we will be underestimating the total noise contribution to fluctuations if this is important
++ Possible solution:
+  + Take FFT of image
+  + Look for peak at (6, 5) in k-space and interpolate it away
+  + Take iFFT to get back to the image
+*** TODO [#C] Improve continuum subtraction in extracting lines
++ Some lines such as O II 4650 complex need more attention
++ Need more flexible sizing of line and continuum windows
+*** TODO [#B] Calculate maps line-of-sight depth of emission zones for different ions
++ Once we know the Ne, Te (and assuming known elemental abundances)
++ And once we have extinction-corrected surface brightness maps
+*** TODO [#C] Fit Gaussians to blended lines in MUSE data
++ Only way to get the [Ar IV] density
++ Would also help with the O II lines
+*** Write up WFC3 calibration material
++ This will be in an appendix
++ We already have the figures sorted
++ Copy material from the original draft of the paper
+*** TODO Reorganise Latex documents
++ Split out the future papers stuff into another document
++ Split out the source code stuff into another document
+*** TODO Include color velocity maps somewhere
++ E.g. this figure
+  + [[file:~/Work/BobKPNO/2004/multi-panel-isovel-oiii-nii.pdf]]
 *** TODO Write up Dust extinction complications stuff
 + Show all the different reddening indicators
   + Balmer decrement
@@ -58,20 +834,42 @@ DEADLINE: <2015-11-04 Wed>
       + 15% change in ratio between SW cloud and HH 202 region
     + [O III] 5007/4959 is a 1% change in wavelength
       + 1% change in ratio between SW cloud and HH 202 region
-+ 
-** Before Skype meeting Nashville+3
-DEADLINE: <2015-11-10 Tue>
-
-* Medium term goals
-Holding area for tasks that will get moved to [[id:706697F5-E600-4446-A4A4-C467A96CBD2C][Short term goals]]
-** Fit Gaussians to blended lines in MUSE data
-** Write script to generate figures of MUSE maps
-+ Use WCSAxes or APLpy?
-** Write up WFC3 calibration material
-+ This will be in an appendix
-+ We already have the figures sorted
-+ Copy material from the original draft of the paper
-** Write about plane-of-sky t^2 theory
+**** STARTED Theoretical treatment of reddening, extinction, scattering  
+:LOGBOOK:
+- Note taken on [2015-11-09 Mon 13:04] \\
+  Wrote this when I should have been working on other things!  And I am sure I have done it before - look for an evernote note somewhere, or maybe handwritten in my notebooks
+:END:
++ Simple absorbing screen
+  + Observed flux F'(\lambda) = F(\lambda) exp(-\tau(\lambda)) 
+  + \tau(\lambda) = \beta(\lambda) \tau(V)
+    + where V is the V-band (5500 \AA say) and \beta(\lambda) is the extinction curve, normalised to 1 at 5500 \AA
+  + A(\lambda) = -2.5 log_{10 }(F'(\lambda) / F(\lambda)) = 1.0857 \beta(\lambda) \tau(V)
+  + E(\lambda_{1}-\lambda_{2}) = A(\lambda_{1}) - A(\lambda_{2}) = 1.0857 \tau(V) [\beta(\lambda_{1}) - \beta(\lambda_{2})] 
++ Double absorbing screen - sandwich model
+  + Foreground screen with depth \tau_{1} then a front emitting layer with fraction \xi of total flux, then midground screen with depth \tau_{2}, then back emitting layer with (1-\xi) fraction of flux   
+  + Observed flux F'(\lambda) = F(\lambda) exp(-\tau_{1}(\lambda)) [ \xi  + (1-\xi) exp(-\tau_{2}(\lambda)) ]
+  + Or, putting \tau = \tau_{1} + \tau_{2} we can write it as
+    + F'(\lambda) = F(\lambda) exp(-\tau(\lambda)) { 1 + \xi [exp(\tau_{2}(\lambda)) - 1] }
+    + So A(\lambda) = 1.0857 \beta(\lambda) \tau(V) - 2.5 log_{10 }(1 + \xi [exp(\tau_{2}(\lambda)) - 1] )
+    + A(\lambda) = 1.0857 { \beta(\lambda) \tau(V) - ln(1 + \xi [exp(\tau_{2}(\lambda)) - 1]) }
+  + For small \tau_{2}, A(\lambda) = 1.0857  \beta(\lambda) {\tau(V) - \xi \tau_{2}(V)}, so the wavelength dependence is still \prop \beta(\lambda) and reddening still looks the same
+  + But for large \tau_{2} \gg \tau_{1}, the apparent extinction saturates since only the front emitting layer is detected
+    + E.g., if \tau_{1} = 0 so \tau = \tau_{2} then A(\lambda) saturates at -2.5 log_{10 }\xi as \tau \to \infty
+    + Since this is independent of wavelength, then the reddening tends to zero in this case
+  + This can explain why E(Hb-Ha) drops for high values of E(Ha-Pa9) - 
++ Alternative - dust fully mixed with gas
+  + Will give similar result
+  + Use formal solution to radiative transfer with constant source function
+    + Although really S \propto N since emission goes as N^2 and absorption goes as N
++ And the scattering, of course - which makes things even more complicated
+*** TODO Write up the CEL-ORL T indicator stuff for O++
++ Even though this is not for the current paper, I don't want to forget about it and it would be good to get Manuel's input
+*** TODO [#B] Velocity patterns at local i-fronts
+**** Discontinuities in peak velocity
++ For low ionization lines, I think these are mainly caused by internal extinction in the nebula (opaque obstacle)
+**** Write up the simple theory from my evernote note
++ [[https://www.evernote.com/shard/s36/nl/1035026487/bc8a1634-3a50-4d87-b1c3-28e307dcc371/][Photo of blackboard]]
+*** Write about plane-of-sky t^2 theory
 + Suppression of fluctuations on scales smaller than LOS depth
 * TODO Important things to follow up
 ** TODO [#A] Remove the sky components
@@ -115,15 +913,23 @@ This is very important for the weak lines
 + We could maybe use the mean wavelength of the 4649+51 blend as a proxy for the 4649/51 ratio, but we would have to correct for the kinematics, using perhaps [O III] or, better yet, an unblended line of the same multiplet
   + But the only one is  4676 and that is too weak
   + We can't really use 4639+42 because that is blended with N II 4643 and N III 4641
++ [2015-11-03 Tue 19:53] O II 4676 in the same V1 multiplet is well isolated and produces the best O II map so far
 ** O I 8446 multiplet
 + This is way brighter than the bluer O I lines
 + Excellent for tracing kinematics of neutral gas
 ** [C I] 8727.13
 + This has a different morphology than anything else!
 + Redshifted filament pointing down SSW from Orion S
+  + This must be collisionally excited in the neutral gas
++ There is also a diffuse component that seems to come from the PDR
+  + Seen beyond the Bright Bar for instance
++ It looks like we are oversubtracting the emission from a fluorescent line
+  + We are already avoiding the red side, so we need to improve the continuum fitting algorithm before we can resolve this
+
 ** [Cl IV] 8045.62
 + The highest ionization line
-+ Traces very interior gas, and also ORL clump
++ Traces very interior gas, and also inner edge of ORL clump
++ Very strong from LV1 bowshock
 ** [Ar III] 7135.78
 + This is excellent for velocity mapping
 + The velocity resolution is better at longer wavelengths
@@ -171,6 +977,9 @@ The reddenings are very similar, except for two things:
 + [O I] 5577.31 need to remove sky line but then there are some interesting little spots like HH 201
 + 5906 very weak line - I had classified it as Si I 5906.22, 5906.15, 5906.418, 5906.92 but this seems very unlikely since it is not seen in any of the low-ionization parts, only near the Trapezium, most strongly in the SW compact bar
 ** Using the absorption lines
+:PROPERTIES:
+:ID:       29ACCF8C-F49A-4FEB-8374-DC19BB20048E
+:END:
 + The trouble here is that many of the best He II lines are bluer than the spectral range
 + He II 4686 works well
   + Deepest in th2A
@@ -181,6 +990,11 @@ The reddenings are very similar, except for two things:
   + Unfortunately, they are very weak in the nebula
   + Requires integration over 15x15 arcsec box to have much s/n
 + N III 6633.9 is very interesting
+  + [2015-11-03 Tue 19:35] *New info*
+    + Now I have made a map of this line, and it is amazing
+    + It can't be scattered continuum - I think it is foreground absorption
+    + Which means it probably isn't N III
+    + [ ] Now I am going to calculate the EW
   + Has absorption depth of 0.08 in Orion S region
   + But not seen in any OB stars 
   + Seen in th1E, which is G2V spectral type
@@ -194,7 +1008,7 @@ The reddenings are very similar, except for two things:
 
 ** DONE Looking at the strange broad NIR emission bump
 CLOSED: [2015-08-13 Thu 11:15]
-+ NO - This is just a second order Balmer line - see their paper!
++ *NO - This is just a second order Balmer line - see their paper!*
 + Take the difference or ratio between 8570 A and 8552 A
 + Results are very disappointing
   + We see a vague form of the nebula in the ratio image
@@ -289,102 +1103,171 @@ CLOSED: [2015-08-13 Thu 11:15]
 
 * Extracting individual emission lines from MUSE cube
 
-** Strong lines and others of primary interest
+** Strong lines and others of primary interest: basic-line-list.tab
 :PROPERTIES:
 :TABLE_EXPORT_FILE: basic-line-list.tab
 :TABLE_EXPORT_FORMAT: orgtbl-to-tsv
 :END:
 + After editing, remember to export the table to file with =C-c t e=
++ This table has now expanded to cover all lines that can be extracted easily (that is, without fitting gaussians)
 #+name: basic-line-list
-| Ion      |     wav0 | strength | blue cont | red cont | comment              |
-|----------+----------+----------+-----------+----------+----------------------|
-| O II     |  4650.00 |        4 |         1 |        0 | blend 4649.13,50.84  |
-| [Fe III] |  4658.10 |        3 |         0 |        1 |                      |
-| [Fe III] |  4701.62 |        4 |         1 |        1 |                      |
-| H I      |  4861.32 |        1 |         1 |        1 |                      |
-| [O III]  |  4958.91 |        1 |         1 |        1 |                      |
-| [O III]  |  5006.84 |        1 |         1 |        1 |                      |
-| He I     |  5015.68 |        3 |         0 |        1 |                      |
-| Si II    |  5041.03 |        4 |         1 |        0 |                      |
-| He I     |  5047.74 |        4 |         0 |        1 | No good cont!        |
-| Si II    |  5055.98 |        4 |         0 |        1 |                      |
-| [Ar III] |  5191.82 |        4 |         1 |        0 |                      |
-| [N I]    |  5199.00 |        4 |         0 |        1 | Blend 5197.98,200.26 |
-| [Fe II]  |  5261.61 |        4 |         1 |        0 |                      |
-| [Fe III] |  5270.40 |        3 |         0 |        1 |                      |
-| [Cl III] |  5517.71 |        3 |         1 |        1 |                      |
-| [Cl III] |  5537.88 |        3 |         1 |        1 |                      |
-| [O I]    |  5577.34 |        4 |         1 |        1 | Sky contamination    |
-| [N II]   |  5755.08 |        4 |         1 |        1 |                      |
-| He I     |  5875.62 |        1 |         1 |        1 |                      |
-| C II     |  5889.78 |        4 |         1 |        1 | Na I sky blend       |
-| N II     |  5931.78 |        4 |         1 |        1 |                      |
-| N II     |  5941.65 |        4 |         1 |        1 |                      |
-| N II     |  5952.39 |        4 |         1 |        0 |                      |
-| Si II    |  5957.56 |        4 |         0 |        1 | Blend with O I?      |
-| Si II    |  5978.93 |        4 |         1 |        1 |                      |
-| O I      |  6046.23 |        4 |         1 |        1 |                      |
-| [Fe II]  | 6133.433 |        4 |         1 |        1 | plus sky?            |
-| [O I]    |  6300.30 |        3 |         1 |        1 |                      |
-| [S III]  |  6312.06 |        3 |         1 |        1 |                      |
-| Si II    |  6347.11 |        4 |         1 |        1 |                      |
-| [O I]    |  6363.78 |        3 |         1 |        0 |                      |
-| Si II    |  6371.36 |        4 |         0 |        1 |                      |
-| [N II]   |  6548.05 |        2 |         1 |        1 |                      |
-| H I      |  6562.79 |        1 |         1 |        1 |                      |
-| C II     |  6578.05 |        5 |         1 |        0 |                      |
-| [N II]   |  6583.45 |        2 |         1 |        1 |                      |
-| He I     |  6678.15 |        2 |         1 |        1 |                      |
-| [S II]   |  6716.44 |        3 |         1 |        1 |                      |
-| [S II]   | 6730.816 |        3 |         1 |        1 |                      |
-| O I      |  7001.92 |        3 |         1 |        1 |                      |
-| He I     |  7065.28 |        2 |         1 |        1 |                      |
-| [Ar III] |  7135.78 |        1 |         1 |        1 | super strong         |
-| [O II]   |  7318.39 |        1 |         1 |        1 | Also 7319.99         |
-| [O II]   |  7329.66 |        1 |         0 |        1 | Also 7330.73         |
-| [Fe II]  |  7452.54 |        4 |         1 |        1 |                      |
-| [Ar III] |  7751.10 |        1 |         1 |        1 |                      |
-| [Cl IV]  |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION!     |
-| H I      |  8437.96 |        3 |         1 |        0 | Pa 18                |
-| O I      |  8446.36 |        2 |         0 |        1 |                      |
-| H I      |  8467.25 |        2 |         0 |        1 | Pa 17                |
-| H I      |  8502.48 |        2 |         1 |        1 | Pa 16                |
-| H I      |  8545.38 |        2 |         1 |        1 | Pa 15                |
-| [Cl II]  |  8578.69 |        3 |         1 |        0 | Blend with 8582      |
-| H I      |  8598.39 |        2 |         1 |        1 | Pa 14                |
-| [Fe II]  |  8616.95 |        3 |         1 |        1 |                      |
-| H I      |  8665.02 |        2 |         1 |        1 | Pa 13                |
-| [C I]    |  8727.13 |        4 |         1 |        0 | Different!           |
-| H I      |  8750.47 |        2 |         1 |        1 | Pa 12                |
-| H I      |  8862.79 |        2 |         1 |        1 | Pa 11                |
-| H I      |  9014.91 |        2 |         1 |        1 | Pa 10                |
-| Ca I]    |  9052.16 |        5 |         1 |        0 |                      |
-| [S III]  |  9068.90 |        1 |         1 |        1 |                      |
-| Ca I]    |  9095.09 |        5 |         1 |        0 |                      |
-| H I      |  9229.01 |        2 |         1 |        1 | Pa 9                 |
+| Ion      |     wav0 | strength | blue cont | red cont | comment                        |
+|----------+----------+----------+-----------+----------+--------------------------------|
+| N II     |  4607.16 |        4 |         1 |        1 | NEW-11-07 blend [Fe III], O II |
+| N II     |  4630.54 |        4 |         1 |        0 | NEW-11-07                      |
+| O II     |  4641.81 |        4 |         1 |        0 | NEW-11-07 blend N III          |
+| O II     |  4650.00 |        4 |         1 |        0 | blend 4649.13,50.84            |
+| [Fe III] |  4658.10 |        3 |         0 |        1 |                                |
+| O II     |  4676.24 |        5 |         1 |        1 | blend with 4673.73             |
+| He II    |  4685.68 |       -4 |         1 |        1 | absorption line                |
+| [Fe III] |  4701.62 |        4 |         1 |        1 |                                |
+| He I     |  4713.14 |        3 |         1 |        1 | blend with [Ar IV] 4711.37     |
+| [Fe III] |  4733.93 |        4 |         1 |        0 |                                |
+| [Ar IV]  |  4740.17 |        4 |         0 |        1 |                                |
+| [Fe III] |  4754.83 |        4 |         1 |        1 |                                |
+| [Fe III] |   4769.6 |        4 |         1 |        1 |                                |
+| [Fe III] |  4777.88 |        4 |         1 |        1 | blend with [Fe II] 4774.74     |
+| N II     | 4803.287 |        4 |         1 |        1 |                                |
+| [Fe II]  | 4814.534 |        4 |         1 |        1 | NEW-11-07 blend N II, S II     |
+| H I      |  4861.32 |        1 |         1 |        1 |                                |
+| [Fe III] | 4881.073 |        4 |         1 |        1 | NEW-11-07                      |
+| [Fe II]  | 4889.704 |        5 |         1 |        1 |                                |
+| [Fe II]  | 4905.339 |        5 |         1 |        1 |                                |
+| He I     |  4921.93 |        3 |         1 |        1 |                                |
+| [Fe III] |  4930.50 |        4 |         0 |        1 | blend with [O III] 4931.32     |
+| [O III]  |  4958.91 |        1 |         1 |        1 |                                |
+| [O III]  |  5006.84 |        1 |         1 |        1 |                                |
+| He I     |  5015.68 |        3 |         0 |        1 |                                |
+| Si II    |  5041.03 |        4 |         1 |        0 |                                |
+| He I     |  5047.74 |        4 |         0 |        1 | No good cont!                  |
+| Si II    |  5055.98 |        4 |         0 |        1 |                                |
+| O I      |  5146.61 |        5 |         1 |        1 |                                |
+| [Fe II]  |  5158.81 |        5 |         1 |        1 | NEW-11-07                      |
+| [Ar III] |  5191.82 |        4 |         1 |        0 |                                |
+| [N I]    |  5199.00 |        4 |         0 |        1 | Blend 5197.98,200.26           |
+| [Fe II]  |  5261.61 |        4 |         1 |        0 |                                |
+| [Fe III] |  5270.40 |        3 |         0 |        1 |                                |
+| O I      |  5298.89 |        5 |         1 |        1 | NEW-11-07                      |
+| [Fe II]  | 5333.646 |        5 |         1 |        1 | NEW-11-07                      |
+| [Fe II]  | 5376.452 |        5 |         1 |        1 | NEW-11-07                      |
+| [Fe III] |  5412.00 |        5 |         1 |        1 | NEW-11-07 + He II abs          |
+| O II     |  5433.49 |        6 |         1 |        1 | NEW-11-07                      |
+| S II     |  5453.81 |        6 |         1 |        1 | NEW-11-07                      |
+| [Cl III] |  5517.71 |        3 |         1 |        1 |                                |
+| [Cl III] |  5537.88 |        3 |         1 |        1 |                                |
+| N II     |  5551.95 |        6 |         1 |        0 | NEW-11-07                      |
+| O I      |  5555.03 |        5 |         0 |        1 | NEW-11-07                      |
+| [O I]    |  5577.34 |        4 |         1 |        1 | Sky contamination              |
+| O III    |  5592.37 |       -5 |         1 |        1 | Absorption line                |
+| N II     | 5666.629 |        5 |         1 |        1 | NEW-11-07                      |
+| N II     | 5679.558 |        5 |         1 |        1 | NEW-11-07                      |
+| Si III   |  5739.73 |        5 |         1 |        1 | NEW-11-07                      |
+| [N II]   |  5755.08 |        4 |         1 |        1 |                                |
+| DIB      |     5781 |       -4 |         1 |        0 | Diffuse interstellar band      |
+| He II    | 5784.947 |       -5 |         0 |        1 | Abs blend O II 5783.788        |
+| C IV     |  5801.35 |       -5 |         1 |        1 | Absorption line                |
+| C IV     |  5811.97 |       -5 |         1 |        1 | Absorption line                |
+| He I     |  5875.62 |        1 |         1 |        1 |                                |
+| C II     |  5889.78 |        4 |         1 |        0 | NEW-11-07                      |
+| N III    |   5896.1 |       -5 |         0 |        1 | Absorption line                |
+| N III    |   5901.2 |       -5 |         1 |        1 | Absorption line                |
+| XXX      |  5906.00 |        5 |         0 |        1 | Unidentified                   |
+| N III    |   5918.5 |       -5 |         1 |        1 | Absorption line                |
+| C II     |  5889.78 |        4 |         1 |        1 | Na I sky blend                 |
+| N II     |  5931.78 |        4 |         1 |        1 | Blend with 5927.81             |
+| N II     |  5941.65 |        4 |         1 |        1 | Blend with 5940.24             |
+| N II     |  5952.39 |        4 |         1 |        0 |                                |
+| Si II    |  5957.56 |        4 |         0 |        1 | Blend with O I 5958.39         |
+| Si II    |  5978.93 |        4 |         1 |        1 |                                |
+| [Ni III] |   6000.2 |        6 |         1 |        1 | Very weak                      |
+| O I      |  6046.23 |        4 |         1 |        1 |                                |
+| [Fe II]  | 6133.433 |        4 |         1 |        1 | plus sky?                      |
+| C II     |  6151.43 |        5 |         1 |        1 |                                |
+| DIB      |  6278.00 |       -2 |         1 |        0 | Diffuse interstellar band      |
+| [O I]    |  6300.30 |        3 |         1 |        1 |                                |
+| [S III]  |  6312.06 |        3 |         1 |        1 |                                |
+| Si II    |  6347.11 |        4 |         1 |        1 |                                |
+| [O I]    |  6363.78 |        3 |         1 |        0 |                                |
+| Si II    |  6371.36 |        4 |         0 |        1 |                                |
+| [Ni III] |   6401.5 |        6 |         1 |        1 | Blend with Ne I 6402.25        |
+| C II     |  6461.95 |        6 |         1 |        1 | NEW-11-07                      |
+| [N II]   |  6527.24 |        6 |         1 |        0 | NEW-11-07                      |
+| [Ni III] |   6533.8 |        6 |         0 |        1 | NEW-11-07                      |
+| [N II]   |  6548.05 |        2 |         1 |        1 |                                |
+| H I      |  6562.79 |        1 |         1 |        1 |                                |
+| C II     |  6578.05 |        5 |         1 |        0 |                                |
+| [N II]   |  6583.45 |        2 |         1 |        1 |                                |
+| N III    |   6633.9 |       -4 |         1 |        1 | Absorption line                |
+| Si III   |  6662.90 |       -5 |         1 |        0 | Abs + em [Ni II] 6666.80       |
+| [Ni II]  |  6666.80 |        6 |         0 |        1 | NEW-11-07                      |
+| He I     |  6678.15 |        2 |         1 |        1 |                                |
+| [S II]   |  6716.44 |        3 |         1 |        1 |                                |
+| [S II]   | 6730.816 |        3 |         1 |        1 |                                |
+| O I      |  7001.92 |        3 |         1 |        1 |                                |
+| He I     |  7065.28 |        2 |         1 |        1 |                                |
+| [Ar III] |  7135.78 |        1 |         1 |        1 | super strong                   |
+| [Fe II]  |  7155.14 |        4 |         1 |        0 | NEW-11-07                      |
+| He I     |  7160.13 |        4 |         0 |        1 | NEW-11-07                      |
+| [Fe II]  |  7172.00 |        5 |         1 |        1 | NEW-11-07                      |
+| C II     |  7231.34 |        3 |         1 |        0 |                                |
+| C II     |  7236.42 |        3 |         0 |        1 |                                |
+| O I      |  7254.15 |        3 |         1 |        1 | Blend with 7254.45,54.53       |
+| He I     |  7281.35 |        3 |         1 |        1 |                                |
+| He I     | 7298.050 |        4 |         1 |        1 | NEW-11-07                      |
+| [O II]   |  7318.39 |        1 |         1 |        1 | Also 7319.99                   |
+| [O II]   |  7329.66 |        1 |         0 |        1 | Also 7330.73                   |
+| O II     |   7340.7 |        5 |         1 |        1 | NEW-11-07                      |
+| O II     | 7369.029 |        6 |         1 |        1 | NEW-11-07 blend C II 7370.0    |
+| [Ni II]  |  7377.83 |        4 |         1 |        1 |                                |
+| [Fe II]  |  7388.18 |        5 |         1 |        1 | NEW-11-07                      |
+| [Ni II]  |  7411.61 |        5 |         1 |        1 |                                |
+| N I      |  7423.64 |        6 |         1 |        1 | NEW-11-07                      |
+| N I      |  7442.30 |        5 |         1 |        1 |                                |
+| [Fe II]  |  7452.54 |        4 |         1 |        1 |                                |
+| N I      |  7468.31 |        4 |         1 |        1 |                                |
+| He I     |  7499.85 |        5 |         1 |        1 | NEW-11-07                      |
+| C II     |  7530.57 |        5 |         1 |        1 | NEW-11-07                      |
+| [Ar III] |  7751.10 |        1 |         1 |        1 |                                |
+| He I     |  7816.13 |        4 |         1 |        1 |                                |
+| Ca I]    |  7890.07 |        4 |         1 |        1 |                                |
+| [Cr II]  |  8000.08 |        5 |         1 |        1 | NEW-11-07                      |
+| [Cl IV]  |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION!               |
+| XXX      |     8189 |        4 |         1 |        1 | Could be Fe I?                 |
+| N I      |  8223.14 |        4 |         0 |        1 | Also 8210.72,16.34             |
+| XXX      |     8243 |        4 |         1 |        1 | Could be O I? or Fe II?        |
+| H I      |  8437.96 |        3 |         1 |        0 | Pa 18                          |
+| O I      |  8446.36 |        2 |         0 |        1 | Also  8444.25, 8444.7          |
+| H I      |  8467.25 |        2 |         0 |        1 | Pa 17                          |
+| H I      |  8502.48 |        2 |         1 |        1 | Pa 16                          |
+| H I      |  8545.38 |        2 |         1 |        1 | Pa 15                          |
+| [Cl II]  |  8578.69 |        3 |         1 |        0 | Blend with 8582                |
+| H I      |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost     |
+| [Fe II]  |  8616.95 |        3 |         1 |        1 |                                |
+| H I      |  8665.02 |        2 |         1 |        1 | Pa 13                          |
+| N I      |  8680.28 |        4 |         1 |        0 | Plus 83.40, 86.15              |
+| N I      |  8703.25 |        4 |         1 |        0 |                                |
+| N I      |  8711.70 |        4 |         0 |        1 | Also 8718.83                   |
+| [C I]    |  8727.13 |        4 |         1 |        0 | Different!                     |
+| H I      |  8750.47 |        2 |         1 |        1 | Pa 12                          |
+| H I      |  8862.79 |        2 |         1 |        1 | Pa 11                          |
+| Ne I     |  8892.22 |        4 |         1 |        1 |                                |
+| H I      |  9014.91 |        2 |         1 |        1 | Pa 10                          |
+| XXX      |     9032 |        5 |         1 |        1 | Unidentified fluorescent       |
+| Ca I]    |  9052.16 |        5 |         1 |        0 |                                |
+| [S III]  |  9068.90 |        1 |         1 |        1 |                                |
+| Ca I]    |  9095.09 |        5 |         1 |        0 |                                |
+| XXX      |  9204.17 |        5 |         1 |        0 | Unidentified O II?             |
+| He I     |  9210.28 |        4 |         0 |        1 |                                |
+| H I      |  9229.01 |        2 |         1 |        1 | Pa 9                           |
+| XXX      |     9267 |        5 |         1 |        1 | Unidentified                   |
 
 ** Simple method with moments
 + This will work for any line that is sufficiently isolated
 
-*** fuzz_utils.py: add Gaussian noise to data according to per pixel variance
-+ This was remarkably easy - it turns out that the numpy random distributions take array arguments for the mean and std parameters
-#+BEGIN_SRC python :tangle fuzz_utils.py
-  import numpy as np
-
-  def fuzz(data, variance, nfuzz=1):
-      '''Return `nfuzz` fuzzed versions of `data` in which each pixel is
-  replaced by a value taken from a Gaussian distribution with mean equal
-  to `data` and sigma equal to sqrt of `variance` (which must have same
-  shape as `data`).  Returns an array of shape `(nfuzz,) + shape(data)` in
-  which each (hyper) plane is a distinct fuzzed version of the original
-
-      '''
-      newshape = (nfuzz,) + data.shape
-      return np.random.normal(data, np.sqrt(variance), newshape)
-    
-
-#+END_SRC
 *** Program to extract a single line extract-em-line.py
+:PROPERTIES:
+:ID:       9B385AF1-5AA5-4EA2-B1A3-8802C0959808
+:END:
 + First go
   + Choose wavelength range around line
     + [ ]This should come from a velocity range really
@@ -405,7 +1288,6 @@ CLOSED: [2015-08-13 Thu 11:15]
   from astropy.wcs import WCS
   from astropy import units as u
   from misc_utils import sanitize_string
-  sys.path.append('/Users/will/Dropbox/OrionWest/')
   from helio_utils import waves2vels
 
 
@@ -417,56 +1299,24 @@ CLOSED: [2015-08-13 Thu 11:15]
       return wavsectab['Section'][wav > wavsectab['CRVAL3']].max() 
 
 
+  def trim_to_window(wav, cube, wcube, dwav=12.0):
+      """Trim a spectral `cube` with accompanying WCS `wcube` down to a
+  window of width 2*`dwav` Angstrom around a central wavelength `wav`.
+  Returns tuple of trimmed cube and trimmed WCS
 
-#+END_SRC
+      """
+      wavs = (wav + dwav*np.array([-1, 1]))*u.Angstrom.to(u.m)
+      _, _, [wavmin, wavmax] = wcube.wcs_pix2world([0, 0], [0, 0], [0, cube.shape[0]-1], 0)
+      print('Requested wavelength window:', wavs)
+      print('Available wavelength range:', wavmin, wavmax)
+      _, _, pixels = wcube.wcs_world2pix([0, 0], [0, 0], wavs, 0)
+      k1, k2 = int(pixels[0]), int(pixels[1])+2
+      if k1 < 0:
+          print('Adjusting blue edge from', k1, 'to', 0)
+          k1 = 0
+      window = slice(k1, k2), slice(None), slice(None)
+      return cube[window], wcube.slice(window)
 
-#+BEGIN_SRC python :tangle extract-em-line.py
-  from __future__ import print_function
-  import sys
-  import numpy as np
-  from astropy.table import Table
-  from astropy.io import fits
-  from astropy.wcs import WCS
-  from astropy import units as u
-  from misc_utils import sanitize_string
-  sys.path.append('/Users/will/Dropbox/OrionWest/')
-  from helio_utils import waves2vels
-
-  linetab = Table.read('basic-line-list.tab', format='ascii.tab')
-  wavsectab = Table.read('wavsec-startwavs.tab', format='ascii.tab')
-
-  def find_wavsec(wav):
-      """Which wavsec chunk is this wavelength in"""
-      return wavsectab['Section'][wav > wavsectab['CRVAL3']].max() 
-
-
-  def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
-      wavsec = find_wavsec(wav)
-      wavsec_blue = find_wavsec(wav - 8.0)
-      wavsec_red = find_wavsec(wav + 8.0)
-      if (wavsec_blue != wavsec) or (wavsec_red != wavsec):
-          print('Uh, oh - line straddles wavsecs', wavsec_blue, wavsec, wavsec_red)
-          if 5000.0 < wav < 6000.0:
-              print('But luckily we can use F547M window instead')
-              fn = 'muse-hr-window-wfc3-f547m.fits'
-          else:
-              sys.exit('Unable to find a cube that contains wavelength range - sorry!')
-      else:
-          fn = 'muse-hr-data-wavsec{}.fits'.format(wavsec)
-      hdulist = fits.open(fn)
-      hdu = hdulist['DATA']
-      w = WCS(hdu.header)
-      helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
-      maps, spec =  extract_line_maps(wav, hdu.data, w, helio_hdr, usecont)
-      wavid = str(int(wav+0.5))
-      # Save the maps to FITS file 
-      for mapid, mapdata in maps.items():
-          mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
-          mname = '{}/{}-{}-{}.fits'.format(mapdir, mapid, species, wavid)
-          mhdu.writeto(mname, clobber=True)
-      sname = '{}/spec1d-{}-{}.tab'.format(mapdir, species, wavid)
-      # And save the spectrum to TSV file
-      Table(spec).write(sname, format='ascii.tab')
 
   def extract_line_maps(wav, cube, wcube, helio_hdr,
                         usecont=[1, 1], dwav=4.0, dwavcont=8.0):
@@ -476,11 +1326,15 @@ CLOSED: [2015-08-13 Thu 11:15]
       wavs = (wav + dwavcont*np.array([-1, 1]))*u.Angstrom.to(u.m)
       _, _, (kout1, kout2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
       kout1, kout2 = int(kout1), int(kout2) + 2
+      if kout1 < 0:
+          print('Adjusting kout1 from', kout1, 'to 0')
+          kout1 = 0
 
       # inner range is wav +/- dwav
       wavs = (wav + dwav*np.array([-1, 1]))*u.Angstrom.to(u.m)
       _, _, (kin1, kin2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
       kin1, kin2 = int(kin1), int(kin2) + 2
+      print('kout1, kin1, kin2, kout2, nwav =', kout1, kin1, kin2, kout2, cube.shape[0])
 
       # find average continuum
       cont1 = np.nanmean(cube[kout1:kin1, :, :], axis=0)
@@ -505,6 +1359,9 @@ CLOSED: [2015-08-13 Thu 11:15]
               'mean': vmean.to(u.km/u.s).value, 'sigma': vsig.to(u.km/u.s).value}
 
       # Save an average spectrum as well
+      if kout2 > cube.shape[0]:
+          print('Out of bounds: truncating from', kout2, 'to', cube.shape[0])
+          kout2 = cube.shape[0]
       nwinout = kout2 - kout1
       _, _, winwavsout = wcube.all_pix2world([0]*nwinout, [0]*nwinout, np.arange(kout1, kout2), 0)
       winvelsout = waves2vels(winwavsout*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
@@ -518,11 +1375,65 @@ CLOSED: [2015-08-13 Thu 11:15]
           'flux': np.nanmean(cube[kout1:kout2, yslice, xslice], axis=(1, 2)),
           'cont': np.nanmean(avcont[yslice, xslice])*np.ones(nwinout),
       }
-
+      print(*[(k, len(v)) for k, v in spec.items()])
       return maps, spec
+#+END_SRC
 
+#+BEGIN_SRC python :tangle extract-em-line.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.table import Table
+  from astropy.io import fits
+  from astropy.wcs import WCS
+  from misc_utils import sanitize_string
+  sys.path.append('/Users/will/Dropbox/OrionWest/')
+  from extract_utils import (find_wavsec, trim_to_window, extract_line_maps, linetab)
+
+  def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
+      full_width = 24.0  # Angstrom
+      wavsec = find_wavsec(wav)
+      wavsec_blue = find_wavsec(wav - full_width/2)
+      wavsec_red = find_wavsec(wav + full_width/2)
+      if (wavsec_blue != wavsec) or (wavsec_red != wavsec):
+          print('Uh, oh - line straddles wavsecs', wavsec_blue, wavsec, wavsec_red)
+          wavsecs = set([wavsec_blue, wavsec, wavsec_red])
+          fn = 'muse-hr-data-wavsec-edge{}{}.fits'.format(*wavsecs)
+      else:
+          fn = 'muse-hr-data-wavsec{}.fits'.format(wavsec)
+      try:
+          hdulist = fits.open(fn)
+      except:
+          # Maybe we have the cube in the BigFiles folder
+          hdulist = fits.open('BigFiles/' + fn)
+      hdu = hdulist['DATA']
+      print('Using', fn)
+      wfull = WCS(hdu.header)
+      helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
+      cube, w = trim_to_window(wav, hdu.data, wfull, dwav=full_width/2)
+      print('Cube shape:', cube.shape)
+      maps, spec =  extract_line_maps(wav, cube, w, helio_hdr, usecont)
+      wavid = str(int(wav+0.5))
+      # Save the maps to FITS file 
+      for mapid, mapdata in maps.items():
+          mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
+          mname = '{}/{}-{}-{}.fits'.format(mapdir, mapid, species, wavid)
+          mhdu.writeto(mname, clobber=True)
+      sname = '{}/spec1d-{}-{}.tab'.format(mapdir, species, wavid)
+      # And save the spectrum to TSV file
+      Table(spec).write(sname, format='ascii.tab')
+
+
+  try:
+      # Otionally specify a single line
+      wav_wanted = int(sys.argv[1])
+  except:
+      wav_wanted = None
 
   for row in linetab:
+      if wav_wanted is not None and wav_wanted != int(0.5 + row['wav0']):
+          # jump all unwanted lines if command line argument was given
+          continue                
       print(row['Ion'], row['wav0'])
       save_linemap_files(row['wav0'], sanitize_string(row['Ion']),
                          usecont=[row['blue cont'], row['red cont']])
@@ -543,7 +1454,6 @@ Check out the heliocentric correction
   from __future__ import print_function
   import sys
   from astropy.io import fits
-  sys.path.append('/Users/will/Dropbox/OrionWest/')
   from helio_utils import helio_topo_from_header
 
   hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
@@ -552,8 +1462,28 @@ Check out the heliocentric correction
 
 #+RESULTS:
 : -16.217273731
-*** 
+*** fuzz_utils.py: add Gaussian noise to data according to per pixel variance
++ This was remarkably easy - it turns out that the numpy random distributions take array arguments for the mean and std parameters
+#+BEGIN_SRC python :tangle fuzz_utils.py
+  import numpy as np
 
+  def fuzz(data, variance, nfuzz=1):
+      '''Return `nfuzz` fuzzed versions of `data` in which each pixel is
+  replaced by a value taken from a Gaussian distribution with mean equal
+  to `data` and sigma equal to sqrt of `variance` (which must have same
+  shape as `data`).  Returns an array of shape `(nfuzz,) + shape(data)` in
+  which each (hyper) plane is a distinct fuzzed version of the original
+
+      '''
+      newshape = (nfuzz,) + data.shape
+      return np.random.normal(data, np.sqrt(variance), newshape)
+    
+
+#+END_SRC
+*** extract-em-line-fuzz.py: Fuzzy version of line extraction
+:PROPERTIES:
+:ID:       12C8CC0B-4F79-4726-B0E2-6DA1F9DFABA3
+:END:
 #+BEGIN_SRC python :tangle extract-em-line-fuzz.py
   from __future__ import print_function
   import sys
@@ -561,115 +1491,190 @@ Check out the heliocentric correction
   from astropy.table import Table
   from astropy.io import fits
   from astropy.wcs import WCS
-  from astropy import units as u
   from misc_utils import sanitize_string
   sys.path.append('/Users/will/Dropbox/OrionWest/')
-  from helio_utils import waves2vels
-
-  linetab = Table.read('basic-line-list.tab', format='ascii.tab')
-  wavsectab = Table.read('wavsec-startwavs.tab', format='ascii.tab')
-
-  def find_wavsec(wav):
-      """Which wavsec chunk is this wavelength in"""
-      return wavsectab['Section'][wav > wavsectab['CRVAL3']].max() 
+  from extract_utils import (find_wavsec, trim_to_window, extract_line_maps, linetab)
+  from fuzz_utils import fuzz
 
 
   def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
+      full_width = 24.0  # Angstrom
       wavsec = find_wavsec(wav)
-      wavsec_blue = find_wavsec(wav - 8.0)
-      wavsec_red = find_wavsec(wav + 8.0)
+      wavsec_blue = find_wavsec(wav - full_width/2)
+      wavsec_red = find_wavsec(wav + full_width/2)
       if (wavsec_blue != wavsec) or (wavsec_red != wavsec):
           print('Uh, oh - line straddles wavsecs', wavsec_blue, wavsec, wavsec_red)
-          if 5000.0 < wav < 6000.0:
-              print('But luckily we can use F547M window instead')
-              fn = 'muse-hr-window-wfc3-f547m.fits'
-          else:
-              sys.exit('Unable to find a cube that contains wavelength range - sorry!')
+          wavsecs = set([wavsec_blue, wavsec, wavsec_red])
+          fn = 'muse-hr-data-wavsec-edge{}{}.fits'.format(*wavsecs)
       else:
           fn = 'muse-hr-data-wavsec{}.fits'.format(wavsec)
-      hdulist = fits.open(fn)
+
+      try:
+          hdulist = fits.open(fn)
+      except:
+          # Maybe we have the cube in the BigFiles folder
+          hdulist = fits.open('BigFiles/' + fn)
       hdu = hdulist['DATA']
+      wfull = WCS(hdu.header)
+      helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
 
       # Read in variance for fuzzing
-      vfn = 'BigFiles/' + fn.replace('data', 'variance')
-      variance = fits.open(fn)['ERR'].data
+      vfn = fn.replace('data', 'variance')
+      try: 
+          variance = fits.open(vfn)['STAT'].data
+      except:
+          variance = fits.open('BigFiles/' + vfn)['STAT'].data
 
-      w = WCS(hdu.header)
-      helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
-      maps, spec =  extract_line_maps(wav, hdu.data, variance, w, helio_hdr, usecont)
-      wavid = str(int(wav+0.5))
-      # Save the maps to FITS file 
-      for mapid, mapdata in maps.items():
-          mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
-          mname = '{}/{}-{}-{}.fits'.format(mapdir, mapid, species, wavid)
-          mhdu.writeto(mname, clobber=True)
-      sname = '{}/spec1d-{}-{}.tab'.format(mapdir, species, wavid)
-      # And save the spectrum to TSV file
-      Table(spec).write(sname, format='ascii.tab')
+      cube, w = trim_to_window(wav, hdu.data, wfull, dwav=full_width/2)
+      varcube, _ = trim_to_window(wav, variance, wfull, dwav=full_width/2)
 
-  def extract_line_maps(wav, cube, variance, wcube, helio_hdr,
-                        usecont=[1, 1], dwav=4.0, dwavcont=8.0):
-      """Extract line moments and continuum"""
+      fuzzies = fuzz(cube, varcube, nfuzz)
 
-      # outer range is wav +/- dwavcont
-      wavs = (wav + dwavcont*np.array([-1, 1]))*u.Angstrom.to(u.m)
-      _, _, (kout1, kout2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
-      kout1, kout2 = int(kout1), int(kout2) + 2
+      for ifuzz, fuzzcube in enumerate(fuzzies):
+          maps, spec =  extract_line_maps(wav, fuzzcube, w, helio_hdr, usecont)
+          wavid = str(int(wav+0.5))
+          fuzzid = '{:03d}'.format(ifuzz)
+          # Save the maps to FITS file 
+          for mapid, mapdata in maps.items():
+              mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
+              mname = '{}/{}-{}-{}-fuzz{}.fits'.format(mapdir, mapid,
+                                                       species, wavid, fuzzid)
+              mhdu.writeto(mname, clobber=True)
+          sname = '{}/spec1d-{}-{}-fuzz{}.tab'.format(mapdir, species, wavid, fuzzid)
+          # And save the spectrum to TSV file
+          Table(spec).write(sname, format='ascii.tab')
 
-      # inner range is wav +/- dwav
-      wavs = (wav + dwav*np.array([-1, 1]))*u.Angstrom.to(u.m)
-      _, _, (kin1, kin2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
-      kin1, kin2 = int(kin1), int(kin2) + 2
 
-      # find average continuum
-      cont1 = np.nanmean(cube[kout1:kin1, :, :], axis=0)
-      cont2 = np.nanmean(cube[kin2:kout2, :, :], axis=0)
-      # Maybe don't use the continuum on one side (if contaminated)
-      wt1, wt2 = usecont          
-      avcont = (wt1*cont1 + wt2*cont2)/(wt1 + wt2)
+  try:
+      # Optionally specify a single line
+      wav_wanted = int(sys.argv[1])
+  except:
+      wav_wanted = None
 
-      # Subtract to get pure line window
-      linewin = cube[kin1:kin2, :, :] - avcont[None, :, :]
-      # Now find moments
-      nwin = kin2 - kin1
-      _, _, winwavs = wcube.all_pix2world([0]*nwin, [0]*nwin, np.arange(kin1, kin2), 0)
-      # Convert wavelengths to velocities
-      winvels = waves2vels(winwavs*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
-      mom0 = linewin.sum(axis=0)
-      mom1 = np.sum(linewin*winvels[:, None, None], axis=0)
-      vmean = mom1/mom0
-      mom2 = np.sum(linewin*(winvels[:, None, None] - vmean)**2, axis=0)
-      vsig = np.sqrt(mom2/mom0)
-      maps = {'continuum': avcont, 'linesum': mom0,
-              'mean': vmean.to(u.km/u.s).value, 'sigma': vsig.to(u.km/u.s).value}
-
-      # Save an average spectrum as well
-      nwinout = kout2 - kout1
-      _, _, winwavsout = wcube.all_pix2world([0]*nwinout, [0]*nwinout, np.arange(kout1, kout2), 0)
-      winvelsout = waves2vels(winwavsout*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
-
-      # Just select region to SW of Trap
-      xslice = slice(900, 1400)
-      yslice = slice(400, 900)
-      spec = {
-          'vhel': winvelsout.to(u.km/u.s),
-          'wav': winwavsout*u.m.to(u.Angstrom),
-          'flux': np.nanmean(cube[kout1:kout2, yslice, xslice], axis=(1, 2)),
-          'cont': np.nanmean(avcont[yslice, xslice])*np.ones(nwinout),
-      }
-
-      return maps, spec
+  try:
+      # Optionally specify number of fuzzies
+      nfuzz = int(sys.argv[2])
+  except:
+      nfuzz = 10
 
 
   for row in linetab:
+      if wav_wanted is not None and wav_wanted != int(0.5 + row['wav0']):
+          # jump all unwanted lines if command line argument was given
+          continue                
       print(row['Ion'], row['wav0'])
       save_linemap_files(row['wav0'], sanitize_string(row['Ion']),
                          usecont=[row['blue cont'], row['red cont']])
-
-
 #+END_SRC
 
 
+*** DONE Calculate equivalent widths
+CLOSED: [2015-11-03 Tue 22:26]
+:PROPERTIES:
+:ID:       4B6B5B8C-94C8-456D-90CB-2CF7B0D73099
+:END:
++ The continuum maps are already per Angstrom, so this should automatically give an answer in Angstroms
+
+#+BEGIN_SRC python :tangle muse_ew_utils.py
+  from astropy.io import fits
+
+  def save_ew(fname, hdu_id=0):
+      '''Calculate and save EW for line map in file named `fname`
+
+  It is assumed that the continuum can be found by transforming the filename
+  '''
+      hdu = fits.open(fname)[hdu_id]
+      cname = fname.replace('linesum', 'continuum')
+      cdata = fits.open(cname)[hdu_id].data
+      hdu.data /= cdata
+      ename = fname.replace('linesum', 'ew')
+      hdu.writeto(ename, clobber=True)
+  
+#+END_SRC
+
+
+#+BEGIN_SRC python :tangle muse-ew-all.py
+  from astropy.table import Table
+  from misc_utils import sanitize_string
+  from muse_ew_utils import save_ew
+  linetab = Table.read('basic-line-list.tab', format='ascii.tab')
+  for row in linetab:
+      wav = row['wav0']
+      wavid = str(int(wav+0.5))
+      species = sanitize_string(row['Ion'])
+      fname = 'LineMaps/linesum-{}-{}.fits'.format(species, wavid)
+      save_ew(fname)
+#+END_SRC
+
++ This works on all the raw line maps
+#+BEGIN_SRC sh
+python muse-ew-all.py
+#+END_SRC
+
+#+RESULTS:
+
++ And this does one at a time, but is more flexible for binned or fuzzed maps
+#+BEGIN_SRC python :tangle muse-ew.py
+  import sys
+  from muse_ew_utils import save_ew
+  fn = sys.argv[1]
+  save_ew(fn, 'SCALED')
+#+END_SRC
+
+
+#+BEGIN_SRC sh :result silent
+python muse-ew.py LineMaps/linesum-DIB-6278-bin064.fits
+#+END_SRC
+
+#+RESULTS:
+
+Here is a script that takes an argument (blank or =-fuzz000=, etc) and does EW for all the binned lines of that type
+#+BEGIN_SRC sh :eval no :tangle batch-ew.sh
+  for file in LineMaps/linesum*[0-9][0-9][0-9][0-9]$1-bin*.fits; do
+      python muse-ew.py $file
+  done
+#+END_SRC
+
+**** Make a list of all the absorption lines
+:PROPERTIES:
+:ID:       5E28C927-CB18-45CB-87E0-C52109A04F79
+:END:
+This is useful, since these are the ones where EW is most relevant
+#+BEGIN_SRC python :results output :tangle list-abs-lines.py
+  from __future__ import print_function
+  from astropy.table import Table
+  from misc_utils import sanitize_string
+  linetab = Table.read('basic-line-list.tab', format='ascii.tab')
+  for row in linetab:
+      if row['strength'] < 0.0:
+          wav = row['wav0']
+          wavid = str(int(wav+0.5))
+          species = sanitize_string(row['Ion'])
+          print('ew-{}-{}'.format(species, wavid))
+
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ew-He_II-4686
+ew-O_III-5592
+ew-DIB-5781
+ew-He_II-5785
+ew-C_IV-5801
+ew-C_IV-5812
+ew-N_III-5896
+ew-N_III-5901
+ew-N_III-5919
+ew-DIB-6278
+ew-N_III-6634
+ew-Si_III-6663
+#+end_example
+
+#+BEGIN_SRC sh
+python list-abs-lines.py > absorption-lines.tab
+#+END_SRC
+
+#+RESULTS:
 
 ** Plot the average spectrum for each line
 #+BEGIN_SRC python :tangle plot-em-line-spec.py
@@ -729,29 +1734,45 @@ open LineMaps/spec1d*-wav.pdf
 
 
 * MUSE spectra as a check on fidelity of filter-derived line ratios
-** Calculate MUSE line ratios dierctly from emission line maps
-Note that [[id:125BB238-D032-4FAD-B6DA-FBFB14DAD3AF][Ratio of multibin maps]] has superseded this for most practical purposes
+** Calculate MUSE line ratios directly from emission line maps
++ [2015-11-08 Sun 15:11] Edited to do dependency checking and only recalculate ratios if the numerator or denominator map is newer
+  + Use =force=True= to make it recalculate a fuerzas
+  + [X] Needs testing
+    + Works fine [2015-11-08 Sun 17:28] - now rolling it out for [[id:D49AD965-AFDC-4D58-9341-8202DD8508D3][multibin-map.py]] too
++ [2015-11-08 Sun] This will now be called by program in [[id:07D1CD25-8319-4634-904D-A3A4CBC10E8D][Rewrite of multibin and fuzzed ratios]]
++ Note that [[id:125BB238-D032-4FAD-B6DA-FBFB14DAD3AF][Ratio of multibin maps]] has scripts that run this program
 #+BEGIN_SRC python :tangle muse_line_ratio.py
   from __future__ import print_function
   import sys
   from astropy.io import fits
-  def save_line_ratio_map(line1, line2, prefix='linesum', suffix='', mapdir='LineMaps'):
+  from distutils.dep_util import newer, newer_group
+
+  def save_line_ratio_map(line1, line2,
+                          prefix='linesum', suffix='',
+                          mapdir='LineMaps', force=False):
       fn1 = '{}/{}-{}{}.fits'.format(mapdir, prefix, line1, suffix)
       fn2 = '{}/{}-{}{}.fits'.format(mapdir, prefix, line2, suffix)
-      print(fn1, fn2)
-      hdu1 = fits.open(fn1)[0]
-      if hdu1.data is None:
-          hdu1 = fits.open(fn1)[1]
-      hdu2 = fits.open(fn2)[0]
-      if hdu2.data is None:
-          hdu2 = fits.open(fn2)[1]
       wav1 = line1.split('-')[-1]
       wav2 = line2.split('-')[-1]
-      hdu1.data /= hdu2.data
       if prefix == 'linesum':
-          hdu1.writeto('{}/ratio-{}-{}{}.fits'.format(mapdir, wav1, wav2, suffix), clobber=True)
+          fn_out = '{}/ratio-{}-{}{}.fits'.format(
+              mapdir, wav1, wav2, suffix)
       else:
-          hdu1.writeto('{}/ratio-{}-{}-{}.fits'.format(mapdir, prefix, wav1, wav2, suffix), clobber=True)
+          fn_out = '{}/ratio-{}-{}-{}{}.fits'.format(
+              mapdir, prefix, wav1, wav2, suffix)
+
+      if newer_group([fn1, fn2], fn_out) or force:
+          print(fn1, fn2)
+          hdu1 = fits.open(fn1)[0]
+          if hdu1.data is None:
+              hdu1 = fits.open(fn1)[1]
+          hdu2 = fits.open(fn2)[0]
+          if hdu2.data is None:
+              hdu2 = fits.open(fn2)[1]
+          hdu1.data /= hdu2.data
+          hdu1.writeto(fn_out, clobber=True)
+      else:
+          print(fn_out, 'already up to date.  Use force=True to recreate regardless.')
 
   if __name__ == '__main__':
       try:
@@ -771,7 +1792,7 @@ Note that [[id:125BB238-D032-4FAD-B6DA-FBFB14DAD3AF][Ratio of multibin maps]] ha
           suffix = ''
 
       save_line_ratio_map(line1, line2, prefix, suffix)
-        
+      
 
 #+END_SRC
 
@@ -1044,7 +2065,7 @@ CLOSED: [2015-10-22 Thu 17:21]
   }
 
   GAMMA = 1.0
-
+  
   cmap = sns.light_palette((260, 50, 30), input="husl", as_cmap=True)
   # cmap = plt.cm.gray_r
 
@@ -1606,6 +2627,8 @@ CLOSED: [2015-10-12 Mon 09:18]
           ]
       ).writeto('muse-hr-window-{}-{}.fits'.format(row['Instrument'], row['Filter']), clobber=True)
 #+END_SRC
+
+
 **** Cleaning up the window FITS files for DS9
 :PROPERTIES:
 :ID:       45AB8659-4D07-4EE5-A3DC-FECF9C10833D
@@ -2416,8 +3439,6 @@ python muse-rnii-rsii-histogram.py NebulioMUSE/synthetic-
   import sys
   import numpy as np
   from astropy.io import fits
-  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
-  sys.path.append(t2dir)
   from derive_ne_te_1phase import T_den_from_rsii_rnii
 
   prefix = 'Linemaps/'
@@ -2699,10 +3720,10 @@ CLOSED: [2015-10-25 Sun 11:42]
       except IndexError:
           suffix = ''
         
-      rha_pa9 = fits.open('Linemaps/ratio-6563-9229{}.fits'.format(suffix))['SCALED'].data
-      siii_hdu = fits.open('Linemaps/ratio-6312-9069{}.fits'.format(suffix))['SCALED']
+      rha_pa9 = fits.open('LineMaps/ratio-6563-9229{}.fits'.format(suffix))['SCALED'].data
+      siii_hdu = fits.open('LineMaps/ratio-6312-9069{}.fits'.format(suffix))['SCALED']
       siii_hdu.data = deredden_siii_ratio(siii_hdu.data, rha_pa9)
-      siii_hdu.writeto('Linemaps/ratio-6312-9069-deredden{}.fits'.format(suffix),
+      siii_hdu.writeto('LineMaps/ratio-6312-9069-deredden{}.fits'.format(suffix),
                       clobber=True)
 #+END_SRC
 
@@ -2714,70 +3735,268 @@ CLOSED: [2015-10-25 Sun 11:42]
 
 #+RESULTS:
 
-* TODO Multi-resolution MUSE line maps
-+ This is stolen from a [[id:EAE1FA1C-7D1B-484D-9B4A-FF42DE7D8594][similar program for the Alba project]]
-+ The difference is that we are starting from a simple image, not from a superposition of slits
-+ Extra inspiration (e.g., star mask) is taken from [[id:B8D31952-3114-4FE8-B2D7-A0CC32287FA2][here]]
-#+BEGIN_SRC python :tangle multibin-map.py
-from __future__ import print_function
-import sys
-import numpy as np
-sys.path.append('/Users/will/Work/RubinWFC3/Tsquared')
-from rebin_utils import downsample, oversample
-from astropy.io import fits
-
-nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
-mingoods = [2, 2, 2, 2, 2, 2, 2, 2, 2]
-
-try: 
-    infile = sys.argv[1]
-except:
-    sys.exit('Usage: {} FITSFILE'.format(sys.argv[0]))
-
-
-hdu = fits.open(infile)[0]
-hdr = hdu.header
-im = hdu.data
-w = np.ones_like(hdu.data)
-
-continuum = fits.open('muse-hr-image-wfc3-f547m.fits')['DATA'].data
-starmask = continuum > 30
-m =  np.isfinite(hdu.data) & (hdu.data > 0.0) & (~starmask)
-for n, mingood in zip(nlist, mingoods):
-    im[~m] = 0.0
-    outfile = infile.replace('.fits', '-bin{:03d}.fits'.format(n))
-    print('Saving', outfile)
-    # Save both the scaled image and the weights, but at the full resolution
-    fits.HDUList([
-        fits.PrimaryHDU(),
-        fits.ImageHDU(data=oversample(im, n), header=hdr, name='scaled'),
-        fits.ImageHDU(data=oversample(w, n), header=hdr, name='weight'),
-    ]).writeto(outfile, clobber=True)
-    # Now do the rebinning by a factor of two
-    [im,], m, w = downsample([im,], m, weights=w, mingood=mingood)
-
-
-#+END_SRC
-
+Do the same for first 3 fuzzed ratio maps
 #+BEGIN_SRC sh :results verbatim
-python multibin-map.py LineMaps/linesum-Cl_III-5538.fits
+  for binning in 001 002 004 008 016 032 064 128 256; do
+      for fuzz in 000 001 002; do
+          python deredden_siii.py fuzz${fuzz}-bin$binning
+      done
+  done
 #+END_SRC
 
 #+RESULTS:
-: Saving LineMaps/linesum-Cl_III-5538-bin001.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin002.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin004.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin008.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin016.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin032.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin064.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin128.fits
-: Saving LineMaps/linesum-Cl_III-5538-bin256.fits
+* Making images and figures of the maps
+** STARTED fig_utils.py: Utility functions to make figures from MUSE maps
+:PROPERTIES:
+:ID:       DF6370DF-79C4-4B48-B862-27B74302F9A0
+:END:
+#+BEGIN_SRC python :tangle fig_utils.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from matplotlib import pyplot as plt
+  from wcsaxes import WCS
+  # import seaborn as sns
+
+  def fig_ax_im_from_fits(fn, vmin=None, vmax=None, cmap=plt.cm.gray):
+      '''Make a basic grayscale plot of a FITS file'''
+      #sns.set_style("white")
+
+      # Try first HDU
+      hdu = fits.open(fn)[0]
+      if hdu.data is None:
+          # Or failing that, 2nd HDU
+          hdu = fits.open(fn)[1]
+      wcs = WCS(hdu.header)
+      fig = plt.figure()
+      ax = fig.add_axes([0.18, 0.1, 0.8, 0.8], projection=wcs)
+      tr = ax.get_transform(wcs)
+      ra, dec = ax.coords
+      dec.set_major_formatter('dd:mm:ss.s')
+      ra.set_major_formatter('hh:mm:ss.ss')
+      if vmax is None:
+          vmax = hdu.data.max()
+      if vmin is None:
+          vmin = 0.0
+      im = ax.imshow(hdu.data, vmin=vmin, vmax=vmax, cmap=cmap,
+                     origin='lower', interpolation='nearest')
+      plt.colorbar(im)
+      ax.coords.grid(color='red', alpha=0.2, lw=0.2, linestyle='solid')
+      ax.set_xlabel('RA, J2000')
+      ax.set_ylabel('Dec, J2000')
+      ax.set_title(fn, fontsize='small')
+  
+      return fig, ax, im
 
 
-Do them all
+  if __name__ == '__main__':
+      try:
+          fn = 'LineMaps/' + sys.argv[1] + '.fits'
+      except IndexError:
+          fn = 'LineMaps/linesum-Fe_III-4658-multibin-SN0010.fits'
+
+      try:
+          vmin, vmax = float(sys.argv[2]), float(sys.argv[3])
+      except IndexError:
+          vmin, vmax = None, None
+          
+      fig, ax, im = fig_ax_im_from_fits(fn, vmin, vmax)
+      figfile = fn.replace('.fits', '.jpg')
+      fig.set_size_inches(8, 6)
+      fig.savefig(figfile, dpi=200)
+      print(figfile)
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC sh :results file
+python fig_utils.py
+#+END_SRC
+** Make a whole load of figures
+#+BEGIN_SRC python :tangle figs-multibin-Te-Ne.py
+  from fig_utils import fig_ax_im_from_fits
+
+
+  quantities = {
+      'muse-derived-Te': (6500, 14000),
+      'muse-derived-Te-iii': (6500, 14000),
+      'muse-derived-Ne': (0.0, 2.0e4),
+      'muse-derived-Ne-iii': (0.0, 2.0e4),
+  }
+
+  for SN in 3, 10, 30, 100, 300:
+      for quant, (vmin, vmax) in quantities.items():
+          fn = ('LineMaps/{}-multibin-SN{:04d}.fits'.format(quant, SN))
+          try:
+              fig, ax, im = fig_ax_im_from_fits(fn, vmin=vmin, vmax=vmax, cmap=plt.cm.gray_r)
+          except IOError:
+              continue
+          figfile = fn.replace('.fits', '.jpg')
+          fig.set_size_inches(8, 6)
+          fig.savefig(figfile, dpi=200)
+  
+#+END_SRC
+
+
+#+BEGIN_SRC sh
+time python figs-multibin-Te-Ne.py
+#+END_SRC
+
+#+RESULTS:
+*** Absorption lines
+
+Mystery 6634 line 
+#+BEGIN_SRC sh :results file
+python fig_utils.py ew-N_III-6634-multibin-SN0007 -0.5 0.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/ew-N_III-6634-multibin-SN0007.jpg]]
+
+He II 4886 line
+#+BEGIN_SRC sh :results file
+python fig_utils.py ew-He_II-4686-multibin-SN0010 -0.5 0.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/ew-He_II-4686-multibin-SN0010.jpg]]
+
+C IV 5812 line
+#+BEGIN_SRC sh :results file
+python fig_utils.py ew-C_IV-5812-multibin-SN0005 -0.2 0.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/ew-C_IV-5812-multibin-SN0005.jpg]]
+
+
+N III 5896 line
+#+BEGIN_SRC sh :results file
+python fig_utils.py ratio-7236-6563-multibin-SN0030 2.2e-4 2.2e-3
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/ratio-7236-6563-multibin-SN0030.jpg]]
+
+
+
+
+* TODO Multi-resolution MUSE line maps
+:PROPERTIES:
+:ID:       3D36AC7E-5321-420E-B0A4-29EC2068083D
+:END:
++ This is stolen from a [[id:EAE1FA1C-7D1B-484D-9B4A-FF42DE7D8594][similar program for the Alba project]]
++ The difference is that we are starting from a simple image, not from a superposition of slits
++ Extra inspiration (e.g., star mask) is taken from [[id:B8D31952-3114-4FE8-B2D7-A0CC32287FA2][here]]
++ We need to run these on my laptop in order to use the rebinning on the iMac, since it doesn't have access to the =~/Work/RubinWFC3/Tsquared/= folder
+  + src_sh{cp /Users/will/Work/RubinWFC3/Tsquared/rebin_utils.py .}
+  + src_sh{cp /Users/will/Work/RubinWFC3/Tsquared/derive_ne_te_1phase.py .} 
+  + src_sh{cp /Users/will/Work/RubinWFC3/Tsquared/pyneb_utils.py .}  
+  + src_sh{cp /Users/will/Work/RubinWFC3/Tsquared/deredden.py .}   
+  + src_sh{cp /Users/will/Work/RubinWFC3/Tsquared/will-*.reg .}
++ [2015-10-31 Sat] Removed the =hdu.data > 0= condition on the mask since I suspect it is causing upward bias on brightness with increased binning
++ [2015-11-03 Tue] Do some padding on the data array to multiple of 256 so that all the binned maps are the same size
++ [2015-11-04 Wed] Combine multiple binning levels at constant s/n level
+
+** multibin-map.py - Perform binning of a line map
+:PROPERTIES:
+:ID:       D49AD965-AFDC-4D58-9341-8202DD8508D3
+:END:
++ [2015-11-08 Sun 17:27] Update to do dependency checking
+  + Only 
+#+BEGIN_SRC python :tangle multibin-map.py
+  from __future__ import print_function
+  import sys
+  from distutils.dep_util import newer, newer_group
+  import numpy as np
+  from rebin_utils import downsample, oversample
+  from astropy.io import fits
+
+  nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+  mingoods = [2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+  def pad_array(a, n):
+      """Pad 2d array `a` to nearest multiple of `n` in each dimension"""
+      newshape = n*np.ceil(np.array(a.shape).astype(float)/n)
+      b = np.zeros(newshape, dtype=a.dtype)
+      b[:a.shape[0], :a.shape[1]] = a
+      return b
+
+
+  try: 
+      infile = sys.argv[1]
+  except:
+      sys.exit('Usage: {} FITSFILE'.format(sys.argv[0]))
+
+
+  hdu = fits.open(infile)[0]
+  hdr = hdu.header
+  # Maximum binning
+  nmax = nlist[-1]
+
+  # Pad arrays to nearest multiple of nmax
+  im = pad_array(hdu.data, nmax)
+  w = np.ones_like(im)
+
+  continuum = fits.open('muse-hr-image-wfc3-f547m.fits')['DATA'].data
+  starmask = continuum > 30
+  m =  np.isfinite(hdu.data) & (~starmask)
+  m = pad_array(m, nmax)
+
+  for n, mingood in zip(nlist, mingoods):
+      im[~m] = 0.0
+      outfile = infile.replace('.fits', '-bin{:03d}.fits'.format(n))
+      if n == nlist[0]:
+          # Do dependency checking on the first iteration
+          if not newer(infile, outfile):
+              # Bail out if dependency not newer than target
+              sys.exit(outfile + ' is already up to date.')
+      print('Saving', outfile)
+      # Save both the scaled image and the weights, but at the full resolution
+      fits.HDUList([
+          fits.PrimaryHDU(),
+          fits.ImageHDU(data=oversample(im, n), header=hdr, name='scaled'),
+          fits.ImageHDU(data=oversample(w, n), header=hdr, name='weight'),
+      ]).writeto(outfile, clobber=True)
+      # Now do the rebinning by a factor of two
+      [im,], m, w = downsample([im,], m, weights=w, mingood=mingood)
+
+
+#+END_SRC
+
 #+BEGIN_SRC sh :results verbatim
+python multibin-map.py LineMaps/continuum-DIB-6278.fits
+#+END_SRC
+
+#+RESULTS:
+: Saving LineMaps/continuum-DIB-6278-bin001.fits
+: Saving LineMaps/continuum-DIB-6278-bin002.fits
+: Saving LineMaps/continuum-DIB-6278-bin004.fits
+: Saving LineMaps/continuum-DIB-6278-bin008.fits
+: Saving LineMaps/continuum-DIB-6278-bin016.fits
+: Saving LineMaps/continuum-DIB-6278-bin032.fits
+: Saving LineMaps/continuum-DIB-6278-bin064.fits
+: Saving LineMaps/continuum-DIB-6278-bin128.fits
+: Saving LineMaps/continuum-DIB-6278-bin256.fits
+
+
+*** Shell scripts to do multibinning of observed and fuzzed maps
+:PROPERTIES:
+:ID:       8E91B82E-9A07-4DE7-8EDC-5157FB5EEA99
+:END:
+Do them all
+#+BEGIN_SRC sh :tangle all-lines-multibin.sh
 linelist=LineMaps/linesum-*[0-9][0-9][0-9][0-9].fits
+for line in $linelist; do
+    echo "Processing $line"
+    time python multibin-map.py $line > ${line}-multibin.log
+done
+#+END_SRC
+
+#+BEGIN_SRC sh :tangle all-continuum-multibin.sh
+linelist=LineMaps/continuum-*[0-9][0-9][0-9][0-9].fits
 for line in $linelist; do
     echo "Processing $line"
     time python multibin-map.py $line > ${line}-multibin.log
@@ -2853,6 +4072,325 @@ Processing LineMaps/linesum-Si_II-6347.fits
 Processing LineMaps/linesum-Si_II-6371.fits
 #+end_example
 
++ And do the fuzzed ones too (this takes ages, so run it in an interactive shell)
++ [2015-11-08 Sun] This does not have to be so careful now, since it will only rebuild files where needed
++ [ ] Actually it is still very slow, mainly because it takes over a second to start the python process and load libraries
+  + So I should re-write it to do the globbing in python instead of shell script
+  + That way, it only needs to start python once, so it will be much quicker
+#+BEGIN_SRC sh :eval no :tangle all-fuzz-multibin.sh
+linelist=LineMaps/linesum-*[0-9][0-9][0-9][0-9]-fuzz$1.fits
+for line in $linelist; do
+    echo "Processing $line"
+    time python multibin-map.py $line > ${line}-multibin.log 2>&1
+done
+#+END_SRC
+
+Usage example
+
+#+BEGIN_SRC sh :eval no
+nohup sh all-fuzz-multibin.sh 000 > all-fuzz-000-multibin.log &
+nohup sh all-fuzz-multibin.sh 001 > all-fuzz-001-multibin.log &
+nohup sh all-fuzz-multibin.sh 002 > all-fuzz-002-multibin.log &
+nohup sh all-fuzz-multibin.sh 003 > all-fuzz-003-multibin.log &
+nohup sh all-fuzz-multibin.sh 004 > all-fuzz-004-multibin.log &
+nohup sh all-fuzz-multibin.sh 005 > all-fuzz-005-multibin.log &
+nohup sh all-fuzz-multibin.sh 006 > all-fuzz-006-multibin.log &
+nohup sh all-fuzz-multibin.sh 007 > all-fuzz-007-multibin.log &
+nohup sh all-fuzz-multibin.sh 008 > all-fuzz-008-multibin.log &
+nohup sh all-fuzz-multibin.sh 009 > all-fuzz-009-multibin.log &
+#+END_SRC
+
+Note that I have now put it up to 10 fuzzes again to improve the noise estimates
+
+And one I forgot
+#+BEGIN_SRC sh :results verbatim
+linelist=LineMaps/linesum-Cl_IV-8046-fuzz???.fits
+for line in $linelist; do
+    echo "Processing $line"
+    time python multibin-map.py $line
+done
+#+END_SRC
+
+
+** Combining multibinned maps to give constant s/n ratio
++ [2015-11-05 Thu] Planned improvements
+  + [X] Create maps of s/n for each binning. Perhaps smooth it before doing the multi bin combine step.
+  + [X] Be more aggressive with the dilations. Make the kernel be the size of the big pixels. Maybe don't do the dilation.
+  + [-] Do more realizations of the fuzzing to improve the estimates of the s-n-r.
++ [2015-11-05 Thu] This is now split into three stages for greater control
+  1. First [[id:DED61F19-3303-4D94-BB1C-12B4BC789D65][make maps]] of signal-to-noise ratio for each binning with [[file:multibin-signal-to-noise.py]]
+  2. Then [[id:95C0D60F-5553-40F1-A3B4-57517D4C5512][create masks]] at a given S/N with [[file:multibin-mask-s-n.py]]. At this stage we can finesse the masks with erosion/dilation to avoid single-pixel islands at any binning level (at least for the smaller binnings)
+  3. Finally [[id:CFEF861F-1888-435B-B2F0-B6C80AAD1448][combine all the binning levels]] by stacking the brightness maps while applying the minimum s/n masks with [[file:multibin-combine-s-n.py]]
+*** multibin-signal-to-noise.py - Write maps of s/n estimated from fuzzing
+:PROPERTIES:
+:ID:       DED61F19-3303-4D94-BB1C-12B4BC789D65
+:END:
++ We estimate s/n by using the fuzzed line maps
++ Note that we do /not/ calculate std_{i}(Fuzzed_{i} - Observed), which would be no different from std_{i}(Fuzzed_{i}) since Observed is a constant, so it will be small if all the Fuzzed_{i} are close to one another even if they are all far from Observed - not good!
++ Instead we calculate rms_{i}(Fuzzed_{i} - Observed)
++ Also, we want the s/n to be always positive, even for an absorption line, so we take the absolute value of the map data
++ [2015-11-06 Fri] Also write out the noise, since this may come in useful later
+
+#+BEGIN_SRC python :tangle multibin-signal-to-noise.py 
+  from __future__ import print_function
+  import sys
+  import glob
+  from distutils.dep_util import newer, newer_group
+  import numpy as np
+  from astropy.io import fits
+  try: 
+      fileroot = sys.argv[1]
+  except IndexError:
+      sys.exit('Usage: {} FILEROOT')
+
+  prefix = 'LineMaps/'
+  nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+  for n in reversed(nlist):
+      fn = prefix + '{}-bin{:03d}.fits'.format(fileroot, n)
+      out_fn = fn.replace('-bin', '-SN-bin')
+      if not newer(fn, out_fn):
+          print(out_fn, 'already up to date - skipping')
+          continue
+      hdu = fits.open(fn)['SCALED']
+      hdr = hdu.header
+      fuzz_pattern = fn.replace('-bin', '-fuzz???-bin')
+      fuzz_files = glob.glob(fuzz_pattern)
+      if len(fuzz_files) == 0:
+          sys.exit('No fuzzed files found. '
+                   'Try running extract-em-line-fuzz.py and all-fuzz-multibin.sh ')
+      hdr['NFUZZ'] = len(fuzz_files), 'Number of fuzzed images used to estimate noise'
+      fuzz_deltas = []
+      for fuzz_fn in fuzz_files:
+          fuzz_hdu = fits.open(fuzz_fn)['SCALED']
+          fuzz_deltas.append(fuzz_hdu.data - hdu.data)
+      fuzz_std = np.sqrt(np.mean(np.square(np.dstack(fuzz_deltas)), axis=-1))
+      signal_to_noise = np.abs(hdu.data)/fuzz_std
+      # Write out signal/noise
+      fits.PrimaryHDU(header=hdr, data=signal_to_noise).writeto(out_fn, clobber=True)
+      # Write out noise too
+      out_fn = fn.replace('-bin', '-STD-bin')
+      fits.PrimaryHDU(header=hdr, data=fuzz_std).writeto(out_fn, clobber=True)
+
+#+END_SRC
+
+#+BEGIN_SRC sh
+source activate py27
+python multibin-signal-to-noise.py ew-N_III-6634
+#+END_SRC
+
+#+RESULTS:
+
+**** Script to run on the server for s/n of all the lines
++ [2015-11-06 Fri] This was tricky to get the glob pattern matching right
++ The naive approach with =*= was catching things like =linesum-N_III-6634-multibin-SN0005=, which we didn't want
++ This is since the S/N ratio is also 4 digits (as well as the line wavelength)
++ I solved it by setting the =extglob= shell option and using the extended pattern matching operators: =+(PATTERN)= matches one or more instances of =PATTERN=
+#+BEGIN_SRC sh :eval no :tangle all-signal-to-noise.sh
+shopt -s extglob
+files=LineMaps/linesum-+([^-])-[0-9][0-9][0-9][0-9].fits
+for file in $files; do
+    prefix=$(basename $file .fits)
+    echo "Calculating S/N for $prefix"
+    python multibin-signal-to-noise.py $prefix
+done
+#+END_SRC
+
+
+**** And another script to do s/n of all the ratios
+#+BEGIN_SRC sh :eval no :tangle all-ratios-signal-to-noise.sh
+files=LineMaps/ratio-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-bin001.fits
+for file in $files; do
+    prefix=$(basename $file -bin001.fits)
+    echo "Calculating S/N for $prefix"
+    python multibin-signal-to-noise.py $prefix
+done
+#+END_SRC
+
+
+*** multibin-mask-s-n.py - create masks at roughly constant s/n 
+:PROPERTIES:
+:ID:       95C0D60F-5553-40F1-A3B4-57517D4C5512
+:END:
++ We pass each mask through a erosion/dilation so that we don't have single-pixel islands 
++ Instead of morphology.erosion we are trying filters.rank.modal, which takes the most common value in the neighborhood around each pixel - we use a 3x3 square as the selection element
+#+BEGIN_SRC python :tangle multibin-mask-s-n.py
+  from __future__ import print_function
+  import sys
+  import glob
+  from distutils.dep_util import newer, newer_group
+  import numpy as np
+  from skimage.morphology import binary_dilation, binary_erosion, square, diamond
+  from skimage.filters.rank import modal
+  from astropy.io import fits
+  from rebin_utils import oversample
+
+  def minify(a, n):
+      return a[::n, ::n]
+
+  try: 
+      fileroot = sys.argv[1]
+      target_signal_to_noise = int(sys.argv[2])
+  except IndexError:
+      sys.exit('Usage: {} FILEROOT S/N')
+
+  prefix = 'LineMaps/'
+  nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+  # selection element for filtering out isolated pixels
+  element = square(3)
+  for n in reversed(nlist):
+      fn = prefix + '{}-SN-bin{:03d}.fits'.format(fileroot, n)
+      out_fn = fn.replace('SN', 'mask-SN{:04d}'.format(target_signal_to_noise))
+      if not newer(fn, out_fn):
+          print(out_fn, 'already up to date - skipping')
+          continue
+      print('Extracting mask from', fn)
+      try:
+          hdu = fits.open(fn)['SCALED']
+      except IOError:
+          sys.exit(fn + ' not found. Try running multibin-signal-to-noise.py first.')
+      hdr = hdu.header
+      signal_to_noise = hdu.data
+      mask = signal_to_noise >= target_signal_to_noise
+      # Shrink down to its true size at the binning we are at
+      mask = minify(mask, n).astype(np.uint8)
+      # Eliminate small islands
+      mask = mask & modal(mask, element)
+      # mask = binary_erosion(mask, element)
+      # expand borders slightly
+      # mask = binary_dilation(mask, element)
+
+      # Expand back to the size of the full-res image
+      mask = oversample(mask, n).astype(np.uint8)
+      # Save to FITS file
+      fits.PrimaryHDU(header=hdr, data=mask).writeto(out_fn, clobber=True)
+
+
+#+END_SRC
+
+
+#+BEGIN_SRC sh :results verbatim
+source activate py27
+python multibin-mask-s-n.py ew-O_III-5592 5
+#+END_SRC
+
+#+RESULTS:
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin256.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin128.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin064.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin032.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin016.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin008.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin004.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin002.fits
+: Extracting mask from LineMaps/ew-O_III-5592-SN-bin001.fits
+
+
+*** multibin-combine-s-n.py - combine multiple binning levels for constant s/n
+:PROPERTIES:
+:ID:       CFEF861F-1888-435B-B2F0-B6C80AAD1448
+:END:
++ [2015-11-05 Thu] Whether or not to mask out the negative map pixels is problematic
+  + On the one hand it seemed to improve things with the [Fe III] lines
+  + But it obviously does not work for absorption lines
+  + [ ] So I have currently disabled it, but I need to do something cleverer
+#+BEGIN_SRC python :tangle multibin-combine-s-n.py
+  from __future__ import print_function
+  import sys
+  import glob
+  import numpy as np
+  from skimage.morphology import erosion, dilation
+  from astropy.io import fits
+  try: 
+      fileroot = sys.argv[1]
+      target_signal_to_noise = int(sys.argv[2])
+  except IndexError:
+      sys.exit('Usage: {} FILEROOT S/N')
+
+  prefix = 'LineMaps/'
+  snlabel = 'SN{:04d}'.format(target_signal_to_noise)
+  outim = None
+  nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+  for n in reversed(nlist):
+      # Read in data
+      fn = prefix + '{}-bin{:03d}.fits'.format(fileroot, n)
+      hdu = fits.open(fn)['SCALED']
+      # Read in s/n too
+      sn_hdu = fits.open(fn.replace('-bin', '-SN-bin'))['SCALED']
+      if outim is None:
+          # One-time setup to do on first iteration
+          hdr = hdu.header
+          # set up image for output
+          outim = np.empty_like(hdu.data)
+          # and for s/n achieved
+          out_sn = np.empty_like(hdu.data)
+
+      # Read in mask
+      mfn = fn.replace('-bin', '-mask-{}-bin'.format(snlabel))
+      try:
+          mask = fits.open(mfn)['SCALED'].data.astype(np.bool)
+      except IOError:
+          sys.exit(mfn + ' not found. Try running multibin-mask-s-n.py first.')
+      # mask = mask & (hdu.data > 0.0)
+
+      # Paste into image and into saved s/n
+      outim[mask] = hdu.data[mask]
+      out_sn[mask] = sn_hdu.data[mask]
+
+  out_fn = '{}{}-multibin-{}.fits'.format(prefix, fileroot, snlabel)
+  fits.PrimaryHDU(header=hdr, data=outim).writeto(out_fn, clobber=True)
+  fits.PrimaryHDU(header=hdr, data=out_sn).writeto(
+      out_fn.replace('.fits', '-SN.fits'), clobber=True)
+
+#+END_SRC
+
+The fuzzed files need to have been created first using [[file:all-fuzz-multibin.sh]] (see above)
+
+#+BEGIN_SRC sh
+source activate py27
+python multibin-combine-s-n.py ew-O_III-5592 5
+#+END_SRC
+
+#+RESULTS:
+
+*** Create all the combined images on the server
+:PROPERTIES:
+:ID:       92671F18-9117-4B7E-8315-8C74DC4FF786
+:END:
+
++ Give target S/N as command-line argument to shell script 
++ Skips lines where the SN file does not exist
+#+BEGIN_SRC sh :eval no :tangle all-combine-s-n.sh
+  shopt -s extglob
+  SN=$1
+  TYPE=${2:linesum}
+  files=LineMaps/${TYPE}-+([^-])-[0-9][0-9][0-9][0-9].fits
+  for file in $files; do
+      prefix=$(basename $file .fits)
+      if [ -f LineMaps/${prefix}-SN-bin256.fits ]; then
+          echo "+++ Calculating S/N masks for $prefix at S/N = $SN"
+          python multibin-mask-s-n.py $prefix $SN
+          echo "+++ Calculating combined image for $prefix at S/N = $SN"
+          python multibin-combine-s-n.py $prefix $SN
+          echo "+++"
+      fi
+  done
+#+END_SRC
+
+And the same for ratios:
+#+BEGIN_SRC sh :eval no :tangle all-ratios-combine-s-n.sh
+  SN=$1
+  files=LineMaps/ratio-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-bin001.fits
+  for file in $files; do
+      prefix=$(basename $file -bin001.fits)
+      if [ -f LineMaps/${prefix}-SN-bin256.fits ]; then
+          echo "+++ Calculating S/N masks for $prefix at S/N = $SN"
+          python multibin-mask-s-n.py $prefix $SN
+          echo "+++ Calculating combined image for $prefix at S/N = $SN"
+          python multibin-combine-s-n.py $prefix $SN
+          echo "+++"
+      fi
+  done
+#+END_SRC
 
 ** Ratio of multibin maps
 :PROPERTIES:
@@ -2926,10 +4464,19 @@ Fe_III-4658 H_I-4861
 #+call: ratio-multibin[:results output verbatim](list=more-ratio-pairs)
 
 #+RESULTS:
-: O_I-6300 O_I-8446
-: O_I-6300 O_II-7318
-: O_III-5007 O_II-7318
-: O_I-8446 O_II-7318
+#+begin_example
+O_I-6300 O_I-8446
+O_I-6300 O_II-7318
+O_III-5007 O_II-7318
+O_I-8446 O_II-7318
+O_I-8446 H_I-8545
+Ar_III-5192 Ar_III-7136
+Ar_III-7751 Ar_III-7136
+Fe_III-4702 Fe_III-4658
+Fe_III-5270 Fe_III-4658
+O_III-5007 O_III-4959
+N_II-6583 N_II-6548
+#+end_example
 
 #+name: yet-more-ratio-pairs
 + O_I-6364;O_I-6300
@@ -2960,29 +4507,167 @@ done
 : LineMaps/linesum-N_II-5755-bin064.fits LineMaps/linesum-N_II-6583-bin064.fits
 : LineMaps/linesum-N_II-5755-bin128.fits LineMaps/linesum-N_II-6583-bin128.fits
 : LineMaps/linesum-N_II-5755-bin256.fits LineMaps/linesum-N_II-6583-bin256.fits
+** Ratio of multibin fuzzed maps
+:PROPERTIES:
+:ID:       55C78FE2-2D64-4EE3-9222-FA65A68FC55A
+:END:
+#+name: ratio-pairs-fuzz
++ N_II-5755;N_II-6583
++ S_III-6312;S_III-9069
++ Ar_III-5192;Ar_III-7751
++ Cl_III-5538;Cl_III-5518
++ S_II-6716;S_II-6731
++ H_I-4861;H_I-6563
++ H_I-6563;H_I-9229
++ O_III-5007;O_III-4959
++ N_II-6583;N_II-6548
++ Fe_III-4702;Fe_III-4658
++ Cl_IV-8046;Cl_III-5538
++ Ar_III-7136;Ar_III-7751
 
+To start off with, we will just do three fuzzes
 
+#+name: ratio-multibin-fuzz
+#+BEGIN_SRC sh :var list=ratio-pairs-fuzz :results verbatim
+  for pair in $list; do
+      arr_pair=(${pair//;/ })
+      echo ${arr_pair[0]} ${arr_pair[1]} 
+      for binning in 001 002 004 008 016 032 064 128 256; do
+          for fuzz in 000 001 002; do
+              python muse_line_ratio.py ${arr_pair[0]} ${arr_pair[1]} linesum fuzz${fuzz}-bin$binning > /dev/null
+          done
+      done
+  done
+#+END_SRC
+
+#+RESULTS: ratio-multibin-fuzz
+#+begin_example
+N_II-5755 N_II-6583
+S_III-6312 S_III-9069
+Ar_III-5192 Ar_III-7751
+Cl_III-5538 Cl_III-5518
+S_II-6716 S_II-6731
+H_I-4861 H_I-6563
+H_I-6563 H_I-9229
+O_III-5007 O_III-4959
+N_II-6583 N_II-6548
+Fe_III-4702 Fe_III-4658
+Cl_IV-8046 Cl_III-5538
+Ar_III-7136 Ar_III-7751
+#+end_example
+
+#+name: ratio-pairs-fuzz-extras
+
+#+call: ratio-multibin-fuzz(list=ratio-pairs-fuzz-extras)
+
+#+RESULTS:
+: Ar_III-7136 Ar_III-7751
+** Rewrite of multibin and fuzzed ratios
+:PROPERTIES:
+:ID:       07D1CD25-8319-4634-904D-A3A4CBC10E8D
+:END:
++ What I had previously is a bit of a mess
++ I want to make a table of all the ratios
+  + Write to a TSV file
++ And have a python script that does them all, instead of the shell scripts
+*** List of ratios: line-ratio-list.tab
+:PROPERTIES:
+:TABLE_EXPORT_FILE: line-ratio-list.tab
+:TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:END:
++ Export with =C-c t e= after editing
++ The =Group= column is to allow selecting certain subsets of the ratios for recalculation as needed
+
+#+name: line-ratio-list
+| Group       | Numerator   | Denominator | Comment                            |
+|-------------+-------------+-------------+------------------------------------|
+| Basic       | S_III-6312  | S_III-9069  | [S III] T sensitive                |
+| Basic       | Cl_III-5538 | Cl_III-5518 | [Cl III] N sensitive               |
+| Basic       | N_II-5755   | N_II-6583   | [N II] T sensitive                 |
+| Basic       | S_II-6716   | S_II-6731   | [S II] N sensitive                 |
+| Basic       | H_I-4861    | H_I-6563    | Reddening Balmer decrement         |
+|-------------+-------------+-------------+------------------------------------|
+| Extra-N-T   | Ar_III-5192 | Ar_III-7751 | [Ar III] T sensitive               |
+| Extra-N-T   | Fe_III-4702 | Fe_III-4658 | [Fe III] N sensitive               |
+|-------------+-------------+-------------+------------------------------------|
+| Paschen     | H_I-6563    | H_I-9229    | Reddening Paschen-Balmer           |
+| Paschen     | H_I-8545    | H_I-9229    | Reddening Paschen decrement        |
+| Paschen     | H_I-8750    | H_I-9229    | Reddening Paschen decrement        |
+| Paschen     | H_I-8863    | H_I-9229    | Reddening Paschen decrement        |
+|-------------+-------------+-------------+------------------------------------|
+| Doublet     | N_II-6548   | N_II-6583   | [N II] sanity check                |
+| Doublet     | O_III-4959  | O_III-5007  | [O III] sanity/reddening           |
+| Doublet     | O_II-7318   | O_II-7330   | [O II] red doublet                 |
+| Doublet     | Ar_III-7136 | Ar_III-7751 | [Ar III] sanity/reddening          |
+|-------------+-------------+-------------+------------------------------------|
+| Helium      | He_I-5876   | He_I-6678   | He Triplet/Singlet                 |
+|-------------+-------------+-------------+------------------------------------|
+| Ionization  | O_I-6300    | O_I-8446    | [O I] Collisional/ O I Fluorescent |
+| Ionization  | O_II-7318   | O_I-6300    | [O II] / [O I]                     |
+| Ionization  | O_III-5007  | O_II-7318   | [O III] /[O II]                    |
+| Ionization  | Ar_IV-4740  | Ar_III-7751 | [Ar IV] / [Ar III]                 |
+| Ionization  | Cl_IV-8046  | Cl_III-5518 | [Cl IV] / [Cl III]                 |
+| Ionization  | Cl_III-5518 | Cl_II-8579  | [Cl III] / Cl II                   |
+|-------------+-------------+-------------+------------------------------------|
+| Fluorescent | N_I-5199    | O_I-7002    | [N I] / O I                        |
+| Fluorescent | O_I-7002    | O_I-8446    | O I red / far red                  |
+|-------------+-------------+-------------+------------------------------------|
+| Permitted   | C_II-7236   | H_I-6563    | C II / H I                         |
+| Permitted   | C_II-7231   | C_II-7236   | C II fluor indicator               |
+*** Calculate line ratios for entries in table
+#+BEGIN_SRC python :tangle ratios-from-table.py
+  import sys
+  from astropy.table import Table
+  from muse_line_ratio import save_line_ratio_map
+
+  ratiotab = Table.read('line-ratio-list.tab', format='ascii.tab')
+
+  # Only do the lines, not continuum
+  prefix = 'linesum'
+
+  try:
+      suffix = '-' + sys.argv[1]
+  except IndexError:
+      suffix = ''
+
+  try:
+      group = sys.argv[2]
+  except IndexError:
+      group = None
+
+  for row in ratiotab:
+      if group is None or group in row['Group']:
+          save_line_ratio_map(row['Numerator'], row['Denominator'],
+                              prefix, suffix)
+
+#+END_SRC
 ** Te, Ne from multibin maps
+:PROPERTIES:
+:ID:       4DD175B0-88A8-4F96-B7B7-1DB2B241A3F6
+:END:
 #+BEGIN_SRC python :tangle muse-make-te-ne-maps-rebin.py
   import sys
   import numpy as np
   from astropy.io import fits
-  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
-  sys.path.append(t2dir)
   from derive_ne_te_1phase import T_den_from_rsii_rnii
   from deredden import deredden_nii_ratio
 
-  prefix = 'Linemaps/'
+  prefix = 'LineMaps/'
   nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
+  try:
+      extra = sys.argv[1]
+  except IndexError:
+      extra = ''
+
   for n in nlist:
-      suffix = '-bin{:03d}'.format(n)
+      suffix = '{}-bin{:03d}'.format(extra, n)
 
       hduA = fits.open(prefix + "ratio-6716-6731{}.fits".format(suffix))[1]
       hduB = fits.open(prefix + "ratio-5755-6583{}.fits".format(suffix))[1]
       hb_ha = fits.open(prefix + "ratio-4861-6563{}.fits".format(suffix))[1].data
       hduB.data = deredden_nii_ratio(hduB.data, hb_ha)
-      hduB.writeto('Linemaps/ratio-5755-6583{}-deredden-2874.fits'.format(suffix),
+      hduB.writeto(prefix + 'ratio-5755-6583{}-deredden-2874.fits'.format(suffix),
                    clobber=True)
 
       Te = np.empty_like(hduA.data)
@@ -2998,24 +4683,37 @@ done
 
 #+END_SRC
 
-#+BEGIN_SRC sh :results verbatim
+Run these in an interactive shell. They take about a minute.
+#+BEGIN_SRC sh :eval no
+source activate py27
 time python muse-make-te-ne-maps-rebin.py
 #+END_SRC
+
+#+BEGIN_SRC sh :eval no
+source activate py27
+time python muse-make-te-ne-maps-rebin.py -fuzz000
+#+END_SRC
+
+#+RESULTS:
 
 And the same for [Cl III] and [S III]
 #+BEGIN_SRC python :tangle muse-make-te-ne-maps-iii-rebin.py
   import sys
   import numpy as np
   from astropy.io import fits
-  t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
-  sys.path.append(t2dir)
   from derive_ne_te_1phase import T_den_from_rcliii_rsiii
 
-  prefix = 'Linemaps/'
+  prefix = 'LineMaps/'
   nlist = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
+  try:
+      extra = sys.argv[1]
+  except IndexError:
+      extra = ''
+
+
   for n in nlist:
-      suffix = '-bin{:03d}'.format(n)
+      suffix = '{}-bin{:03d}'.format(extra, n)
 
       hduA = fits.open(prefix + "ratio-5538-5518{}.fits".format(suffix))[1]
       hduB = fits.open(prefix + "ratio-6312-9069-deredden{}.fits".format(suffix))[1]
@@ -3040,7 +4738,540 @@ time python muse-make-te-ne-maps-iii-rebin.py
 #+RESULTS:
 
 
+** Delta Te, Ne from the fuzzing
+:PROPERTIES:
+:ID:       8793FA29-D493-4859-A5E7-BD522D218497
+:END:
++ [2015-11-02 Mon 17:45] No longer divide the \delta T by the mean - this makes more sense for comparing the histogram graphs
++ Calculate \(\delta t = T - T_{0}_{}\) where \(T\) is the temperature derived from the fuzzed datacube and \(T_{0}\) is the temperature derived from the observed datacube. 
+#+BEGIN_SRC python :tangle delta-T-fuzz.py
+  from __future__ import print_function
+  import sys
+  import glob
+  import numpy as np
+  from astropy.io import fits
+
+  prefix = 'Linemaps/'
+
+  try:
+      quantity = sys.argv[1]
+  except:
+      sys.exit('Usage: {} (Te|Te-iii|Ne|Ne-iii)'.format(sys.argv[0]))
+
+  obs_pattern = prefix + 'muse-derived-{}-bin???.fits'.format(quantity)
+  obs_datafiles = glob.glob(obs_pattern)
+
+  for obs_fn in obs_datafiles:
+      obs_hdu = fits.open(obs_fn)['SCALED'].data
+      fuzz_pattern = obs_fn.replace('-bin', '-fuzz???-bin')
+      fuzz_datafiles = glob.glob(fuzz_pattern)
+      for fuzz_fn in fuzz_datafiles:
+          fuzz_hdu = fits.open(fuzz_fn)['SCALED']
+          if 'Te' in fuzz_fn:
+              # calculate (T - T0)/T0
+              fuzz_hdu.data = (fuzz_hdu.data - obs_hdu.data)
+          else:
+              # calculate log10(N/N0)
+              fuzz_hdu.data = np.log10(fuzz_hdu.data/obs_hdu.data)
+
+          delta_fn = fuzz_fn.replace('derived-Te', 'delta-Te').replace('derived-Ne', 'log10-n')
+          print('Writing', delta_fn)
+          fuzz_hdu.writeto(delta_fn, clobber=True)
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+python delta-T-fuzz.py Te
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Writing Linemaps/muse-delta-Te-fuzz000-bin001.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin001.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin001.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin002.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin002.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin002.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin004.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin004.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin004.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin008.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin008.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin008.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin016.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin016.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin016.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin032.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin032.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin032.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin064.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin064.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin064.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin128.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin128.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin128.fits
+Writing Linemaps/muse-delta-Te-fuzz000-bin256.fits
+Writing Linemaps/muse-delta-Te-fuzz001-bin256.fits
+Writing Linemaps/muse-delta-Te-fuzz002-bin256.fits
+#+end_example
+
+#+BEGIN_SRC sh :results verbatim
+python delta-T-fuzz.py Te-iii
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin001.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin001.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin001.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin002.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin002.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin002.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin004.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin004.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin004.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin008.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin008.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin008.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin016.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin016.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin016.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin032.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin032.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin032.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin064.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin064.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin064.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin128.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin128.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin128.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz000-bin256.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz001-bin256.fits
+Writing Linemaps/muse-delta-Te-iii-fuzz002-bin256.fits
+#+end_example
+
+#+BEGIN_SRC sh :results verbatim
+python delta-T-fuzz.py Ne
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Writing Linemaps/muse-log10-n-fuzz000-bin001.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin001.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin002.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin002.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin004.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin004.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin008.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin008.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin016.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin016.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin032.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin032.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin064.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin064.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin128.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin128.fits
+Writing Linemaps/muse-log10-n-fuzz000-bin256.fits
+Writing Linemaps/muse-log10-n-fuzz001-bin256.fits
+#+end_example
+
+#+BEGIN_SRC sh :results verbatim
+python delta-T-fuzz.py Ne-iii
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin001.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin001.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin002.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin002.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin004.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin004.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin008.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin008.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin016.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin016.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin032.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin032.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin064.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin064.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin128.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin128.fits
+Writing Linemaps/muse-log10-n-iii-fuzz000-bin256.fits
+Writing Linemaps/muse-log10-n-iii-fuzz001-bin256.fits
+#+end_example
+
+
+
+** TODO Fuzzy Deltas distribution histograms
+:PROPERTIES:
+:ID:       7DB9EEBF-F83B-4D93-8C0D-8665AC9881AD
+:END:
+Like the [[id:B85FB5E5-A541-4862-AEA4-796B64172022][following]] but for the quantities from the [[id:8793FA29-D493-4859-A5E7-BD522D218497][previous section]]
+
+#+BEGIN_SRC python :tangle muse-Te-Ne-fuzz-histograms.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  import pyregion
+  from pyneb_utils import rsii_T_den, rnii_T_den
+  from misc_utils import sanitize_string
+  from stats_utils import stats_vs_x
+
+  def prepare_string(label):
+      newlabel = label.replace('log10 (N\' / N)', 'log10-n')
+      return sanitize_string(newlabel)
+
+  try:
+      fuzz = sys.argv[1]
+      binning = sys.argv[2]
+      region = sys.argv[3]
+  except IndexError:
+      sys.exit('Usage: {} FUZZ BINNING REGION'.format(sys.argv[0]))
+
+  file_patterns = {
+      '[N II] Delta T'  : 'muse-delta-Te-fuzz{}-bin{}.fits',
+      '[S II] log10 (N\' / N)'  : 'muse-log10-n-fuzz{}-bin{}.fits',
+      '[S III] Delta T' : 'muse-delta-Te-iii-fuzz{}-bin{}.fits',
+      '[Cl III] log10 (N\' / N)': 'muse-log10-n-iii-fuzz{}-bin{}.fits',
+      'S(Pa 9)'    : 'linesum-H_I-9229-fuzz{}-bin{}.fits',
+      'S(5755)'    : 'linesum-N_II-5755-fuzz{}-bin{}.fits',
+      'S(6716)'    : 'linesum-S_II-6716-fuzz{}-bin{}.fits',
+      'S(6312)'    : 'linesum-S_III-6312-fuzz{}-bin{}.fits',
+      'S(5518)'    : 'linesum-Cl_III-5518-fuzz{}-bin{}.fits',
+      'T([N II])'  : 'muse-derived-Te-fuzz{}-bin{}.fits',
+      'N([S II])'  : 'muse-derived-Ne-fuzz{}-bin{}.fits',
+      'T([S III])' : 'muse-derived-Te-iii-fuzz{}-bin{}.fits',
+      'N([Cl III])': 'muse-derived-Ne-iii-fuzz{}-bin{}.fits',
+  }
+  minmax = {
+      '[N II] Delta T'  : [-5000.0, 5000.0], 
+      '[S II] log10 (N\' / N)'  : [-1.5, 1.5], 
+      '[S III] Delta T' : [-5000.0, 5000.0], 
+      '[Cl III] log10 (N\' / N)': [-1.5, 1.5], 
+      'S(Pa 9)'    : [600.0, 6.0e5],
+      'S(5755)'    : [600.0, 6.0e5],
+      'S(6716)'    : [600.0, 6.0e5],
+      'S(6312)'    : [600.0, 6.0e5],
+      'S(5518)'    : [600.0, 6.0e5],
+      'T([N II])'  : [5000.0, 15000.],
+      'N([S II])'  : [100.0, 1e5],
+      'T([S III])' : [5000.0, 15000.], 
+      'N([Cl III])': [100.0, 1e5],
+  }
+
+
+
+  hdus = {k: fits.open('Linemaps/' + v.format(fuzz, binning))['SCALED']
+          for k, v in file_patterns.items()}
+
+  pairs = [
+      ['S(5755)', '[N II] Delta T'],
+      ['S(6716)', '[S II] log10 (N\' / N)'],
+      ['S(6312)', '[S III] Delta T'],
+      ['S(5518)', '[Cl III] log10 (N\' / N)'],
+  ]
+
+  # Pairs that need to know about each other because of co-dependent ratios
+  complements = {
+      '[S II] log10 (N\' / N)'   : 'T([N II])', 
+      '[N II] Delta T'   : 'N([S II])', 
+      '[Cl III] log10 (N\' / N)' : 'T([S III])', 
+      '[S III] Delta T'  : 'N([Cl III])', 
+  }
+
+  weighting_maps = {
+      '[N II] Delta T'  : 'S(5755)', 
+      '[S II] log10 (N\' / N)'  : 'S(6716)', 
+      '[S III] Delta T' : 'S(6312)', 
+      '[Cl III] log10 (N\' / N)': 'S(5518)', 
+  }
+
+  mm = np.isfinite(hdus['S(Pa 9)'].data) & (hdus['S(Pa 9)'].data > 0.0) 
+  if 'sweet' in region.lower():
+      title = 'Orion S'
+      include = pyregion.open('will-nii-sweet-spot-wcs.reg')
+      exclude = pyregion.open('will-nii-exclude-wcs.reg')
+      mm = mm & include.get_mask(hdu=hdus['S(Pa 9)']) & (~exclude.get_mask(hdu=hdus['S(Pa 9)']))
+
+      include = pyregion.open('will-sii-sweet-spot-wcs.reg')
+      exclude = pyregion.open('will-sii-exclude-wcs.reg')
+      mm = mm & include.get_mask(hdu=hdus['S(Pa 9)']) & (~exclude.get_mask(hdu=hdus['S(Pa 9)']))
+  else:
+      title = 'Full nebula'
+
+  for xlabel, ylabel in pairs:
+      hduA = hdus[xlabel]
+      hduB = hdus[ylabel]
+      xmin, xmax = minmax[xlabel]
+      ymin, ymax = minmax[ylabel]
+
+      m = mm & np.isfinite(hduA.data) & np.isfinite(hduB.data)
+      m = m & (hduA.data > xmin) & (hduB.data > ymin) 
+      m = m & (hduA.data < xmax) & (hduB.data < ymax) 
+      m = m & (hduA.data != 0.0) & (hduB.data != 0.0) 
+
+      wlabels = []
+      for label in xlabel, ylabel:
+          # Make a list of quantities to use as weights for this map
+          if label in weighting_maps:
+              wlabels.append(weighting_maps[label])
+          else:
+              wlabels.append(label)
+          # Also check complementary vars for being out-of-range
+          if label in complements:
+              zlabel = complements[label]
+              zmin, zmax = minmax[zlabel]
+              hduC = hdus[zlabel]
+              m = m & (hduC.data > zmin) & (hduC.data < zmax)
+
+      x = hduA.data[m]
+      y = hduB.data[m]
+      w = np.zeros_like(x)
+      for wlabel in set(wlabels):
+          w += hdus[wlabel].data[m]
+
+      gamma = 1.5
+      # Red tinted colormap for the error histograms
+      cmap = sns.light_palette((30, 50, 30), input="husl", as_cmap=True)
+      fig, ax = plt.subplots(1, 1)
+      # Use a log scale for surface brightnesses and densities
+      if xlabel.startswith('S') or xlabel.startswith('N'):
+          x = np.log10(x)
+          xmin, xmax = np.log10(xmin), np.log10(xmax)
+          xlabel = 'log10[ {} ]'.format(xlabel)
+      if ylabel.startswith('S') or ylabel.startswith('N'):
+          y = np.log10(y)
+          ymin, ymax = np.log10(ymin), np.log10(ymax)
+          ylabel = 'log10[ {} ]'.format(ylabel)
+      H, xedges, yedges = np.histogram2d(x, y, 51,
+                                         [[xmin, xmax], [ymin, ymax]],
+                                         weights=w)
+      stats_table = stats_vs_x(x, y, xedges)
+      ax.imshow((H.T)**(1.0/gamma), extent=[xmin, xmax, ymin, ymax],
+                interpolation='nearest', aspect='auto', origin='lower', 
+                cmap=cmap, alpha=1.0)
+
+      ax.set_xlim(xmin, xmax)
+      ax.set_ylim(ymin, ymax)
+      ax.set_xlabel(xlabel, fontsize='large')
+      ax.set_ylabel(ylabel, fontsize='large')
+      ax.grid(color='w', lw=0.5, alpha=0.5, zorder=100)
+
+      fig.set_size_inches(3, 3)
+      fig.tight_layout()
+      pattern = 'muse-{}-{}-histogram-{}-fuzz{}-bin{}.pdf'
+      pltfile = pattern.format(prepare_string(xlabel), prepare_string(ylabel),
+                               region, fuzz, binning)
+
+      fig.savefig(pltfile)
+      statsfile = pltfile.replace('.pdf', '.tab').replace('-histogram-', '-stats-')
+      stats_table.write(statsfile, format='ascii.tab')
+      print(pltfile)
+
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results verbatim
+source activate py27
+for bin in 001 002 004 008 016 032 064 128 256; do
+    python muse-Te-Ne-fuzz-histograms.py 000 $bin full
+    python muse-Te-Ne-fuzz-histograms.py 001 $bin full
+    python muse-Te-Ne-fuzz-histograms.py 000 $bin sweet
+    python muse-Te-Ne-fuzz-histograms.py 001 $bin sweet
+done
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz000-bin001.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz000-bin001.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz000-bin001.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz000-bin001.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz001-bin001.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz001-bin001.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz001-bin001.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz001-bin001.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz000-bin001.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz000-bin001.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz000-bin001.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz000-bin001.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz001-bin001.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz001-bin001.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz001-bin001.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz001-bin001.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz000-bin004.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz000-bin004.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz000-bin004.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz000-bin004.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz001-bin004.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz001-bin004.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz001-bin004.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz001-bin004.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz000-bin004.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz000-bin004.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz000-bin004.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz000-bin004.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz001-bin004.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz001-bin004.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz001-bin004.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz001-bin004.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz000-bin016.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz000-bin016.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz000-bin016.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz000-bin016.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz001-bin016.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz001-bin016.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz001-bin016.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz001-bin016.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz000-bin016.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz000-bin016.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz000-bin016.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz000-bin016.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz001-bin016.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz001-bin016.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz001-bin016.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz001-bin016.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz000-bin064.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz000-bin064.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz000-bin064.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz000-bin064.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz001-bin064.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz001-bin064.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz001-bin064.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz001-bin064.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz000-bin064.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz000-bin064.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz000-bin064.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz000-bin064.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz001-bin064.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz001-bin064.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz001-bin064.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz001-bin064.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz000-bin256.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz000-bin256.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz000-bin256.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz000-bin256.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-full-fuzz001-bin256.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-full-fuzz001-bin256.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-full-fuzz001-bin256.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-full-fuzz001-bin256.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz000-bin256.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz000-bin256.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz000-bin256.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz000-bin256.pdf
+muse-log10_S_5755_-N_II_delta-t-histogram-sweet-fuzz001-bin256.pdf
+muse-log10_S_6716_-S_II_log10-n-histogram-sweet-fuzz001-bin256.pdf
+muse-log10_S_6312_-S_III_delta-t-histogram-sweet-fuzz001-bin256.pdf
+muse-log10_S_5518_-Cl_III_log10-n-histogram-sweet-fuzz001-bin256.pdf
+#+end_example
+
+#+BEGIN_SRC sh :results silent
+open muse-log10_S_5518_*log10-n*-full-fuzz000-bin*.pdf
+open muse-log10_S_6312_*Delta_T*-full-fuzz000-bin*.pdf
+open muse-log10_S_6716_*log10-n*-full-fuzz000-bin*.pdf
+open muse-log10_S_5755_*Delta_T*-full-fuzz000-bin*.pdf
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+open muse-log10_S_5518_*log10-n*-sweet-fuzz000-bin*.pdf
+open muse-log10_S_6312_*Delta_T*-sweet-fuzz000-bin*.pdf
+open muse-log10_S_6716_*log10-n*-sweet-fuzz000-bin*.pdf
+open muse-log10_S_5755_*Delta_T*-sweet-fuzz000-bin*.pdf
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+open muse-log10_S_5518_*log10-n*-full-fuzz001-bin*.pdf
+open muse-log10_S_6312_*Delta_T*-full-fuzz001-bin*.pdf
+open muse-log10_S_6716_*log10-n*-full-fuzz001-bin*.pdf
+open muse-log10_S_5755_*Delta_T*-full-fuzz001-bin*.pdf
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+open muse-log10_S_5518_*log10-n*-sweet-fuzz001-bin*.pdf
+open muse-log10_S_6312_*Delta_T*-sweet-fuzz001-bin*.pdf
+open muse-log10_S_6716_*log10-n*-sweet-fuzz001-bin*.pdf
+open muse-log10_S_5755_*Delta_T*-sweet-fuzz001-bin*.pdf
+#+END_SRC
+
+
+
+
+** Utility functions for calculating variance over histogram
+#+BEGIN_SRC python :tangle stats_utils.py
+  import numpy as np
+  import scipy.stats as ss
+  from astropy.table import Table
+  from scipy.special import erfinv
+
+  WAVS = {'N_II': '5755', 'S_III': '6312',}
+  IQR_OVER_SIGMA = 2.0*np.sqrt(2.0)*erfinv(0.5)
+
+  def stats_vs_x(x, y, xedges):
+      '''Calculate statistics column by column to complement a histogram
+
+      Returns an astropy.table object
+      '''
+      rslt = {'Y Mean': [], 'Y Median': [], 'Y Std': [],
+              'Y Lower Quartile': [], 'Y Upper Quartile': [],
+              'Count': [], 'X Mean': []}
+      for x1, x2 in zip(xedges[:-1], xedges[1:]):
+          thisbin = (x >= x1) & (x <= x2)
+          rslt['Y Mean'].append(y[thisbin].mean())
+          rslt['Y Median'].append(np.median(y[thisbin]))
+          rslt['Y Std'].append(y[thisbin].std())
+          rslt['Count'].append(thisbin.sum())
+          rslt['X Mean'].append(x[thisbin].mean())
+          if thisbin.sum() > 0:
+              rslt['Y Lower Quartile'].append(
+                  ss.scoreatpercentile(y[thisbin].ravel(), 25))
+              rslt['Y Upper Quartile'].append(
+                  ss.scoreatpercentile(y[thisbin].ravel(), 75))
+          else:
+              rslt['Y Lower Quartile'].append(np.nan)
+              rslt['Y Upper Quartile'].append(np.nan)
+      for s in rslt:
+          rslt[s] = np.array(rslt[s])
+      rslt['X Center'] = 0.5*(xedges[:-1] + xedges[1:])
+      return Table(rslt)
+
+
+  def get_stats_for_var(var='T', ion='N_II', region='full', nbin=1):
+      xstring = 'log10_S_{}_'.format(WAVS[ion])
+      ystring = '{}_{}'.format(var, ion)
+      tabname = 'muse-{}-{}-stats-{}{:03d}.tab'.format(xstring, ystring, region, nbin)
+      return Table.read(tabname, format='ascii.tab')
+
+  def get_fuzzstats_for_var(var='Delta_T', ion='N_II', region='full', nbin=1, ifuzz=0):
+      xstring = 'log10_S_{}_'.format(WAVS[ion])
+      ystring = '{}_{}'.format(ion, var)
+      tabname = 'muse-{}-{}-stats-{}-fuzz{:03d}-bin{:03d}.tab'.format(
+          xstring, ystring, region, ifuzz, nbin)
+      return Table.read(tabname, format='ascii.tab')
+
+
+  def tsq_from_tables(tabvar, tabmean, robust=False):
+      if robust:
+          # Use Interquartile range as proxy for standard deviation
+          sigma = (tabvar['Y Upper Quartile'].data
+                   - tabvar['Y Lower Quartile'].data)/IQR_OVER_SIGMA
+          # Use median as proxy for mean
+          av = tabmean['Y Median'].data
+      else:
+          sigma = tabvar['Y Std'].data
+          av = tabmean['Y Mean'].data
+
+      return sigma**2/av**2
+
+#+END_SRC
 ** Te - Ne distribution histograms
+:PROPERTIES:
+:ID:       B85FB5E5-A541-4862-AEA4-796B64172022
+:END:
 + We want to get to the stuff in the ipynb file
 + Similar to other [[id:012A7F6B-BC6B-433E-A5A8-E1453B1E3FCA][histogram plot programs]]
 + But this does several different correlations
@@ -3056,11 +5287,13 @@ time python muse-make-te-ne-maps-iii-rebin.py
   import numpy as np
   from astropy.io import fits
   from matplotlib import pyplot as plt
+  import seaborn as sns
   import pyregion
   t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
   sys.path.append(t2dir)
   from pyneb_utils import rsii_T_den, rnii_T_den
   from misc_utils import sanitize_string
+  from stats_utils import stats_vs_x
 
 
   try:
@@ -3086,22 +5319,17 @@ time python muse-make-te-ne-maps-iii-rebin.py
       'N([S II])'  : [100.0, 1e5],
       'T([S III])' : [5000.0, 15000.], 
       'N([Cl III])': [100.0, 1e5],
-      'S(Pa 9)'    : [0.01, 8.0],
-      'S(5755)'    : [0.01, 8.0],
-      'S(6716)'    : [0.01, 8.0],
-      'S(6312)'    : [0.01, 8.0],
-      'S(5518)'    : [0.01, 8.0],
+      'S(Pa 9)'    : [600.0, 6.0e5],
+      'S(5755)'    : [600.0, 6.0e5],
+      'S(6716)'    : [600.0, 6.0e5],
+      'S(6312)'    : [600.0, 6.0e5],
+      'S(5518)'    : [600.0, 6.0e5],
   }
 
 
 
   hdus = {k: fits.open('Linemaps/' + v.format(suffix))['SCALED']
           for k, v in file_patterns.items()}
-
-  # Rescale brightnesses to give nicer numbers
-  for k in hdus:
-      if k.startswith('S'):
-          hdus[k].data /= 1.e5
 
   pairs = [
       ['T([N II])', 'T([S III])'],
@@ -3177,6 +5405,8 @@ time python muse-make-te-ne-maps-iii-rebin.py
       for wlabel in set(wlabels):
           w += hdus[wlabel].data[m]
       gamma = 1.5
+      # Blue tinted colormap for the data histograms
+      cmap = sns.light_palette((260, 50, 30), input="husl", as_cmap=True)
       fig, ax = plt.subplots(1, 1)
       # Use a log scale for surface brightnesses and densities
       if xlabel.startswith('S') or xlabel.startswith('N'):
@@ -3187,34 +5417,39 @@ time python muse-make-te-ne-maps-iii-rebin.py
           y = np.log10(y)
           ymin, ymax = np.log10(ymin), np.log10(ymax)
           ylabel = 'log10[ {} ]'.format(ylabel)
-      H, xedges, yedges = np.histogram2d(x, y, 50,
+      H, xedges, yedges = np.histogram2d(x, y, 51,
                                          [[xmin, xmax], [ymin, ymax]],
                                          weights=w)
+      stats_table = stats_vs_x(x, y, xedges)
       ax.imshow((H.T)**(1.0/gamma), extent=[xmin, xmax, ymin, ymax],
                 interpolation='nearest', aspect='auto', origin='lower', 
-                cmap=plt.cm.gray_r, alpha=1.0)
+                cmap=cmap, alpha=1.0)
 
       ax.set_xlim(xmin, xmax)
       ax.set_ylim(ymin, ymax)
-      ax.set_xlabel(xlabel)
-      ax.set_ylabel(ylabel)
-      ax.grid()
+      ax.set_xlabel(xlabel, fontsize='large')
+      ax.set_ylabel(ylabel, fontsize='large')
+      ax.grid(color='w', lw=0.5, alpha=0.5, zorder=100)
 
-      fig.set_size_inches(4, 4)
+      fig.set_size_inches(3, 3)
       fig.tight_layout()
       pltfile = 'muse-{}-{}-histogram-{}{}.pdf'.format(sanitize_string(xlabel),
                                                        sanitize_string(ylabel),
                                                        region, suffix)
 
       fig.savefig(pltfile)
+      statsfile = pltfile.replace('.pdf', '.tab').replace('-histogram-', '-stats-')
+      stats_table.write(statsfile, format='ascii.tab')
       print(pltfile)
 
 #+END_SRC
 
+#+RESULTS:
+
 
 #+BEGIN_SRC sh :results verbatim
 source activate py27
-for bin in 001 004 016 064; do
+for bin in 001 002 004 008 016 032 064 128 256; do
     python muse-Te-Ne-histograms.py full $bin
 done
 #+END_SRC
@@ -3265,6 +5500,8 @@ open muse-log10_S_6716_-log10_N_S_II_-histogram-full???.pdf
 open muse-log10_S_5755_-T_N_II-histogram-full???.pdf
 #+END_SRC
 
+#+RESULTS:
+
 #+BEGIN_SRC sh
 open muse-log10_N_S_II_-log10_N_Cl_III_-histogram-full???.pdf
 open muse-T_N_II-T_S_III-histogram-full???.pdf
@@ -3278,7 +5515,7 @@ open muse-log10_N_Cl_III_-T_S_III-histogram-full???.pdf
 
 #+BEGIN_SRC sh :results verbatim
 source activate py27
-for bin in 001 004 016 064; do
+for bin in 001 002 004 008 016 032 064 128 256; do
     python muse-Te-Ne-histograms.py sweet $bin
 done
 #+END_SRC
@@ -3334,6 +5571,412 @@ open muse-S_Pa_9-T_S_III-histogram-sweet???.pdf
 #+END_SRC
 
 #+RESULTS:
+** Compare the observed and fuzzed variances in Te,Ne 
+:PROPERTIES:
+:ID:       6B630292-2F8F-4192-89C1-AF07F5462505
+:END:
+#+BEGIN_SRC python :tangle muse-tsq-vs-bright.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  from astropy.table import Table
+  from scipy.special import erfinv
+  from stats_utils import (get_stats_for_var, get_fuzzstats_for_var, 
+                           tsq_from_tables)
+
+  IQR_OVER_SIGMA = 2.0*np.sqrt(2.0)*erfinv(0.5)
+  print('IQR / sigma =', IQR_OVER_SIGMA)
+  BINNINGS = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+
+  def plot_tsq_vs_bright(ax, ion, binnings, colors, robust=False):
+      assert len(binnings) == len(colors)
+      for nbin, color in zip(binnings, colors):
+          stats = get_stats_for_var('T', ion, nbin=nbin)
+          fuzzstats0 = get_fuzzstats_for_var('Delta_T', ion, nbin=nbin, ifuzz=0)
+          fuzzstats1 = get_fuzzstats_for_var('Delta_T', ion, nbin=nbin, ifuzz=1)
+          assert np.all(stats['X Center'] == fuzzstats0['X Center'])
+          log_S = stats['X Center']
+          npix = stats['Count']/(nbin**2)
+          weight = stats['Count']*10**log_S
+          weight /= weight.sum()
+          m = (npix >= 5) & (weight > 0.5/len(stats))
+          tsq = tsq_from_tables(stats, stats, robust)
+          tsq_err0 = tsq_from_tables(fuzzstats0, stats, robust)
+          tsq_err1 = tsq_from_tables(fuzzstats1, stats, robust)
+          ax.plot(log_S[m], tsq[m], color=color, label='{0} x {0}'.format(nbin))
+          ax.plot(log_S[m], tsq_err0[m], color=color, lw=0.5, label=None)
+          ax.plot(log_S[m], tsq_err1[m], color=color, lw=0.5, label=None)
+
+  def plot_corrected_tsq_vs_bright(ax, ion, binnings, colors, robust=False):
+      assert len(binnings) == len(colors)
+      for nbin, color in zip(binnings, colors):
+          stats = get_stats_for_var('T', ion, nbin=nbin)
+          fuzzstats0 = get_fuzzstats_for_var('Delta_T', ion, nbin=nbin, ifuzz=0)
+          fuzzstats1 = get_fuzzstats_for_var('Delta_T', ion, nbin=nbin, ifuzz=1)
+          assert np.all(stats['X Center'] == fuzzstats0['X Center'])
+          log_S = stats['X Center']
+          npix = stats['Count']/(nbin**2)
+          weight = stats['Count']*10**log_S
+          weight /= weight.sum()
+          m = (npix >= 5) & (weight > 0.5/len(stats))
+          tsq = tsq_from_tables(stats, stats, robust)
+          tsq_err0 = tsq_from_tables(fuzzstats0, stats, robust)
+          tsq_err1 = tsq_from_tables(fuzzstats1, stats, robust)
+          tsq -= 0.5*(tsq_err0 + tsq_err1)
+          ax.plot(log_S[m], tsq[m], color=color, label='{0} x {0}'.format(nbin))
+
+  if __name__ == '__main__':
+      binnings = BINNINGS[:8]
+      #colors = sns.dark_palette('orange',  n_colors=len(binnings))
+      #colors = sns.color_palette('Paired',  n_colors=len(binnings))
+      colors = sns.color_palette('husl',  n_colors=len(binnings))
+      #colors = sns.color_palette('Set2',  n_colors=len(binnings))
+      #colors = ['k']*len(binnings)
+      for ion in 'N_II', 'S_III':
+          for variant in '', '-robust':
+              fig, ax = plt.subplots(1, 1)
+              plot_tsq_vs_bright(ax, ion, binnings, colors,
+                                 robust=variant=='-robust')
+              leg = ax.legend(ncol=2, fontsize='x-small',
+                              title='Pixel Binning', frameon=True, fancybox=True)
+              leg.get_title().set_fontsize('x-small')
+              ax.set_yscale('log')
+              ax.set_ylim(1e-6, 3.0)
+              ax.set_xlabel(r'$\log_{{10}}$( {} )'.format(WAVS[ion]))
+              ax.set_ylabel('Partial $t^{{\,2}}$([{}])'.format(ion.replace('_', ' ')))
+              fig.set_size_inches(4, 4)
+              figname = 'muse-tsq{}-vs-bright-{}.pdf'.format(variant, ion)
+              fig.tight_layout()
+              fig.savefig(figname)
+              print(figname)
+
+              fig, ax = plt.subplots(1, 1)
+              plot_corrected_tsq_vs_bright(ax, ion, binnings, colors,
+                                           robust=variant=='-robust')
+              leg = ax.legend(ncol=2, fontsize='x-small',
+                              title='Pixel Binning', frameon=True, fancybox=True)
+              leg.get_title().set_fontsize('x-small')
+              ax.set_yscale('log')
+              ax.set_ylim(1e-6, 3.0)
+              ax.set_xlabel(r'$\log_{{10}}$( {} )'.format(WAVS[ion]))
+              ax.set_ylabel(r'Noise-Corrected Partial $t^{{\,2}}$([{}])'.format(ion.replace('_', ' ')))
+              fig.set_size_inches(4, 4)
+              figname = 'muse-corrected-tsq{}-vs-bright-{}.pdf'.format(variant, ion)
+              fig.tight_layout()
+              fig.savefig(figname)
+              print(figname)
+
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :results verbatim
+python muse-tsq-vs-bright.py
+#+END_SRC
+
+#+RESULTS:
+: IQR / sigma = 1.34897950039
+: muse-tsq-vs-bright-N_II.pdf
+: muse-corrected-tsq-vs-bright-N_II.pdf
+: muse-tsq-robust-vs-bright-N_II.pdf
+: muse-corrected-tsq-robust-vs-bright-N_II.pdf
+: muse-tsq-vs-bright-S_III.pdf
+: muse-corrected-tsq-vs-bright-S_III.pdf
+: muse-tsq-robust-vs-bright-S_III.pdf
+: muse-corrected-tsq-robust-vs-bright-S_III.pdf
+
+#+BEGIN_SRC sh :results silent
+open muse-*tsq*-vs-bright-*.pdf
+#+END_SRC
+** Calculate the total noise-corrected t2 versus binning scale
+:PROPERTIES:
+:ID:       E7AFCF19-3976-4FD9-A91F-464A2EDD9C86
+:END:
+#+BEGIN_SRC python :eval no :tangle muse-total-tsq.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from astropy.io import fits
+  from astropy.table import Table, join
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  from stats_utils import (get_stats_for_var,
+                           get_fuzzstats_for_var,
+                           tsq_from_tables)
+
+  BINNINGS = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+ 
+  def nanaverage(a, w):
+      '''Weighted average of `a` with weights `w`.  Just like np.average,
+  but ignoring NaNs'''
+      return np.nansum(a*w)/np.nansum(w)
+      
+
+  def total_combined_tsq(stats, robust=False, meanstats=None):
+      '''Find weighted tsq over all brightnesses, including contribution
+  from trend in mean T with brightness.  `stats` is a table of
+  temperature statistics as a function of brightness bin.  If `robust` is
+  `True` then median and IQR are used instead of mean and std.  If
+  `stats` gives statistics for delta T instead of T (for instance, from
+  fuzzing), then 'meanstats' must be supplied, giving the equivalent
+  stats for T.
+
+      '''
+      if meanstats is None:
+          tsq_vs_bright = tsq_from_tables(stats, stats, robust)
+      else:
+          checkbins = np.all(stats['X Center'] == meanstats['X Center'])
+          assert checkbins, 'Error: brightness bins do not coincide'
+          tsq_vs_bright = tsq_from_tables(stats, meanstats, robust)
+      # Weight each brightness bin by the total flux from that bin
+      weights = stats['Count']*(10**stats['X Mean'])
+      average_tsq = nanaverage(tsq_vs_bright, weights)
+      # Contribution from trend of mean (or median) T with brightness
+      av_type = 'Y Median' if robust else 'Y Mean'
+      T0_vs_bright = stats[av_type]
+      average_T0 = nanaverage(T0_vs_bright, weights)
+      average_T00 = average_T0
+      if meanstats is not None:
+          # Case where T0 is actually a Delta T, so we need to add on
+          # the "real" mean T
+          average_T00 += nanaverage(meanstats[av_type], weights)
+      trend_tsq_vs_bright = ((T0_vs_bright - average_T0)/average_T00)**2
+      
+      trend_tsq = nanaverage(trend_tsq_vs_bright, weights)
+      return {
+          't^2': average_tsq + trend_tsq,
+          'T': average_T0,
+          'trend fraction': trend_tsq / (average_tsq + trend_tsq),
+      }
+
+
+  def find_tsq_vs_scale(ion, robust=False, ifuzz=0, region='full'):
+      '''Calculate total t^2 versus binning. Returns an astropy.table'''
+      results = {'nbin': BINNINGS, 't^2': [], 'T': [], 'trend fraction': []}
+      fuzz_results = {'nbin': BINNINGS, 't^2': [], 'T': [], 'trend fraction': []}
+      for nbin in BINNINGS:
+          stats = get_stats_for_var('T', ion,
+                                    region=region, nbin=nbin)
+          fstats = get_fuzzstats_for_var('Delta_T', ion,
+                                         region=region, nbin=nbin, ifuzz=ifuzz)
+          for k, v in total_combined_tsq(stats, robust).items():
+              results[k].append(v)
+          for k, v in total_combined_tsq(fstats, robust, meanstats=stats).items():
+              fuzz_results[k].append(v)
+      tab = Table(results)
+      ftab = Table(fuzz_results)
+      for t in tab, ftab:
+          t['T'].format = '{:.0f}'
+          t['t^2'].format = '{:.5f}'
+          t['trend fraction'].format = '{:.2f}'
+      return join(tab, ftab, keys='nbin', table_names=['', 'd '],
+                  uniq_col_name='{table_name}{col_name}')
+
+
+
+  for ion in 'N_II', 'S_III':
+      for variant in '', '-robust':
+          for region in 'full', 'sweet':
+              tab = find_tsq_vs_scale(ion, robust=(variant=='-robust'), region=region) 
+              fn = 'muse-total-tsq-{}{}-{}.tab'.format(ion, variant, region)
+              tab.write(fn, format='ascii.tab')
+              print(fn)
+  #            print('[[{}]]'.format(fn))
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+python muse-total-tsq.py
+#+END_SRC
+
+#+RESULTS:
+: muse-total-tsq-N_II-full.tab
+: muse-total-tsq-N_II-sweet.tab
+: muse-total-tsq-N_II-robust-full.tab
+: muse-total-tsq-N_II-robust-sweet.tab
+: muse-total-tsq-S_III-full.tab
+: muse-total-tsq-S_III-sweet.tab
+: muse-total-tsq-S_III-robust-full.tab
+: muse-total-tsq-S_III-robust-sweet.tab
+
+** Plot of t2 versus scale
+:PROPERTIES:
+:ID:       BB997AAB-0452-497F-84A0-69713FB7228C
+:END:
++ Uses the tables from the previous section
+#+BEGIN_SRC python :eval no :tangle muse-total-tsq-plot.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from matplotlib import pyplot as plt
+  import seaborn as sns
+  from astropy.table import Table
+
+  PIXEL_SCALE = 0.2
+  region_label = {'full': 'Full MUSE field', 'sweet': 'WFC3 field only'}
+
+
+  def line_plus_symbol_plot(ax, x, y, label=None, symbol='o'):
+      '''Like normal ax.plot, but use both a solid line and symbols, all
+  with the same color
+
+      '''
+      color = next(ax._get_lines.color_cycle)
+      ax.plot(x, y, color=color, label=label)
+      ax.plot(x, y, symbol, color=color, label=None)
+
+
+  def plot_tsq_vs_scale(ion, region='full', variant='-robust', vscale=None):
+      fn = 'muse-total-tsq-{}{}-{}.tab'.format(ion, variant, region)
+      tab = Table.read(fn, format='ascii.tab')
+      fig, ax = plt.subplots(1, 1)
+      scale = tab['nbin']*PIXEL_SCALE
+      line_plus_symbol_plot(ax, 2*scale, tab['t^2'], 'raw')
+      line_plus_symbol_plot(ax, 2*scale, tab['d t^2'], 'noise')
+      line_plus_symbol_plot(ax, 2*scale, tab['t^2'] - tab['d t^2'], 'corrected')
+      if vscale is not None:
+          ax.set_ylim(-0.02*vscale, 1.02*vscale)
+      ax.set_xscale('log')
+      ax.set_xlabel('Nyquist angular scale ($2 \\times$ bin width), arcsec')
+      ax.set_ylabel('Total plane-of-sky $t^{{\,2}}$([{}])'
+                    .format(ion.replace('_', ' ')))
+      leg = ax.legend(fontsize='small', title=region_label[region],
+                      frameon=True, fancybox=True)
+      leg.get_title().set_fontsize('x-small')
+      fig.set_size_inches(4, 4)
+      figname = fn.replace('.tab', '.pdf')
+      fig.tight_layout()
+      fig.savefig(figname)
+      print(figname)
+
+
+
+  sns.set_palette('husl',  n_colors=3)
+  for ion in 'N_II', 'S_III':
+      for region in 'full', 'sweet':
+          for variant in '-robust', '':
+              vscale = 0.02 if ion == 'N_II' else 0.005
+              plot_tsq_vs_scale(ion, region, variant, vscale)
+
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+python muse-total-tsq-plot.py
+#+END_SRC
+
+#+RESULTS:
+: muse-total-tsq-N_II-robust-full.pdf
+: muse-total-tsq-N_II-full.pdf
+: muse-total-tsq-N_II-robust-sweet.pdf
+: muse-total-tsq-N_II-sweet.pdf
+: muse-total-tsq-S_III-robust-full.pdf
+: muse-total-tsq-S_III-full.pdf
+: muse-total-tsq-S_III-robust-sweet.pdf
+: muse-total-tsq-S_III-sweet.pdf
+
+#+BEGIN_SRC sh
+open muse-total-tsq-*.pdf
+#+END_SRC
+
+#+RESULTS:
+
+
+** STARTED Calculate maps of the small-scale T fluctuations
++ [ ] We should do the IQR of the dt, to compare with the median of dt**2
+#+BEGIN_SRC python :tangle muse-small-scale-t2-map.py
+  from __future__ import print_function
+  import sys
+  import numpy as np
+  from rebin_utils import oversample
+  from astropy.io import fits
+
+  nlist = [4, 8, 16, 32, 64, 128]
+  for suffix in '', '-iii':
+      fn = 'LineMaps/muse-derived-Te{}-bin001.fits'.format(suffix)
+      hdu = fits.open(fn)['SCALED']
+      ny, nx = hdu.data.shape
+      print(ny, nx)
+      for nbin in nlist:
+          sbin = 'bin{:03d}'.format(nbin)
+          mfn = fn.replace('bin001', sbin)
+          T0 = fits.open(mfn)['SCALED'].data
+          efn = fn.replace('bin', 'STD-bin')
+          std = fits.open(efn)['SCALED'].data
+          dt = (hdu.data - T0)/T0
+          edt = std/T0
+          dt4d = dt.reshape((nbin, ny//nbin, nbin, nx//nbin))
+          t2 = np.nanmedian(dt4d**2, axis=(0, 2))
+          t2 = oversample(t2, nbin)
+          edt4d = edt.reshape((nbin, ny//nbin, nbin, nx//nbin))
+          et2 = np.nanmedian(edt4d**2, axis=(0, 2))
+          et2 = oversample(et2, nbin)
+          t2 -= et2
+          # sfn = mfn.replace('bin', 'SN-bin')
+          # sn = fits.open(sfn)['SCALED'].data
+          # t2 -= 1./sn**2
+          out_fn = mfn.replace('derived-Te', 'finescale-t2')
+          print('Writing', out_fn)
+          fits.PrimaryHDU(header=hdu.header, data=t2).writeto(out_fn,
+                                                              clobber=True)
+          out_fn = mfn.replace('derived-Te', 'finescale-et2')
+          print('Writing', out_fn)
+          fits.PrimaryHDU(header=hdu.header, data=et2).writeto(out_fn,
+                                                              clobber=True)
+          out_fn = mfn.replace('derived-Te', 'finescale-dt')
+          print('Writing', out_fn)
+          fits.PrimaryHDU(header=hdu.header, data=dt).writeto(out_fn,
+                                                              clobber=True)
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim
+python muse-small-scale-t2-map.py
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+1536 1792
+Writing LineMaps/muse-finescale-t2-bin004.fits
+Writing LineMaps/muse-finescale-et2-bin004.fits
+Writing LineMaps/muse-finescale-dt-bin004.fits
+Writing LineMaps/muse-finescale-t2-bin008.fits
+Writing LineMaps/muse-finescale-et2-bin008.fits
+Writing LineMaps/muse-finescale-dt-bin008.fits
+Writing LineMaps/muse-finescale-t2-bin016.fits
+Writing LineMaps/muse-finescale-et2-bin016.fits
+Writing LineMaps/muse-finescale-dt-bin016.fits
+Writing LineMaps/muse-finescale-t2-bin032.fits
+Writing LineMaps/muse-finescale-et2-bin032.fits
+Writing LineMaps/muse-finescale-dt-bin032.fits
+Writing LineMaps/muse-finescale-t2-bin064.fits
+Writing LineMaps/muse-finescale-et2-bin064.fits
+Writing LineMaps/muse-finescale-dt-bin064.fits
+Writing LineMaps/muse-finescale-t2-bin128.fits
+Writing LineMaps/muse-finescale-et2-bin128.fits
+Writing LineMaps/muse-finescale-dt-bin128.fits
+1536 1792
+oversample: nan(s) found in input image
+oversample: nan(s) found in output image
+Writing LineMaps/muse-finescale-t2-iii-bin004.fits
+Writing LineMaps/muse-finescale-et2-iii-bin004.fits
+Writing LineMaps/muse-finescale-dt-iii-bin004.fits
+Writing LineMaps/muse-finescale-t2-iii-bin008.fits
+Writing LineMaps/muse-finescale-et2-iii-bin008.fits
+Writing LineMaps/muse-finescale-dt-iii-bin008.fits
+Writing LineMaps/muse-finescale-t2-iii-bin016.fits
+Writing LineMaps/muse-finescale-et2-iii-bin016.fits
+Writing LineMaps/muse-finescale-dt-iii-bin016.fits
+Writing LineMaps/muse-finescale-t2-iii-bin032.fits
+Writing LineMaps/muse-finescale-et2-iii-bin032.fits
+Writing LineMaps/muse-finescale-dt-iii-bin032.fits
+Writing LineMaps/muse-finescale-t2-iii-bin064.fits
+Writing LineMaps/muse-finescale-et2-iii-bin064.fits
+Writing LineMaps/muse-finescale-dt-iii-bin064.fits
+Writing LineMaps/muse-finescale-t2-iii-bin128.fits
+Writing LineMaps/muse-finescale-et2-iii-bin128.fits
+Writing LineMaps/muse-finescale-dt-iii-bin128.fits
+#+end_example
 
 * Correlations between Te, Ne and other things
 
@@ -3517,21 +6160,73 @@ rsync -avzP nil:/fs/nil/other0/will/orion-muse/subcube-spec.fits .
 
 
 #+END_SRC
-*** Ship all python files to server
+
+And finally, a version that solves the edge effect problem by extracting little cubes that straddle the dividing wavelengths
+
+#+BEGIN_SRC python :tangle muse_edge_patch.py
+  import sys
+  from astropy.io import fits
+  from astropy import wcs
+  from astropy import units as u
+  import numpy as np
+
+  sections = np.arange(8, dtype=int)
+  NV = 702
+  # Extract cube that is +/- dwav around the wavsec boundary 
+  dwav = 12.0
+
+  try:
+      quantity = sys.argv[1]
+      section = int(sys.argv[2])
+      assert quantity in ['data', 'variance']
+      # makes no sense for 0th section
+      assert section in sections and section > 0
+  except (IndexError, AssertionError) as e:
+      sys.exit('Usage: {} (data|variance) SECTION'.format(sys.argv[0]))
+
+
+  if quantity == 'variance':
+      cubename = 'STAT'
+  else:
+      cubename = 'DATA'
+  
+  hdulist = fits.open('DATA/DATACUBEFINALuser_20140216T010259_78380e1d.fits')
+  cube = hdulist[cubename]
+  w = wcs.WCS(cube.header)
+  wav0 = cube.header['CRVAL3'] + cube.header['CD3_3']*NV*section
+  wavs = (wav0 + dwav*np.array([-1.0, 1.0]))*u.Angstrom.to(u.m)
+  print('Wavelength window', wavs)
+  _, _, pixels = w.wcs_world2pix([0, 0], [0, 0], wavs, 0)
+  k1, k2 = int(pixels[0]), int(pixels[1]) + 2
+  window = slice(k1, k2), slice(None), slice(None)
+  fn = 'muse-hr-{}-wavsec-edge{}{}.fits'.format(quantity, section - 1, section)
+  hdr = cube.header.copy()
+  hdr.update(w.slice(window).to_header())
+
+  print('Writing', fn)
+  fits.PrimaryHDU(header=hdr, data=cube.data[window]).writeto(fn, clobber=True)
+
+
+#+END_SRC
+
+These need to be run through clean_up_wav_wcs.py afterwards
+
+*** Ship all relevant files to server
+:PROPERTIES:
+:ID:       E29DD76D-0B11-4F52-8B50-8967046D2F0C
+:END:
 #+BEGIN_SRC sh :results verbatim
-rsync -avzP *.py nil:/fs/nil/other0/will/orion-muse
-date
+  date
+  rsync -avzPL --info=progress0 *.{py,sh,tab} nil:/fs/nil/other0/will/orion-muse
 #+END_SRC
 
 #+RESULTS:
-: building file list ... 
-:  0 files...26 files to consider
-: muse_divide_cube_in_sections.py
-:          922 100%    0.00kB/s    0:00:00         922 100%    0.00kB/s    0:00:00 (xfer#1, to-check=7/26)
+: Mon Nov  9 19:43:00 CST 2015
+: sending incremental file list
+: muse-make-te-ne-maps-iii-rebin.py
 : 
-: sent 1202 bytes  received 54 bytes  2512.00 bytes/sec
-: total size is 49553  speedup is 39.45
-: Thu Oct 29 10:37:00 CST 2015
+: sent 7,066 bytes  received 48 bytes  2,032.57 bytes/sec
+: total size is 1,444,875  speedup is 203.10
 
 *** Heliocentric correction
 Again, these snippets need to be run on the CRyA server where the big data cubes are
@@ -3577,3 +6272,12 @@ HIERARCH ESO OBS AMBI FWHM = 2. / Req. max. seeing
 #+END_EXAMPLE
 
 So, this does have the info that we need: RA, DEC, MJD-OBS in particula
+
+
+* Set matplotlib options for fonts
+#+begin_src python :tangle matplotlibrc
+text.usetex         : False
+mathtext.fontset    : stixsans
+#+end_src
+
+
