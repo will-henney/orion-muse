@@ -1,5 +1,8 @@
-\begin{thebibliography}{20}
+\begin{thebibliography}{30}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{{Baskin} {et~al.}(2014){Baskin}, {Laor}, \& {Stern}}]{Baskin:2014a}
+{Baskin}, A., {Laor}, A., \& {Stern}, J. 2014, \mnras, 438, 604
 
 \bibitem[{{Bhatnagar} {et~al.}(1954){Bhatnagar}, {Gross}, \&
   {Krook}}]{Bhatnagar:1954a}
@@ -19,12 +22,30 @@
 \bibitem[{{Esser} \& {Edgar}(2000)}]{Esser:2000a}
 {Esser}, R., \& {Edgar}, R.~J. 2000, \apjl, 532, L71
 
+\bibitem[{{Ferland} {et~al.}(2012){Ferland}, {Henney}, {O'Dell}, {Porter}, {van
+  Hoof}, \& {Williams}}]{Ferland:2012a}
+{Ferland}, G.~J., {Henney}, W.~J., {O'Dell}, C.~R., {Porter}, R.~L., {van
+  Hoof}, P.~A.~M., \& {Williams}, R.~J.~R. 2012, \apj, 757, 79
+
+\bibitem[{{Furlanetto} \& {Stoever}(2010)}]{Furlanetto:2010a}
+{Furlanetto}, S.~R., \& {Stoever}, S.~J. 2010, \mnras, 404, 1869
+
+\bibitem[{{Groves} {et~al.}(2004){Groves}, {Dopita}, \&
+  {Sutherland}}]{Groves:2004a}
+{Groves}, B.~A., {Dopita}, M.~A., \& {Sutherland}, R.~S. 2004, \apjs, 153, 9
+
 \bibitem[{{Gvaramadze} {et~al.}(2012){Gvaramadze}, {Langer}, \&
   {Mackey}}]{Gvaramadze:2012a}
 {Gvaramadze}, V.~V., {Langer}, N., \& {Mackey}, J. 2012, \mnras, 427, L50
 
+\bibitem[{{Habing} \& {Israel}(1979)}]{Habing:1979a}
+{Habing}, H.~J., \& {Israel}, F.~P. 1979, \araa, 17, 345
+
 \bibitem[{{Krumholz} \& {Matzner}(2009)}]{Krumholz:2009a}
 {Krumholz}, M.~R., \& {Matzner}, C.~D. 2009, \apj, 703, 1352
+
+\bibitem[{{Lanz} \& {Hubeny}(2003)}]{2003ApJS..146..417L}
+{Lanz}, T., \& {Hubeny}, I. 2003, \apjs, 146, 417
 
 \bibitem[{{Livadiotis} \& {McComas}(2013)}]{Livadiotis:2013a}
 {Livadiotis}, G., \& {McComas}, D.~J. 2013, \ssr, 175, 183
@@ -57,8 +78,15 @@ Livi, S., \& Marsch, E. 1986, Phys. Rev. A, 34, 533
 Pitaevskii, L., \& Lifshitz, E. 1981, Course of Theoretical Physics, Vol.~10,
   Physical Kinetics, ed. L.~Landau \& E.~Lifshitz (Pergamon Press)
 
+\bibitem[{{Sazonov} {et~al.}(2004){Sazonov}, {Ostriker}, \&
+  {Sunyaev}}]{Sazonov:2004a}
+{Sazonov}, S.~Y., {Ostriker}, J.~P., \& {Sunyaev}, R.~A. 2004, \mnras, 347, 144
+
 \bibitem[{{Shoub}(1983)}]{Shoub:1983a}
 {Shoub}, E.~C. 1983, \apj, 266, 339
+
+\bibitem[{{Shull}(1979)}]{Shull:1979a}
+{Shull}, J.~M. 1979, \apj, 234, 761
 
 \bibitem[{{Smith} \& {Brooks}(2008)}]{Smith:2008a}
 {Smith}, N., \& {Brooks}, K.~J. 2008, {The Carina Nebula: A Laboratory for
@@ -69,6 +97,13 @@ Pitaevskii, L., \& Lifshitz, E. 1981, Course of Theoretical Physics, Vol.~10,
 
 \bibitem[{{Spitzer} \& {H{\"a}rm}(1953)}]{Spitzer:1953a}
 {Spitzer}, L., \& {H{\"a}rm}, R. 1953, Physical Review, 89, 977
+
+\bibitem[{{Spitzer} \& {Scott}(1969)}]{Spitzer:1969a}
+{Spitzer}, Jr., L., \& {Scott}, E.~H. 1969, \apj, 158, 161
+
+\bibitem[{{Storey} {et~al.}(2014){Storey}, {Sochi}, \&
+  {Badnell}}]{Storey:2014a}
+{Storey}, P.~J., {Sochi}, T., \& {Badnell}, N.~R. 2014, \mnras, 441, 3028
 
 \bibitem[{{Torres-Flores} {et~al.}(2013){Torres-Flores}, {Barb{\'a}},
   {Ma{\'{\i}}z Apell{\'a}niz}, {Rubio}, {Bosch}, {H{\'e}nault-Brunet}, \&
