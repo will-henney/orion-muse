@@ -23,13 +23,26 @@ except:
 
 
 hdu = fits.open(infile)[0]
+if hdu.data is None:
+    hdu = fits.open(infile)[1]
 hdr = hdu.header
 # Maximum binning
 nmax = nlist[-1]
 
 # Pad arrays to nearest multiple of nmax
 im = pad_array(hdu.data, nmax)
-w = np.ones_like(im)
+
+if 'mean-' in infile:
+    # For the mean velocity maps, weight by brightness
+    wfile = infile.replace('mean-', 'linesum-')
+    whdu = fits.open(wfile)[0]
+    if whdu.data is None:
+        # try second HDU if first has no data
+        whdu = fits.open(wfile)[1]
+    w = pad_array(whdu.data, nmax)
+else:
+    # Otherwise, just natural weighting
+    w = np.ones_like(im)
 
 continuum = fits.open('muse-hr-image-wfc3-f547m.fits')['DATA'].data
 starmask = continuum > 30

@@ -1,0 +1,121 @@
+> Dear Dr. McLeod,
+>  
+> We do have a number of questions about your article on Orion that has
+> recently been accepted by the MNRAS.
+>  
+> Section 3.1, Paragraph 2. The density you use was derived from the red
+> [SII] doublet ratio. This emission arises immediately at the Main
+> Ionization Front and the region very close to it. The furthest (from
+> us) emission will come from a partially ionized region (which would
+> reduce the ratio N_e/N_H. On the other hand, the theoretical
+> expectation of PDR overlain by an expanding photoionized layer
+> predicts a rapidly decreasing total density. This makes it hard to
+> understand how the [SII] derived N_e values related to those coming
+> into play in other layers within the nebula.
+>  
+> Paragraphs 3-7. Your results indicate that the atomic S/H ratio
+> varies significantly across the nebula and in Paragraph 7 you explain
+> that this was because of the method of calculation. We don't
+> understand why you bother to present something that you acknowledge is
+> incorrect. A concise summary in a short paragraph would have sufficed
+> and publishing a result and then dismissing it, seems unnecessary.
+>  
+> Section 3.2. You adopt two diagnostic
+> ratios. S_23=([SII]+[SIII])/Hbeta and [OII]/[OIII]. S_23 is not simply
+> ionization dependent but is dominated by the electron temperature
+> (T_e). The forbidden line emissivity increases exponentially with T_e,
+> while the Hbeta emissivity decreases with T_e as the 0.8 power. This
+> means that the normalized S_23 ratio would as
+>  
+> T_e       8,000   9,000 10,000 11,000
+> S_23      0.68      1.0      1.39    1.83
+>  
+> The range of known T_e values in Orion can easily account for most of
+> the spread of S_23.
+>  
+> The [OII]/[OIII] ratio does depend upon the ionization (the ratio of
+> O^+/O^+2), but again there is an important dependence on T_e.  For a
+> constant column density ratio (O^+/O^+2) this ratio (again normalized
+> to T_e = 9,000) will vary as
+>  
+> T_e                8,000   9,000  10,000   11,000
+> [OII]/[OIII]     0.68      1.0      1.36      1.77
+>  
+> This means that a range of this ratio of almost a factor of two can
+> occur over the range of T_e values that one observes.
+>  
+> The ionic ratio will vary as the Ionization Parameter (basically the
+> ratio of Ionizing Photons/Atoms). This is the other parameter that can
+> cause the [OII]/[OIII] ratio to change. In your discussion, you appear
+> to view the changes as only due to ionization, this is much too
+> simplistic.
+>  
+> In Section 4 on Kinematics you stretch use of these low resolution
+> (107 km/s) data too far. One of us (O'Dell) and his students
+> championed the use of the Structure Function 20 years ago, but with
+> the recognition that the ionized layer of Orion is much more complex
+> than the model of von Hoerner (it was a flat slab), this approach was
+> abandoned as irrelevant. You seem to confirm this with comparison with
+> your on theoretical models and seem to not be aware of the recent
+> paper by Medina et al. (2014, MNRAS, 445, 1797-1819) that also came to
+> the conclusion that the Structure Function was not useful. We don't
+> understand why you bother to publish results on the Structure
+> Function, especially when the data is of low velocity resolution.
+>  
+> Section 5.1, Paragraph 1. There is an additional bullet in the MUSE
+> field, HH 208. This is a tip of a finger pointed almost at the
+> observer and is discussed in O'Dell et al. 1997, AJ, 114, 730. This
+> paper also discusses HH 201 using HST images.  It is curious that you
+> state that HH 201 is of high ionization, based on a low [OII]/[OIII]
+> ratio. As one sees in Fig.3 of the O'Dell et al. 1997 paper, [OIII] is
+> very weak and diffuse whereas the [SII] emission is concentrated into
+> the small shocks and knots. This means that one really can't compare
+> the S_23 and the [OII]/[OIII] ratio, they simply don't come from the
+> same regions.
+>  
+> At the end of this paragrah you say that HH 201 "is closer (in
+> projection) to the ionising O-star". This object suffers high
+> extinction and has molecular emission from its tips, indicating that
+> it is in the PDR and not subject to photoionization by the Trapezium
+> stars.
+>  
+> In paragraph 2 you say that the bullet cannot be seen at all in [OIII]
+> map. We agree. It is strong in [OII] (your Figure 14-c).  This again
+> makes it peculiar that in your Figure 8 and Figure 13 that it falls in
+> the low [OII]/[OIII] region.
+>  
+> In this same paragraph you discuss the various velocity
+> features. These have all been discussed previously using much high
+> radial velocity resolution (Graham 2003, Doi et al. 2004 AJ,127, 3456,
+> Doi et al. 2002 AJ, 124, 445).
+>  
+> Section 5.2.1. The model you show for HH 204 simply doesn't agree with
+> what one sees in high spatial resolution HST images (O'Dell et
+> al. 1997). The inside of this bow shock is photoionized (US spelling)
+> by Theta1 Ori C and there is no evidence that Theta2 Ori A plays a
+> role in this object.
+>  
+> Certainly Theta2 Ori A can play a role in the photoionization of other
+> objects (e.g. 244-440 and other proplyds in the region with their
+> bright rims orientated towards that star or even both Theta2 Ori A and
+> Theta1 Ori C.
+>  
+> Aside from the fact that the paper does not demonstrate a knowledge of
+> or use the results in several key Orion papers, the overlooking of the
+> role of electron temperature in your analysis seems to be a major
+> oversight. The results you give for HH 201 (the [OII]/[OIII] value)
+> must have an error.
+>  
+> At this point in time the paper is finalized and will appear in the
+> form shown in astro-ph. If you find that there is an error in the
+> [OII]/[OIII] ratio determination, you should probably publish an
+> erratum. If you do, we hope that you will also address the other
+> points that we have raised.
+>  
+> Regards,
+>  
+> G. J. Ferland
+> W. J. Henney
+> C. R. O'Del
+> M. Peimbert.
+

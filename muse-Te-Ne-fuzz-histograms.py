@@ -2,10 +2,12 @@ from __future__ import print_function
 import sys
 import numpy as np
 from astropy.io import fits
+from astropy.table import Table, Column
 from matplotlib import pyplot as plt
 import seaborn as sns
 import pyregion
-from pyneb_utils import rsii_T_den, rnii_T_den
+t2dir = '/Users/will/Work/RubinWFC3/Tsquared'
+sys.path.append(t2dir)
 from misc_utils import sanitize_string
 from stats_utils import stats_vs_x
 
@@ -26,9 +28,9 @@ file_patterns = {
     '[S III] Delta T' : 'muse-delta-Te-iii-fuzz{}-bin{}.fits',
     '[Cl III] log10 (N\' / N)': 'muse-log10-n-iii-fuzz{}-bin{}.fits',
     'S(Pa 9)'    : 'linesum-H_I-9229-fuzz{}-bin{}.fits',
-    'S(5755)'    : 'linesum-N_II-5755-fuzz{}-bin{}.fits',
     'S(6716)'    : 'linesum-S_II-6716-fuzz{}-bin{}.fits',
-    'S(6312)'    : 'linesum-S_III-6312-fuzz{}-bin{}.fits',
+    'S(6583)'    : 'linesum-N_II-6583-fuzz{}-bin{}.fits',
+    'S(9069)'    : 'linesum-S_III-9069-fuzz{}-bin{}.fits',
     'S(5518)'    : 'linesum-Cl_III-5518-fuzz{}-bin{}.fits',
     'T([N II])'  : 'muse-derived-Te-fuzz{}-bin{}.fits',
     'N([S II])'  : 'muse-derived-Ne-fuzz{}-bin{}.fits',
@@ -40,7 +42,7 @@ minmax = {
     '[S II] log10 (N\' / N)'  : [-1.5, 1.5], 
     '[S III] Delta T' : [-5000.0, 5000.0], 
     '[Cl III] log10 (N\' / N)': [-1.5, 1.5], 
-    'S(Pa 9)'    : [600.0, 6.0e5],
+    'S(Pa 9)'    : [4.0e3, 4.0e5],
     'S(5755)'    : [600.0, 6.0e5],
     'S(6716)'    : [600.0, 6.0e5],
     'S(6312)'    : [600.0, 6.0e5],
@@ -57,10 +59,10 @@ hdus = {k: fits.open('Linemaps/' + v.format(fuzz, binning))['SCALED']
         for k, v in file_patterns.items()}
 
 pairs = [
-    ['S(5755)', '[N II] Delta T'],
-    ['S(6716)', '[S II] log10 (N\' / N)'],
-    ['S(6312)', '[S III] Delta T'],
-    ['S(5518)', '[Cl III] log10 (N\' / N)'],
+    ['S(Pa 9)', '[N II] Delta T'],
+    ['S(Pa 9)', '[S II] log10 (N\' / N)'],
+    ['S(Pa 9)', '[S III] Delta T'],
+    ['S(Pa 9)', '[Cl III] log10 (N\' / N)'],
 ]
 
 # Pairs that need to know about each other because of co-dependent ratios
@@ -72,21 +74,21 @@ complements = {
 }
 
 weighting_maps = {
-    '[N II] Delta T'  : 'S(5755)', 
+    '[N II] Delta T'  : 'S(6583)', 
     '[S II] log10 (N\' / N)'  : 'S(6716)', 
-    '[S III] Delta T' : 'S(6312)', 
+    '[S III] Delta T' : 'S(9069)', 
     '[Cl III] log10 (N\' / N)': 'S(5518)', 
 }
 
 mm = np.isfinite(hdus['S(Pa 9)'].data) & (hdus['S(Pa 9)'].data > 0.0) 
 if 'sweet' in region.lower():
     title = 'Orion S'
-    include = pyregion.open('will-nii-sweet-spot-wcs.reg')
-    exclude = pyregion.open('will-nii-exclude-wcs.reg')
+    include = pyregion.open(t2dir + '/will-nii-sweet-spot-wcs.reg')
+    exclude = pyregion.open(t2dir + '/will-nii-exclude-new.reg')
     mm = mm & include.get_mask(hdu=hdus['S(Pa 9)']) & (~exclude.get_mask(hdu=hdus['S(Pa 9)']))
 
-    include = pyregion.open('will-sii-sweet-spot-wcs.reg')
-    exclude = pyregion.open('will-sii-exclude-wcs.reg')
+    include = pyregion.open(t2dir + '/will-sii-sweet-spot-wcs.reg')
+    exclude = pyregion.open(t2dir + '/will-sii-exclude-new.reg')
     mm = mm & include.get_mask(hdu=hdus['S(Pa 9)']) & (~exclude.get_mask(hdu=hdus['S(Pa 9)']))
 else:
     title = 'Full nebula'
@@ -126,6 +128,8 @@ for xlabel, ylabel in pairs:
     # Red tinted colormap for the error histograms
     cmap = sns.light_palette((30, 50, 30), input="husl", as_cmap=True)
     fig, ax = plt.subplots(1, 1)
+    # Save a sorted, linear version of the weights
+    ww = np.sort(w)
     # Use a log scale for surface brightnesses and densities
     if xlabel.startswith('S') or xlabel.startswith('N'):
         x = np.log10(x)
@@ -158,4 +162,30 @@ for xlabel, ylabel in pairs:
     fig.savefig(pltfile)
     statsfile = pltfile.replace('.pdf', '.tab').replace('-histogram-', '-stats-')
     stats_table.write(statsfile, format='ascii.tab')
+
+    histfile = statsfile.replace('-stats-', '-hist-1d-')
+
+    # Now save the full histogram for each tertile in the CDF of weights
+    wcdf = np.cumsum(ww)/np.sum(ww)
+    w1, w2 = [np.max(ww[100*wcdf < percentile]) for percentile in [33, 67]]
+    print('Tertiles of CDF of weights:')
+    print(w1, w2)
+    m1 = (w <= w1)
+    m2 = (w > w1) & (w <= w2)
+    m3 = (w > w2) 
+    HH1, yedges = np.histogram(y[m1], bins=51, range=[ymin, ymax], weights=w[m1])
+    HH2, yedges = np.histogram(y[m2], bins=51, range=[ymin, ymax], weights=w[m2])
+    HH3, yedges = np.histogram(y[m3], bins=51, range=[ymin, ymax], weights=w[m3])
+
+    ycenters = 0.5*(yedges[:-1] + yedges[1:])
+
+    hist_table = Table()
+    hist_table.add_columns([
+        Column(name=ylabel, data=ycenters),
+        Column(name='T1', data=HH1),
+        Column(name='T2', data=HH2),
+        Column(name='T3', data=HH3),
+    ])
+    hist_table.write(histfile, format='ascii.tab')
+
     print(pltfile)

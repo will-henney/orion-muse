@@ -14,9 +14,7 @@ def line_plus_symbol_plot(ax, x, y, label=None, symbol='o'):
 with the same color
 
     '''
-    color = next(ax._get_lines.color_cycle)
-    ax.plot(x, y, color=color, label=label)
-    ax.plot(x, y, symbol, color=color, label=None)
+    ax.plot(x, y, symbol+'-', label=label)
 
 
 def plot_tsq_vs_scale(ion, region='full', variant='-robust', vscale=None):
