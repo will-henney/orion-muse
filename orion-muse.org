@@ -17,6 +17,15 @@
 + Milestones (mainly Skype calls) are level-3 headings under [[id:706697F5-E600-4446-A4A4-C467A96CBD2C][Short term goals]] with deadlines
   + Tasks should be assigned as level-4 headings under those
 + Less imminent tasks can be dumped under [[id:CF91729B-5B8B-4A7A-B7BB-3F268F9C38EA][Medium term goals]] until they have a place to go
+
+** New priorities - 2016 December
+
+*** Support for orion-widths project
++ We want to improve the line extraction a bit
++ Aim is to be able to plot mean velocities and line widths as a function of wavelength
++ But we need to divide lines up into categories so that we are comparing like with like
++ Note that the transfer of files to linux server nil will not be done via git, since it is too much of a mess to work out what needs to be kept from the files there
+
 ** Short term goals
 :PROPERTIES:
 :ID:       706697F5-E600-4446-A4A4-C467A96CBD2C
@@ -1236,12 +1245,13 @@ CLOSED: [2015-08-13 Thu 11:15]
 | He I     |  7499.85 |        5 |         1 |        1 | NEW-11-07                      |
 | C II     |  7530.57 |        5 |         1 |        1 | NEW-11-07 blend [Cl IV] 7531   |
 | [Ar III] |  7751.10 |        1 |         1 |        1 |                                |
-| He I     |  7816.13 |        4 |         1 |        1 |                                |
+| He I     |  7816.13 |        4 |         1 |        0 | Sky OH (?) at 7820             |
 | Ca I]    |  7890.07 |        4 |         1 |        1 |                                |
-| [Cr II]  |  8000.08 |        5 |         1 |        1 | NEW-11-07                      |
+| [Cr II]  |  8000.08 |        5 |         0 |        1 | NEW-11-07 (also Ar I ??)       |
 | [Cl IV]  |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION!               |
 | XXX      |     8189 |        4 |         1 |        1 | Could be Fe I?                 |
-| N I      |  8223.14 |        4 |         0 |        1 | Also 8210.72,16.34             |
+| N I      |  8216.34 |        4 |         1 |        0 | *Also 8210.72                  |
+| N I      |  8223.14 |        4 |         0 |        1 | Same multiplet as 8216.34      |
 | XXX      |     8243 |        4 |         1 |        1 | Could be O I? or Fe II?        |
 | H I      |  8437.96 |        3 |         1 |        0 | Pa 18                          |
 | O I      |  8446.36 |        2 |         0 |        1 | Also  8444.25, 8444.7          |
@@ -1252,10 +1262,12 @@ CLOSED: [2015-08-13 Thu 11:15]
 | H I      |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost     |
 | [Fe II]  |  8616.95 |        3 |         1 |        1 |                                |
 | H I      |  8665.02 |        2 |         1 |        1 | Pa 13                          |
-| N I      |  8680.28 |        4 |         1 |        0 | Plus 83.40, 86.15              |
+| N I      |  8680.28 |        4 |         1 |        0 | Plus 83.4                      |
+| N I      |  8686.15 |        4 |         0 |        1 | *                              |
 | N I      |  8703.25 |        4 |         1 |        0 |                                |
 | N I      |  8711.70 |        4 |         0 |        1 | Also 8718.83                   |
 | [C I]    |  8727.13 |        4 |         1 |        0 | Different!                     |
+| He I     |  8733.43 |        4 |         0 |        1 | *                              |
 | H I      |  8750.47 |        2 |         1 |        1 | Pa 12                          |
 | H I      |  8862.79 |        2 |         1 |        1 | Pa 11                          |
 | Ne I     |  8892.22 |        4 |         1 |        1 |                                |
