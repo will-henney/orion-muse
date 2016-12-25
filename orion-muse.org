@@ -1141,20 +1141,80 @@ This is based on the [[file:~/Dropbox/orion-widths/line-all-wav-grid.pdf][postag
     line separately
   + Previously it was just the slice [900:1400] in X and [400:900] in Y for all lines, which is not ideal
 
-*** Choosing the extraction regions for different classes of line
 
+*** Choosing the extraction regions for different classes of line
+:PROPERTIES:
+:TABLE_EXPORT_FILE: line-classes.tab
+:TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:END:
+
+#+name: line-classes
 | Class     | Code | Line ID    | Bin |    EW | Linesum |
 |-----------+------+------------+-----+-------+---------|
 | Ultra     | U    | Ar_IV-4740 |  16 |   0.6 |    2000 |
 | Permitted | P    | C_II-7236  |  16 |   3.5 |    5000 |
 | High      | H    | O_III-5007 |  16 |   850 |     3e6 |
 | Moderate  | M    | O_II-7318  |  16 |    70 |   1.5e5 |
-| Low       | L    | O_I-8446   |  16 |    40 |     3e4 |
-| Abs PDR   | AP   | N_III-6634 |  64 | -0.15 |    -200 |
+| Low       | L    | O_I-8446   |  16 |    25 |     3e4 |
+| Abs PDR   | AP   | N_III-6634 |  64 | -0.16 |    -600 |
 | Abs O9    | A9   | He_II-4686 |  32 | -0.23 |   -1500 |
 | Abs 07    | A7   | C_IV-5812  | 128 | -0.07 |    -150 |
-| Abs DIB   | A0   | DIB-5781   | 128 | -0.4  |   -2000 |
-|           |      |            |     |       |         |
+| Abs DIB   | A0   | DIB-5781   | 128 | -0.15 |    -300 |
+
+
+**** Create masks for each line class
++ Take =AND= of thresholds in EW and Line Flux
++ The do a bit of dilate/expand to eliminate noise islands
+
+#+BEGIN_SRC python
+  import os
+  import numpy as np
+  from astropy.table import Table
+  from astropy.io import fits
+  from skimage.morphology import binary_dilation, binary_erosion, square, disk
+
+
+  table = Table.read('line-classes.tab', format='ascii.tab')
+  D = 'LineMaps'
+  for row in table:
+      mask_name = 'mask-line-class-{}.fits'.format(row['Code'])
+      map_suffix = '{}-bin{:03d}.fits'.format(row['Line ID'], row['Bin'])
+
+      # Factor s is +1 for emission line, -1 for absorption line
+      s = row['Linesum']/abs(row['Linesum'])
+
+      bname =  os.path.join(D, 'linesum-' + map_suffix)
+      bhdu = fits.open(bname)['SCALED']
+      bmask = s*bhdu.data >= s*row['Linesum']
+
+      ename = os.path.join(D, 'ew-' + map_suffix)
+      ehdu = fits.open(ename)['SCALED']
+      emask = s*ehdu.data >= s*row['EW']
+
+      mask = emask & bmask
+
+      # Reduce to natural size
+      n = row['Bin']
+      mask = mask[::n, ::n]
+      # Eliminate 1-pixel islands
+      mask = binary_erosion(mask)
+      # Then spread out a bit
+      mask =  binary_dilation(mask, disk(3.5))
+      # Expand back to original size
+      mask = np.kron(mask, square(n))
+
+      fits.PrimaryHDU(
+          header=bhdu.header,
+          data=mask.astype(np.uint8)
+      ).writeto(
+          os.path.join(D, mask_name),
+          clobber=True,
+      )
+
+#+END_SRC
+
+#+RESULTS:
+: None
 
 **** Ultra high ionization
 + Ar IV is the obvious choice here
