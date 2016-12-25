@@ -889,6 +889,8 @@ python muse-continuum-ratios-diffs.py
 *** Write about plane-of-sky t^2 theory
 + Suppression of fluctuations on scales smaller than LOS depth
 * TODO Important things to follow up
+** 
+
 ** TODO [#A] Remove the sky components
 This is very important for the weak lines
 ** [Fe III] 5270
@@ -977,6 +979,7 @@ The reddenings are very similar, except for two things:
     + Looking at the full-res cube, this is restricted to the star - not extended
     + Also seen in many other young stars/proplyds
       + E.g., LV2, LV5, LL Ori and many more
+      + Even mentioned in the Weilbacher paper
 + Also red component to [S III] 9069
 + In blue end of spectrum He I lines at 4921 and 5016 show a red component
 + Also 5167, 5183, 5197, 5231 unidentified lines
@@ -1002,6 +1005,7 @@ The reddenings are very similar, except for two things:
   + Deepest in th2A
   + One problem is that it is phase-dependent in th1C
 + He II 5411 has some potential, but is contaminated by [Fe III]
+  + This is now fixed here: [[id:6E7A33A7-0822-42C0-9F1D-7A5E8A4DD732][Correcting the He I 5411 absorption line for {Fe III} emission]]
 + O II 4650 is seen in absorbtion right on th2A, but in the nebula it is swamped by the ORL emission lines
 + C IV 5801.35, 5811.97 are clearly seen in th1C spectrum and much weaker in th2A, absent in other trapezium stars
   + Unfortunately, they are very weak in the nebula
@@ -1011,17 +1015,25 @@ The reddenings are very similar, except for two things:
     + Now I have made a map of this line, and it is amazing
     + It can't be scattered continuum - I think it is foreground absorption
     + Which means it probably isn't N III
-    + [ ] Now I am going to calculate the EW
+    + [X] Now I am going to calculate the EW
   + Has absorption depth of 0.08 in Orion S region
   + But not seen in any OB stars 
   + Seen in th1E, which is G2V spectral type
     + (which Olivares et al 2013) say is not bound to Trapezium
     + And is also eclipsing binary (Morales-Calderón et al 2012)
     + But absorption depth there is only 0.05
+  + Also seen in th2B
+    + This is the brightest star that shows the feature
+    + T=29000., g=4.1, L=4.11
+    + B0.5V, which is ostensibly the same as th1A and th1D
+  + Also seen in star 180-245
   + Conclusion must be that we are seeing scattered light from an embedded yellow supergiant that is leaking out.
+    + *No longer believe this*
   + Some T Tauri stars show a Cr I line at 6630 but that has a very low EW ~0.01 A (Apenzeller et al 1986, Table III)
   + There are also lines around 6480 and 6490 in the nebular scattered light
     + Some stars show a strongish line around 6495
+    + th1A and th1D show the 6480 line but only at about the 3% level (this can be seen in Fig 2 of Simon-Diaz)
+    + Even th1C shows a tiny hint of it
 
 ** DONE Looking at the strange broad NIR emission bump
 CLOSED: [2015-08-13 Thu 11:15]
@@ -1120,6 +1132,107 @@ CLOSED: [2015-08-13 Thu 11:15]
 
 * Extracting individual emission lines from MUSE cube
 
+** [2016-12-24 Sat] Revisiting the line extraction
+This is based on the [[file:~/Dropbox/orion-widths/line-all-wav-grid.pdf][postage-stamp plot]] I have made in the [[id:1F9D411C-9C16-4F18-AB96-103DC86F80D9][linewidths project]]
++ [X] We have added a few new lines (marked with "*") in the table
++ [X] Refined some of the choices about blue and red continuum
++ [ ] Extract the 1D spectrum in different regions for different lines
+  + Try and choose regions where EW is maximised for each class of
+    line separately
+  + Previously it was just the slice [900:1400] in X and [400:900] in Y for all lines, which is not ideal
+
+*** Choosing the extraction regions for different classes of line
+
+| Class     | Code | Line ID    | Bin |    EW | Linesum |
+|-----------+------+------------+-----+-------+---------|
+| Ultra     | U    | Ar_IV-4740 |  16 |   0.6 |    2000 |
+| Permitted | P    | C_II-7236  |  16 |   3.5 |    5000 |
+| High      | H    | O_III-5007 |  16 |   850 |     3e6 |
+| Moderate  | M    | O_II-7318  |  16 |    70 |   1.5e5 |
+| Low       | L    | O_I-8446   |  16 |    40 |     3e4 |
+| Abs PDR   | AP   | N_III-6634 |  64 | -0.15 |    -200 |
+| Abs O9    | A9   | He_II-4686 |  32 | -0.23 |   -1500 |
+| Abs 07    | A7   | C_IV-5812  | 128 | -0.07 |    -150 |
+| Abs DIB   | A0   | DIB-5781   | 128 | -0.4  |   -2000 |
+|           |      |            |     |       |         |
+
+**** Ultra high ionization
++ Ar IV is the obvious choice here
+**** Permitted metal ++ lines
++ May be recombination or fluorescence
++ C II 7236 is the strongest
+**** High ionization
++ Use [O III] 16x16 binning
+  + ew-O_III-5007-bin016 > 850
+  + AND linesum-O_III-5007-bin016 > 3e6
+**** Moderate ionization
+
+**** Low ionization
+
+
+**** These are all the ones we looked at last time 
+#+BEGIN_SRC sh
+  D=/Users/will/Dropbox/OrionMuse/LineMaps
+  xpaset -p muse fits $D/ew-O_III-5007-bin004.fits
+  xpaset -p muse fits $D/ew-N_II-5755-bin004.fits 
+  xpaset -p muse fits $D/ew-Ar_IV-4740-bin004.fits
+  xpaset -p muse fits $D/ew-Ar_IV-4740-bin016.fits
+  xpaset -p muse fits $D/ew-Ar_IV-4740-bin064.fits
+  xpaset -p muse fits $D/ew-O_I-8446-bin004.fits
+  xpaset -p muse fits $D/ew-H_I-9229-bin004.fits 
+  xpaset -p muse fits $D/ew-He_I-5876-bin004.fits 
+  xpaset -p muse fits $D/ew-C_II-5890-bin016.fits 
+  xpaset -p muse fits $D/ew-C_II-7236-bin004.fits 
+  xpaset -p muse fits $D/ew-S_III-9069.fits 
+  xpaset -p muse fits $D/ew-Ar_IV-4740-bin032.fits
+  xpaset -p muse fits $D/ew-O_II-7318-bin001.fits 
+  xpaset -p muse fits $D/ew-O_III-5592-bin016.fits 
+  xpaset -p muse fits $D/ew-O_III-5592-bin064.fits 
+  xpaset -p muse fits $D/ew-N_I-5199-bin016.fits 
+  xpaset -p muse fits $D/ew-O_III-4959.fits 
+  xpaset -p muse fits $D/ew-Ar_IV-4740-bin016.fits
+#+END_SRC
+
+*** Correcting the He I 5411 absorption line for [Fe III] emission
+:PROPERTIES:
+:ID:       6E7A33A7-0822-42C0-9F1D-7A5E8A4DD732
+:END:
+#+BEGIN_SRC python
+from astropy.io import fits
+hdu, = fits.open('LineMaps/linesum-Fe_III-5412.fits')
+hdu2, = fits.open('LineMaps/linesum-Fe_III-5270.fits')
+hdu.data -= 0.1*hdu2.data
+hdu.writeto('LineMaps/linesum-He_II-5411.fits', clobber=True)
+#+END_SRC
+
+#+RESULTS:
+: None
+
+#+BEGIN_SRC sh
+cp LineMaps/continuum-Fe_III-5412.fits LineMaps/continuum-He_II-5411.fits
+python multibin-map.py LineMaps/linesum-He_II-5411.fits
+python multibin-map.py LineMaps/continuum-He_II-5411.fits
+#+END_SRC
+
+#+RESULTS:
+| Saving | LineMaps/continuum-He_II-5411-bin001.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin002.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin004.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin008.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin016.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin032.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin064.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin128.fits |
+| Saving | LineMaps/continuum-He_II-5411-bin256.fits |
+
+#+BEGIN_SRC sh
+  for file in LineMaps/linesum-He_II-5411-bin???.fits; do
+      python muse-ew.py $file
+  done
+#+END_SRC
+
+#+RESULTS:
+
 ** Strong lines and others of primary interest: basic-line-list.tab
 :PROPERTIES:
 :TABLE_EXPORT_FILE: basic-line-list.tab
@@ -1128,158 +1241,167 @@ CLOSED: [2015-08-13 Thu 11:15]
 + After editing, remember to export the table to file with =C-c t e=
 + This table has now expanded to cover all lines that can be extracted easily (that is, without fitting gaussians)
 #+name: basic-line-list
-| Ion      |     wav0 | strength | blue cont | red cont | comment                        |
-|----------+----------+----------+-----------+----------+--------------------------------|
-| N II     |  4607.16 |        4 |         1 |        1 | NEW-11-07 blend [Fe III], O II |
-| N II     |  4630.54 |        4 |         1 |        0 | NEW-11-07                      |
-| O II     |  4641.81 |        4 |         1 |        0 | NEW-11-07 blend N III          |
-| O II     |  4650.00 |        4 |         1 |        0 | blend 4649.13,50.84            |
-| [Fe III] |  4658.10 |        3 |         0 |        1 |                                |
-| O II     |  4676.24 |        5 |         1 |        1 | blend with 4673.73             |
-| He II    |  4685.68 |       -4 |         1 |        1 | absorption line                |
-| [Fe III] |  4701.62 |        4 |         1 |        1 |                                |
-| He I     |  4713.14 |        3 |         1 |        1 | blend with [Ar IV] 4711.37     |
-| [Fe III] |  4733.93 |        4 |         1 |        0 |                                |
-| [Ar IV]  |  4740.17 |        4 |         0 |        1 |                                |
-| [Fe III] |  4754.83 |        4 |         1 |        1 |                                |
-| [Fe III] |   4769.6 |        4 |         1 |        1 |                                |
-| [Fe III] |  4777.88 |        4 |         1 |        1 | blend with [Fe II] 4774.74     |
-| N II     | 4803.287 |        4 |         1 |        1 |                                |
-| [Fe II]  | 4814.534 |        4 |         1 |        1 | NEW-11-07 blend N II, S II     |
-| H I      |  4861.32 |        1 |         1 |        1 |                                |
-| [Fe III] | 4881.073 |        4 |         1 |        1 | NEW-11-07                      |
-| [Fe II]  | 4889.704 |        5 |         1 |        1 |                                |
-| [Fe II]  | 4905.339 |        5 |         1 |        1 |                                |
-| He I     |  4921.93 |        3 |         1 |        1 |                                |
-| [Fe III] |  4930.50 |        4 |         0 |        1 | blend with [O III] 4931.32     |
-| [O III]  |  4958.91 |        1 |         1 |        1 |                                |
-| [O III]  |  5006.84 |        1 |         1 |        1 |                                |
-| He I     |  5015.68 |        3 |         0 |        1 |                                |
-| Si II    |  5041.03 |        4 |         1 |        0 |                                |
-| He I     |  5047.74 |        4 |         0 |        1 | No good cont!                  |
-| Si II    |  5055.98 |        4 |         0 |        1 |                                |
-| O I      |  5146.61 |        5 |         1 |        1 |                                |
-| [Fe II]  |  5158.81 |        5 |         1 |        1 | NEW-11-07                      |
-| [Ar III] |  5191.82 |        4 |         1 |        0 |                                |
-| [N I]    |  5199.00 |        4 |         0 |        1 | Blend 5197.98,200.26           |
-| [Fe II]  |  5261.61 |        4 |         1 |        0 |                                |
-| [Fe III] |  5270.40 |        3 |         0 |        1 |                                |
-| O I      |  5298.89 |        5 |         1 |        1 | NEW-11-07                      |
-| [Fe II]  | 5333.646 |        5 |         1 |        1 | NEW-11-07                      |
-| [Fe II]  | 5376.452 |        5 |         1 |        1 | NEW-11-07                      |
-| [Fe III] |  5412.00 |        5 |         1 |        1 | NEW-11-07 + He II abs          |
-| O II     |  5433.49 |        6 |         1 |        1 | NEW-11-07                      |
-| S II     |  5453.81 |        6 |         1 |        1 | NEW-11-07                      |
-| [Cl III] |  5517.71 |        3 |         1 |        1 |                                |
-| [Cl III] |  5537.88 |        3 |         1 |        1 |                                |
-| N II     |  5551.95 |        6 |         1 |        0 | NEW-11-07                      |
-| O I      |  5555.03 |        5 |         0 |        1 | NEW-11-07                      |
-| [O I]    |  5577.34 |        4 |         1 |        1 | Sky contamination              |
-| O III    |  5592.37 |       -5 |         1 |        1 | Absorption line                |
-| N II     | 5666.629 |        5 |         1 |        1 | NEW-11-07                      |
-| N II     | 5679.558 |        5 |         1 |        1 | NEW-11-07                      |
-| Si III   |  5739.73 |        5 |         1 |        1 | NEW-11-07                      |
-| [N II]   |  5755.08 |        4 |         1 |        1 |                                |
-| DIB      |     5781 |       -4 |         1 |        0 | Diffuse interstellar band      |
-| He II    | 5784.947 |       -5 |         0 |        1 | Abs blend O II 5783.788        |
-| C IV     |  5801.35 |       -5 |         1 |        1 | Absorption line                |
-| C IV     |  5811.97 |       -5 |         1 |        1 | Absorption line                |
-| He I     |  5875.62 |        1 |         1 |        1 |                                |
-| C II     |  5889.78 |        4 |         1 |        0 | NEW-11-07                      |
-| N III    |   5896.1 |       -5 |         0 |        1 | Absorption line                |
-| N III    |   5901.2 |       -5 |         1 |        1 | Absorption line                |
-| XXX      |  5906.00 |        5 |         0 |        1 | Unidentified                   |
-| N III    |   5918.5 |       -5 |         1 |        1 | Absorption line                |
-| C II     |  5889.78 |        4 |         1 |        1 | Na I sky blend                 |
-| N II     |  5931.78 |        4 |         1 |        1 | Blend with 5927.81             |
-| N II     |  5941.65 |        4 |         1 |        1 | Blend with 5940.24             |
-| N II     |  5952.39 |        4 |         1 |        0 |                                |
-| Si II    |  5957.56 |        4 |         0 |        1 | Blend with O I 5958.39         |
-| Si II    |  5978.93 |        4 |         1 |        1 |                                |
-| [Ni III] |   6000.2 |        6 |         1 |        1 | Very weak                      |
-| O I      |  6046.23 |        4 |         1 |        1 |                                |
-| [Fe II]  | 6133.433 |        4 |         1 |        1 | plus sky?                      |
-| C II     |  6151.43 |        5 |         1 |        1 |                                |
-| DIB      |  6278.00 |       -2 |         1 |        0 | Diffuse interstellar band      |
-| [O I]    |  6300.30 |        3 |         1 |        1 |                                |
-| [S III]  |  6312.06 |        3 |         1 |        1 |                                |
-| Si II    |  6347.11 |        4 |         1 |        1 |                                |
-| [O I]    |  6363.78 |        3 |         1 |        0 |                                |
-| Si II    |  6371.36 |        4 |         0 |        1 |                                |
-| [Ni III] |   6401.5 |        6 |         1 |        1 | Blend with Ne I 6402.25        |
-| C II     |  6461.95 |        6 |         1 |        1 | NEW-11-07                      |
-| [N II]   |  6527.24 |        6 |         1 |        0 | NEW-11-07                      |
-| [Ni III] |   6533.8 |        6 |         0 |        1 | NEW-11-07                      |
-| [N II]   |  6548.05 |        2 |         1 |        1 |                                |
-| H I      |  6562.79 |        1 |         1 |        1 |                                |
-| C II     |  6578.05 |        5 |         1 |        0 |                                |
-| [N II]   |  6583.45 |        2 |         1 |        1 |                                |
-| N III    |   6633.9 |       -4 |         1 |        1 | Absorption line                |
-| Si III   |  6662.90 |       -5 |         1 |        0 | Abs + em [Ni II] 6666.80       |
-| [Ni II]  |  6666.80 |        6 |         0 |        1 | NEW-11-07                      |
-| He I     |  6678.15 |        2 |         1 |        1 |                                |
-| [S II]   |  6716.44 |        3 |         1 |        1 |                                |
-| [S II]   | 6730.816 |        3 |         1 |        1 |                                |
-| O I      |  7001.92 |        3 |         1 |        1 |                                |
-| He I     |  7065.28 |        2 |         1 |        1 |                                |
-| [Ar III] |  7135.78 |        1 |         1 |        1 | super strong                   |
-| [Fe II]  |  7155.14 |        4 |         1 |        0 | NEW-11-07                      |
-| He I     |  7160.13 |        4 |         0 |        1 | NEW-11-07                      |
-| [Fe II]  |  7172.00 |        5 |         1 |        1 | NEW-11-07                      |
-| C II     |  7231.34 |        3 |         1 |        0 |                                |
-| C II     |  7236.42 |        3 |         0 |        1 |                                |
-| O I      |  7254.15 |        3 |         1 |        1 | Blend with 7254.45,54.53       |
-| He I     |  7281.35 |        3 |         1 |        1 |                                |
-| He I     | 7298.050 |        4 |         1 |        1 | NEW-11-07                      |
-| [O II]   |  7318.39 |        1 |         1 |        1 | Also 7319.99                   |
-| [O II]   |  7329.66 |        1 |         0 |        1 | Also 7330.73                   |
-| O II     |   7340.7 |        5 |         1 |        1 | NEW-11-07                      |
-| O II     | 7369.029 |        6 |         1 |        1 | NEW-11-07 blend C II 7370.0    |
-| [Ni II]  |  7377.83 |        4 |         1 |        1 |                                |
-| [Fe II]  |  7388.18 |        5 |         1 |        1 | NEW-11-07                      |
-| [Ni II]  |  7411.61 |        5 |         1 |        1 |                                |
-| N I      |  7423.64 |        6 |         1 |        1 | NEW-11-07                      |
-| N I      |  7442.30 |        5 |         1 |        1 |                                |
-| [Fe II]  |  7452.54 |        4 |         1 |        1 |                                |
-| N I      |  7468.31 |        4 |         1 |        1 |                                |
-| He I     |  7499.85 |        5 |         1 |        1 | NEW-11-07                      |
-| C II     |  7530.57 |        5 |         1 |        1 | NEW-11-07 blend [Cl IV] 7531   |
-| [Ar III] |  7751.10 |        1 |         1 |        1 |                                |
-| He I     |  7816.13 |        4 |         1 |        0 | Sky OH (?) at 7820             |
-| Ca I]    |  7890.07 |        4 |         1 |        1 |                                |
-| [Cr II]  |  8000.08 |        5 |         0 |        1 | NEW-11-07 (also Ar I ??)       |
-| [Cl IV]  |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION!               |
-| XXX      |     8189 |        4 |         1 |        1 | Could be Fe I?                 |
-| N I      |  8216.34 |        4 |         1 |        0 | *Also 8210.72                  |
-| N I      |  8223.14 |        4 |         0 |        1 | Same multiplet as 8216.34      |
-| XXX      |     8243 |        4 |         1 |        1 | Could be O I? or Fe II?        |
-| H I      |  8437.96 |        3 |         1 |        0 | Pa 18                          |
-| O I      |  8446.36 |        2 |         0 |        1 | Also  8444.25, 8444.7          |
-| H I      |  8467.25 |        2 |         0 |        1 | Pa 17                          |
-| H I      |  8502.48 |        2 |         1 |        1 | Pa 16                          |
-| H I      |  8545.38 |        2 |         1 |        1 | Pa 15                          |
-| [Cl II]  |  8578.69 |        3 |         1 |        0 | Blend with 8582                |
-| H I      |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost     |
-| [Fe II]  |  8616.95 |        3 |         1 |        1 |                                |
-| H I      |  8665.02 |        2 |         1 |        1 | Pa 13                          |
-| N I      |  8680.28 |        4 |         1 |        0 | Plus 83.4                      |
-| N I      |  8686.15 |        4 |         0 |        1 | *                              |
-| N I      |  8703.25 |        4 |         1 |        0 |                                |
-| N I      |  8711.70 |        4 |         0 |        1 | Also 8718.83                   |
-| [C I]    |  8727.13 |        4 |         1 |        0 | Different!                     |
-| He I     |  8733.43 |        4 |         0 |        1 | *                              |
-| H I      |  8750.47 |        2 |         1 |        1 | Pa 12                          |
-| H I      |  8862.79 |        2 |         1 |        1 | Pa 11                          |
-| Ne I     |  8892.22 |        4 |         1 |        1 |                                |
-| H I      |  9014.91 |        2 |         1 |        1 | Pa 10                          |
-| XXX      |     9032 |        5 |         1 |        1 | Unidentified fluorescent       |
-| Ca I]    |  9052.16 |        5 |         1 |        0 |                                |
-| [S III]  |  9068.90 |        1 |         1 |        1 |                                |
-| Ca I]    |  9095.09 |        5 |         1 |        0 |                                |
-| XXX      |  9204.17 |        5 |         1 |        0 | Unidentified O II?             |
-| He I     |  9210.28 |        4 |         0 |        1 |                                |
-| H I      |  9229.01 |        2 |         1 |        1 | Pa 9                           |
-| XXX      |     9267 |        5 |         1 |        1 | Unidentified                   |
+| Ion      | Class |     wav0 | strength | blue cont | red cont | comment                    |
+|----------+-------+----------+----------+-----------+----------+----------------------------|
+| N II     | P     |  4607.16 |        4 |         1 |        1 | blend [Fe III], O II       |
+| N II     | P     |  4630.54 |        4 |         1 |        0 |                            |
+| O II     | P     |  4641.81 |        4 |         1 |        0 | blend N III                |
+| O II     | P     |  4650.00 |        4 |         1 |        0 | blend 4649.13,50.84        |
+| [Fe III] | M     |  4658.10 |        3 |         0 |        1 |                            |
+| O II     | P     |  4676.24 |        5 |         1 |        1 | blend with 4673.73         |
+| He II    | A9    |  4685.68 |       -4 |         1 |        1 | absorption line            |
+| [Fe III] | M     |  4701.62 |        4 |         1 |        1 |                            |
+| He I     | H     |  4713.14 |        3 |         1 |        1 | blend with [Ar IV] 4711.37 |
+| [Fe III] | M     |  4733.93 |        4 |         1 |        0 |                            |
+| [Ar IV]  | U     |  4740.17 |        4 |         0 |        1 |                            |
+| [Fe III] | M     |  4754.83 |        4 |         1 |        1 |                            |
+| [Fe III] | M     |   4769.6 |        4 |         0 |        1 |                            |
+| [Fe III] | M     |  4777.88 |        4 |         0 |        1 | blend with [Fe II] 4774.74 |
+| N II     | P     | 4803.287 |        4 |         1 |        1 |                            |
+| [Fe II]  | L     | 4814.534 |        4 |         1 |        1 | blend N II, S II           |
+| H I      | H     |  4861.32 |        1 |         1 |        1 |                            |
+| [Fe III] | M     | 4881.073 |        4 |         1 |        1 |                            |
+| [Fe II]  | L     | 4889.704 |        5 |         0 |        1 |                            |
+| [Fe II]  | L     | 4905.339 |        5 |         1 |        1 |                            |
+| He I     | H     |  4921.93 |        3 |         1 |        1 |                            |
+| [Fe III] | M     |  4930.50 |        4 |         0 |        1 | blend with [O III] 4931.32 |
+| [O III]  | H     |  4958.91 |        1 |         1 |        1 |                            |
+| [O III]  | H     |  5006.84 |        1 |         1 |        1 |                            |
+| He I     | H     |  5015.68 |        3 |         0 |        1 |                            |
+| Si II    | P     |  5041.03 |        4 |         1 |        0 |                            |
+| He I     | H     |  5047.74 |        4 |         0 |        1 | No good cont!              |
+| Si II    | P     |  5055.98 |        4 |         0 |        1 |                            |
+| O I      | L     |  5146.61 |        5 |         1 |        1 |                            |
+| [Fe II]  | L     |  5158.81 |        5 |         1 |        1 |                            |
+| [Ar III] | H     |  5191.82 |        4 |         1 |        0 |                            |
+| [N I]    | L     |  5199.00 |        4 |         0 |        1 | Blend 5197.98,200.26       |
+| S III    | P     |  5219.31 |        6 |         0 |        1 | *Also something 5210       |
+| [Fe II]  | L     |  5261.61 |        4 |         1 |        0 |                            |
+| [Fe III] | M     |  5270.40 |        3 |         0 |        1 |                            |
+| O I      | L     |  5298.89 |        5 |         1 |        1 |                            |
+| [Fe II]  | L     | 5333.646 |        5 |         1 |        1 |                            |
+| [Fe II]  | L     | 5376.452 |        5 |         1 |        1 |                            |
+| [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs                |
+| O II     | P     |  5433.49 |        6 |         1 |        1 |                            |
+| S II     | P     |  5453.81 |        6 |         1 |        1 |                            |
+| [Cl III] | H     |  5517.71 |        3 |         0 |        1 | O I 5512.77                |
+| [Cl III] | H     |  5537.88 |        3 |         1 |        1 |                            |
+| N II     | P     |  5551.95 |        6 |         1 |        0 |                            |
+| O I      | L     |  5555.03 |        5 |         0 |        1 |                            |
+| [O I]    | L     |  5577.34 |        4 |         1 |        1 | Sky contamination          |
+| O III    | A7    |  5592.37 |       -5 |         1 |        1 | Absorption line            |
+| N II     | P     | 5666.629 |        5 |         1 |        1 |                            |
+| N II     | P     | 5679.558 |        5 |         1 |        1 |                            |
+| Si III   | U     |  5739.73 |        5 |         1 |        1 |                            |
+| [N II]   | M     |  5755.08 |        4 |         1 |        1 |                            |
+| DIB      | A0    |     5781 |       -4 |         1 |        0 | Diffuse interstellar band  |
+| He II    | A7    | 5784.947 |       -5 |         0 |        1 | Abs blend O II 5783.788    |
+| C IV     | A7    |  5801.35 |       -5 |         1 |        1 | Absorption line            |
+| C IV     | A7    |  5811.97 |       -5 |         1 |        1 | Absorption line            |
+| He I     | H     |  5875.62 |        1 |         1 |        1 |                            |
+| C II     | P     |  5889.78 |        4 |         1 |        0 | Na I sky blend             |
+| N III    | A7    |   5896.1 |       -5 |         0 |        1 | Absorption line            |
+| N III    | A7    |   5901.2 |       -5 |         0 |        1 | Absorption line            |
+| XXX      | U     |  5906.00 |        5 |         0 |        1 | Unidentified               |
+| N III    | A7    |   5918.5 |       -5 |         1 |        1 | Absorption line            |
+| N II     | P     |  5931.78 |        4 |         0 |        1 | Blend with 5927.81         |
+| N II     | P     |  5941.65 |        4 |         0 |        1 | Blend with 5940.24         |
+| N II     | P     |  5952.39 |        4 |         1 |        0 |                            |
+| Si II    | P     |  5957.56 |        4 |         0 |        1 | Blend with O I 5958.39     |
+| Si II    | P     |  5978.93 |        4 |         1 |        1 |                            |
+| [Ni III] | M     |   6000.2 |        6 |         1 |        1 |                            |
+| ???      | L     |   6033.0 |        7 |         1 |        1 | Very weak (only HH 202)    |
+| O I      | L     |  6046.23 |        4 |         1 |        1 |                            |
+| [Fe II]  | L     | 6133.433 |        4 |         1 |        1 | plus sky?                  |
+| C II     | P     |  6151.43 |        5 |         1 |        0 |                            |
+| O I      | L     |  6155.98 |        6 |         0 |        1 | * blend with Ni II 6157.42 |
+| O I      | L     |  6256.83 |        7 |         1 |        1 | * strong sky contribution  |
+| DIB      | A0    |  6278.00 |       -2 |         1 |        0 | Telluric gamma band?       |
+| [O I]    | L     |  6300.30 |        3 |         1 |        1 |                            |
+| [S III]  | H     |  6312.06 |        3 |         1 |        1 |                            |
+| XXX      | L     |   6328.0 |        7 |         1 |        0 | * mostly sky               |
+| XXX      | U     |   6334.0 |        7 |         0 |        1 | * Peaks close in           |
+| Si II    | P     |  6347.11 |        4 |         1 |        1 |                            |
+| [O I]    | L     |  6363.78 |        3 |         1 |        0 |                            |
+| Si II    | P     |  6371.36 |        4 |         0 |        1 |                            |
+| [Ni III] | M     |   6401.5 |        6 |         1 |        1 | Blend with Ne I 6402.25    |
+| C II     | P     |  6461.95 |        6 |         1 |        1 |                            |
+| XXX      | AP    |   6480.0 |       -5 |         1 |        0 | * Absorption               |
+| XXX      | AP    |   6490.0 |       -5 |         0 |        1 | * Absorption               |
+| [N II]   | L     |  6527.24 |        6 |         1 |        0 |                            |
+| [Ni III] | M     |   6533.8 |        6 |         0 |        1 |                            |
+| [N II]   | L     |  6548.05 |        2 |         1 |        1 |                            |
+| H I      | H     |  6562.79 |        1 |         1 |        1 |                            |
+| C II     | P     |  6578.05 |        5 |         1 |        0 | Blue 6583.45 dominates     |
+| [N II]   | L     |  6583.45 |        2 |         1 |        1 |                            |
+| N III    | AP    |   6633.9 |       -4 |         1 |        1 | Absorption line            |
+| Si III   | A9    |  6662.90 |       -5 |         1 |        0 | Abs + em [Ni II] 6666.80   |
+| [Ni II]  | L     |  6666.80 |        6 |         0 |        1 |                            |
+| He I     | H     |  6678.15 |        2 |         1 |        1 |                            |
+| [S II]   | M     |  6716.44 |        3 |         1 |        1 |                            |
+| [S II]   | M     | 6730.816 |        3 |         1 |        1 |                            |
+| O I      | L     |  7001.92 |        3 |         0 |        1 | Weak line at 6996 (He I?)  |
+| He I     | H     |  7065.28 |        2 |         1 |        1 |                            |
+| [Ar III] | H     |  7135.78 |        1 |         1 |        1 | super strong               |
+| [Fe II]  | L     |  7155.14 |        4 |         1 |        0 |                            |
+| He I     | H     |  7160.13 |        4 |         0 |        1 |                            |
+| [Fe II]  | L     |  7172.00 |        5 |         0 |        1 |                            |
+| C II     | P     |  7231.34 |        3 |         1 |        0 |                            |
+| C II     | P     |  7236.42 |        3 |         0 |        1 |                            |
+| O I      | L     |  7254.15 |        3 |         1 |        1 | Blend with 7254.45,54.53   |
+| He I     | H     |  7281.35 |        3 |         1 |        1 |                            |
+| He I     | H     | 7298.050 |        4 |         1 |        1 |                            |
+| [O II]   | M     |  7318.39 |        1 |         1 |        1 | Also 7319.99               |
+| [O II]   | M     |  7329.66 |        1 |         0 |        1 | Also 7330.73               |
+| O II     | P     |   7340.7 |        5 |         0 |        1 |                            |
+| O II     | P     | 7369.029 |        6 |         1 |        0 | blend C II 7370.0          |
+| [Ni II]  | L     |  7377.83 |        4 |         1 |        1 |                            |
+| [Fe II]  | L     |  7388.18 |        5 |         0 |        1 |                            |
+| [Ni II]  | L     |  7411.61 |        5 |         1 |        1 |                            |
+| N I      | L     |  7423.64 |        6 |         1 |        1 |                            |
+| N I      | L     |  7442.30 |        5 |         1 |        1 |                            |
+| [Fe II]  | L     |  7452.54 |        4 |         1 |        1 |                            |
+| N I      | L     |  7468.31 |        4 |         1 |        1 |                            |
+| He I     | H     |  7499.85 |        5 |         1 |        1 |                            |
+| C II     | P     |  7519.49 |        6 |         1 |        0 | Plus Sky at 7524           |
+| [Cl IV]  | U     |  7530.80 |        5 |         0 |        1 | blend C II 7530.57         |
+| [Ar III] | H     |  7751.10 |        1 |         1 |        1 |                            |
+| He I     | H     |  7816.13 |        4 |         1 |        0 | Sky OH (?) at 7820         |
+| Ca I]    | L     |  7890.07 |        4 |         1 |        1 |                            |
+| [Cr II]  | L     |  8000.08 |        5 |         0 |        1 | (also Ar I ??) Sky 7994    |
+| [Cl IV]  | H     |  8045.62 |        4 |         1 |        1 | HIGH IONIZATION!           |
+| XXX      | L     |     8189 |        4 |         1 |        1 | Could be Fe I?             |
+| N I      | L     |  8216.34 |        4 |         1 |        0 | *Also 8210.72              |
+| N I      | L     |  8223.14 |        4 |         0 |        1 | Same multiplet as 8216.34  |
+| XXX      | L     |     8243 |        4 |         1 |        1 | Could be O I? or Fe II?    |
+| H I      | H     |  8437.96 |        3 |         1 |        0 | Pa 18                      |
+| O I      | L     |  8446.36 |        2 |         0 |        1 | Also  8444.25, 8444.7      |
+| H I      | H     |  8467.25 |        2 |         0 |        1 | Pa 17 Blend with ?? 8464   |
+| H I      | H     |  8502.48 |        2 |         1 |        1 | Pa 16                      |
+| H I      | H     |  8545.38 |        2 |         1 |        1 | Pa 15                      |
+| [Cl II]  | L     |  8578.69 |        3 |         1 |        0 | Blend with 8582            |
+| H I      | H     |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost |
+| [Fe II]  | L     |  8616.95 |        3 |         1 |        1 |                            |
+| H I      | H     |  8665.02 |        2 |         1 |        1 | Pa 13                      |
+| N I      | L     |  8680.28 |        4 |         1 |        0 | Plus 83.4                  |
+| N I      | L     |  8686.15 |        4 |         0 |        1 | *                          |
+| N I      | L     |  8703.25 |        4 |         1 |        0 |                            |
+| N I      | L     |  8711.70 |        4 |         0 |        1 | Also 8718.83               |
+| [C I]    | L     |  8727.13 |        4 |         1 |        0 | Different!                 |
+| He I     | H     |  8733.43 |        4 |         0 |        1 | *                          |
+| H I      | H     |  8750.47 |        2 |         1 |        1 | Pa 12                      |
+| H I      | H     |  8862.79 |        2 |         1 |        1 | Pa 11                      |
+| Ne I     | L     |  8892.22 |        4 |         0 |        1 | Also sky(?) at 8898        |
+| H I      | H     |  9014.91 |        2 |         1 |        1 | Pa 10                      |
+| XXX      | L     |     9032 |        5 |         1 |        1 | Unidentified fluorescent   |
+| Ca I]    | L     |  9052.16 |        5 |         1 |        0 |                            |
+| [S III]  | H     |  9068.90 |        1 |         1 |        1 |                            |
+| Ca I]    | L     |  9095.09 |        5 |         1 |        0 |                            |
+| XXX      | P     |  9204.17 |        5 |         1 |        0 | Unidentified O II?         |
+| He I     | H     |  9210.28 |        4 |         0 |        1 |                            |
+| H I      | H     |  9229.01 |        2 |         1 |        1 | Pa 9                       |
+| XXX      | H     |     9267 |        5 |         1 |        1 | Unidentified               |
+|          |       |          |          |           |          |                            |
 
 
 ** Simple method with moments
@@ -1601,7 +1723,7 @@ CLOSED: [2015-11-03 Tue 22:26]
 
 #+BEGIN_SRC python :tangle muse_ew_utils.py
   from astropy.io import fits
-
+  
   def save_ew(fname, hdu_id=0):
       '''Calculate and save EW for line map in file named `fname`
 
@@ -5606,7 +5728,7 @@ Do the same for first 3 fuzzed ratio maps
   import numpy as np
   from astropy.io import fits
   from matplotlib import pyplot as plt
-  from wcsaxes import WCS
+  from astropy.wcs import WCS
   # import seaborn as sns
 
   def fig_ax_im_from_fits(fn, vmin=None, vmax=None, cmap=plt.cm.gray):
@@ -5655,15 +5777,18 @@ Do the same for first 3 fuzzed ratio maps
       figfile = fn.replace('.fits', '.jpg')
       fig.set_size_inches(8, 6)
       fig.savefig(figfile, dpi=200)
-      print(figfile)
+      print(figfile, end='')
 #+END_SRC
 
 #+RESULTS:
 
 
-#+BEGIN_SRC sh :results file
+#+BEGIN_SRC sh :results output file
 python fig_utils.py
 #+END_SRC
+
+#+RESULTS:
+
 ** Make a whole load of figures
 #+BEGIN_SRC python :tangle figs-multibin-Te-Ne.py
   from fig_utils import fig_ax_im_from_fits
@@ -5707,18 +5832,51 @@ python fig_utils.py ew-N_III-6634-multibin-SN0007 -0.5 0.0
 
 He II 4886 line
 #+BEGIN_SRC sh :results file
-python fig_utils.py ew-He_II-4686-multibin-SN0010 -0.5 0.0
+python fig_utils.py ew-He_II-4686-multibin-SN0007 -0.5 0.0
 #+END_SRC
 
 #+RESULTS:
+[[file:LineMaps/ew-He_II-4686-multibin-SN0007.jpg]]
 
 C IV 5812 line
-#+BEGIN_SRC sh :results file
-python fig_utils.py ew-C_IV-5812-multibin-SN0005 -0.2 0.0
+#+BEGIN_SRC sh :results export file
+python fig_utils.py ew-C_IV-5812-multibin-SN0007 -0.2 0.0
 #+END_SRC
 
 #+RESULTS:
-[[file:LineMaps/ew-C_IV-5812-multibin-SN0005.jpg]]
+[[file:LineMaps/ew-C_IV-5812-multibin-SN0007.jpg]]
+
+
+Si III 6663 line
+#+BEGIN_SRC sh :results export file
+python fig_utils.py ew-Si_III-6663-multibin-SN0005 -0.2 0.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/ew-Si_III-6663-multibin-SN0005.jpg]]
+
+#+BEGIN_SRC sh :results export file
+python fig_utils.py linesum-Si_III-6663-bin064 -400 200.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/linesum-Si_III-6663-bin064.jpg]]
+
+So-called diffuse interstellar band
+#+BEGIN_SRC sh :results export file
+python fig_utils.py linesum-DIB-5781-multibin-SN0005 -1000 0.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/linesum-DIB-5781-multibin-SN0005.jpg]]
+
+#+BEGIN_SRC sh
+for f in LineMaps/linesum-DIB-5781-bin*.fits; do
+    python muse-ew.py $f
+done
+#+END_SRC
+
+#+RESULTS:
 
 
 N III 5896 line

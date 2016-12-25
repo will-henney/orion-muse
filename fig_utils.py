@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from astropy.io import fits
 from matplotlib import pyplot as plt
-from wcsaxes import WCS
+from astropy.wcs import WCS
 # import seaborn as sns
 
 def fig_ax_im_from_fits(fn, vmin=None, vmax=None, cmap=plt.cm.gray):
@@ -47,9 +47,9 @@ if __name__ == '__main__':
         vmin, vmax = float(sys.argv[2]), float(sys.argv[3])
     except IndexError:
         vmin, vmax = None, None
-        
+
     fig, ax, im = fig_ax_im_from_fits(fn, vmin, vmax)
     figfile = fn.replace('.fits', '.jpg')
     fig.set_size_inches(8, 6)
     fig.savefig(figfile, dpi=200)
-    print(figfile)
+    print(figfile, end='')
