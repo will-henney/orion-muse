@@ -1,16 +1,41 @@
 from __future__ import print_function
 import sys
+import os
 import numpy as np
 from astropy.table import Table
 from astropy.io import fits
 from astropy.wcs import WCS
 from astropy import units as u
+from astropy import constants as const
 from misc_utils import sanitize_string
-from helio_utils import waves2vels
-
 
 linetab = Table.read('basic-line-list.tab', format='ascii.tab')
 wavsectab = Table.read('wavsec-startwavs.tab', format='ascii.tab')
+classtab = Table.read('line-classes.tab', format='ascii.tab')
+
+def waves2vels(waves, restwav):
+    """Naive wavelength to radial velocity (in km/s) 
+
+    Performs no manner of heliocentric correction
+    """
+    return const.c.to(u.km/u.s)*(waves - restwav)/restwav
+
+
+def get_masks(mask_dir='LineMaps'):
+    """Return a dict of masks for each line class
+
+    The mask is True for pixels where that class of line is prominent,
+    as measured by both EW and total flux.  Optional argument
+    `mask_dir` specifies directory from which to load masks
+
+    """
+    masks = {}
+    for row in classtab:
+        k = row['Code']
+        mask_name = 'mask-line-class-{}.fits'.format(k)
+        masks[k] = fits.open(os.path.join(mask_dir, mask_name))[0].data.astype(bool)
+    return masks
+
 
 def find_wavsec(wav):
     """Which wavsec chunk is this wavelength in"""
@@ -36,9 +61,14 @@ Returns tuple of trimmed cube and trimmed WCS
     return cube[window], wcube.slice(window)
 
 
-def extract_line_maps(wav, cube, wcube, helio_hdr,
-                      usecont=[1, 1], dwav=4.0, dwavcont=8.0):
+def extract_line_maps(wav, cube, wcube,
+		      usecont=[1, 1], dwav=4.0, dwavcont=8.0,
+		      specmask=None,
+):
     """Extract line moments and continuum"""
+
+
+    nwav, ny, nx = cube.shape
 
     # outer range is wav +/- dwavcont
     wavs = (wav + dwavcont*np.array([-1, 1]))*u.Angstrom.to(u.m)
@@ -52,7 +82,7 @@ def extract_line_maps(wav, cube, wcube, helio_hdr,
     wavs = (wav + dwav*np.array([-1, 1]))*u.Angstrom.to(u.m)
     _, _, (kin1, kin2) = wcube.all_world2pix([0, 0], [0, 0], wavs, 0)
     kin1, kin2 = int(kin1), int(kin2) + 2
-    print('kout1, kin1, kin2, kout2, nwav =', kout1, kin1, kin2, kout2, cube.shape[0])
+    print('kout1, kin1, kin2, kout2, nwav =', kout1, kin1, kin2, kout2, nwav)
 
     # find average continuum
     cont1 = np.nanmean(cube[kout1:kin1, :, :], axis=0)
@@ -67,7 +97,7 @@ def extract_line_maps(wav, cube, wcube, helio_hdr,
     nwin = kin2 - kin1
     _, _, winwavs = wcube.all_pix2world([0]*nwin, [0]*nwin, np.arange(kin1, kin2), 0)
     # Convert wavelengths to velocities
-    winvels = waves2vels(winwavs*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
+    winvels = waves2vels(winwavs*u.m.to(u.Angstrom), wav)
     mom0 = linewin.sum(axis=0)
     mom1 = np.sum(linewin*winvels[:, None, None], axis=0)
     vmean = mom1/mom0
@@ -82,16 +112,23 @@ def extract_line_maps(wav, cube, wcube, helio_hdr,
         kout2 = cube.shape[0]
     nwinout = kout2 - kout1
     _, _, winwavsout = wcube.all_pix2world([0]*nwinout, [0]*nwinout, np.arange(kout1, kout2), 0)
-    winvelsout = waves2vels(winwavsout*u.m.to(u.Angstrom), wav, helio_hdr, observatory='VLT4')
+    winvelsout = waves2vels(winwavsout*u.m.to(u.Angstrom), wav)
 
-    # Just select region to SW of Trap
-    xslice = slice(900, 1400)
-    yslice = slice(400, 900)
+    # Use per-class mask to calculate 1D spectrum
+    if specmask is None:
+        specmask = np.ones_like(avcont).astype(bool)
+    else:
+        # The line class masks are defined on binned maps, which are
+        # bigger, so need to trim back down to the original size
+        specmask = specmask[:ny, :nx]
+
     spec = {
         'vhel': winvelsout.to(u.km/u.s),
         'wav': winwavsout*u.m.to(u.Angstrom),
-        'flux': np.nanmean(cube[kout1:kout2, yslice, xslice], axis=(1, 2)),
-        'cont': np.nanmean(avcont[yslice, xslice])*np.ones(nwinout),
+        'flux': np.nansum(
+            specmask[None, :, :]*cube[kout1:kout2, :, :],
+            axis=(1, 2)) / specmask.sum(),
+        'cont': np.nanmean(avcont[specmask])*np.ones(nwinout),
     }
     print(*[(k, len(v)) for k, v in spec.items()])
     return maps, spec

@@ -66,7 +66,7 @@ N II	P	5952.39	4	1	0
 Si II	P	5957.56	4	0	1	Blend with O I 5958.39
 Si II	P	5978.93	4	1	1	
 [Ni III]	M	6000.2	6	1	1	
-???	L	6033.0	7	1	1	Very weak (only HH 202)
+XXX	L	6033.0	7	1	1	Very weak (only HH 202)
 O I	L	6046.23	4	1	1	
 [Fe II]	L	6133.433	4	1	1	plus sky?
 C II	P	6151.43	5	1	0	
@@ -112,7 +112,7 @@ He I	H	7298.050	4	1	1
 O II	P	7340.7	5	0	1	
 O II	P	7369.029	6	1	0	blend C II 7370.0
 [Ni II]	L	7377.83	4	1	1	
-[Fe II]	L	7388.18	5	0	1	
+[Fe II]	L	7388.16	5	0	1	
 [Ni II]	L	7411.61	5	1	1	
 N I	L	7423.64	6	1	1	
 N I	L	7442.30	5	1	1	
@@ -125,7 +125,7 @@ C II	P	7519.49	6	1	0	Plus Sky at 7524
 He I	H	7816.13	4	1	0	Sky OH (?) at 7820
 Ca I]	L	7890.07	4	1	1	
 [Cr II]	L	8000.08	5	0	1	(also Ar I ??) Sky 7994
-[Cl IV]	H	8045.62	4	1	1	HIGH IONIZATION!
+[Cl IV]	H	8045.62	4	1	0	HIGH IONIZATION!
 XXX	L	8189	4	1	1	Could be Fe I?
 N I	L	8216.34	4	1	0	*Also 8210.72
 N I	L	8223.14	4	0	1	Same multiplet as 8216.34
