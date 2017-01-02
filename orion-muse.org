@@ -945,6 +945,30 @@ This is very important for the weak lines
 + It looks like we are oversubtracting the emission from a fluorescent line
   + We are already avoiding the red side, so we need to improve the continuum fitting algorithm before we can resolve this
 
+*** TODO Quick fix to the [C I] line
++ We can add back in a fraction of the [N I] 8703 line to compensate for the [N I] 8719 line that got in the continuum band
+#+BEGIN_SRC python
+import os
+from astropy.io import fits
+DD = os.path.expanduser('~/tmp/musedata')
+FACTOR = 1.0
+
+fn_c = os.path.join(DD, 'linesum-C_I-8727-bin016.fits')
+fn_n = os.path.join(DD, 'linesum-N_I-8703-bin016.fits')
+
+hdu_c = fits.open(fn_c)['SCALED']
+hdu_n = fits.open(fn_n)['SCALED']
+
+hdu_c.data += FACTOR*hdu_n.data
+
+hdu_c.writeto(fn_c.replace('linesum', 'linesum-corr'), clobber=True)
+
+
+#+END_SRC
+
+#+RESULTS:
+: None
+
 ** [Cl IV] 8045.62
 + The highest ionization line
 + Traces very interior gas, and also inner edge of ORL clump
@@ -1446,16 +1470,24 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 | He I     | H     |  8582.61 |        4 |         0 |        1 | ** multiplet .611->.646      |
 | H I      | H     |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost   |
 | [Fe II]  | L     |  8616.95 |        3 |         1 |        1 |                              |
+| He I     | H     |  8648.27 |        6 |         1 |        0 | *** and 49.89, 50.83         |
 | H I      | H     |  8665.02 |        2 |         1 |        1 | Pa 13                        |
 | N I      | L     |  8680.28 |        4 |         1 |        0 | Plus 83.4                    |
 | N I      | L     |  8686.15 |        4 |         0 |        1 | *                            |
+| [Co II]  | L     |  8695.33 |        7 |         1 |        0 | ***                          |
 | N I      | L     |  8703.25 |        4 |         1 |        0 |                              |
 | N I      | L     |  8711.70 |        4 |         0 |        1 | Also 8718.83                 |
 | [C I]    | L     |  8727.13 |        4 |         1 |        0 | Different!                   |
 | He I     | H     |  8733.43 |        4 |         0 |        1 | *                            |
 | H I      | H     |  8750.47 |        2 |         1 |        1 | Pa 12                        |
+| He I     | H     |  8776.71 |        6 |         0 |        1 | *** and .73, .93             |
+| He I     | H     |  8830.51 |        6 |         0 |        0 | *** no good cont             |
+| He I     | H     |  8845.36 |        6 |         1 |        0 | *** and .40                  |
+| He I     | H     |  8848.04 |        6 |         0 |        0 | *** no good cont             |
+| He I     | H     |  8854.20 |        6 |         0 |        1 | *** and .23                  |
 | H I      | H     |  8862.79 |        2 |         1 |        1 | Pa 11                        |
 | Ne I     | L     |  8892.22 |        4 |         0 |        1 | Also sky(?) at 8898          |
+| He I     | H     |  8914.77 |        6 |         1 |        0 | ***                          |
 | H I      | H     |  9014.91 |        2 |         1 |        1 | Pa 10                        |
 | XXX      | L     |     9032 |        5 |         1 |        1 | Unidentified fluorescent     |
 | Ca I]    | L     |  9052.16 |        5 |         1 |        0 |                              |
