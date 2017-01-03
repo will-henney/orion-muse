@@ -1332,6 +1332,9 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 
 #+RESULTS:
 
+
+** Sky lines
+
 ** Strong lines and others of primary interest: basic-line-list.tab
 :PROPERTIES:
 :TABLE_EXPORT_FILE: basic-line-list.tab
@@ -1481,7 +1484,7 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 | H I      | H     |  8467.25 |        2 |         0 |        1 | Pa 17 Blend with ?? 8464     |
 | H I      | H     |  8502.48 |        2 |         1 |        1 | Pa 16                        |
 | H I      | H     |  8545.38 |        2 |         1 |        1 | Pa 15                        |
-| [Cl II]  | L     |  8578.69 |        3 |         1 |        0 | Blend with 8582              |
+| [Cl II]  | L     |  8578.69 |        3 |         1 |        0 | 3P-1D 2-2 Blend with 8582    |
 | He I     | H     |  8582.61 |        4 |         0 |        1 | ** multiplet .611->.646      |
 | H I      | H     |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost   |
 | [Fe II]  | L     |  8616.95 |        3 |         1 |        1 | a4F-a4P 9/2-5/2              |
@@ -1496,6 +1499,7 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 | He I     | H     |  8733.43 |        4 |         0 |        1 | *                            |
 | H I      | H     |  8750.47 |        2 |         1 |        1 | Pa 12                        |
 | He I     | H     |  8776.71 |        6 |         0 |        1 | *** and .73, .93             |
+| [Cr II]  | L     |  8818.87 |        6 |         0 |        0 | *** no good cont             |
 | He I     | H     |  8830.51 |        6 |         0 |        0 | *** no good cont             |
 | He I     | H     |  8845.36 |        6 |         1 |        0 | *** and .40                  |
 | He I     | H     |  8848.04 |        6 |         0 |        0 | *** no good cont             |
@@ -1503,14 +1507,19 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 | H I      | H     |  8862.79 |        2 |         1 |        1 | Pa 11                        |
 | [Fe II]  | L     |  8891.93 |        4 |         0 |        1 | a4F-a4P 7/2-3/2              |
 | He I     | H     |  8914.77 |        6 |         1 |        0 | ***                          |
+| He I     | H     |  8996.98 |        5 |         1 |        0 | *** Triplet - Sky to red     |
 | H I      | H     |  9014.91 |        2 |         1 |        1 | Pa 10                        |
-| [Fe II]  | L     |  9033.49 |        5 |         1 |        1 | a4F-a4P 5/2-1/2              |
+| [Fe II]  | L     |  9033.49 |        5 |         1 |        1 | a4F-a4P 5/2-1/2 + [Cr II]    |
 | Ca I]    | L     |  9052.16 |        5 |         1 |        0 | + [Fe II] 9051.95 7/2-5/2    |
 | [S III]  | H     |  9068.90 |        1 |         1 |        1 |                              |
-| Ca I]    | L     |  9095.09 |        5 |         1 |        0 |                              |
-| XXX      | P     |  9204.17 |        5 |         1 |        0 | Unidentified Co I?           |
+| Ca I]    | L     |  9095.09 |        5 |         0 |        0 | No good continuum            |
+| [Cl II]  | M     |  9123.60 |        5 |         1 |        1 | *** 3P-1D  1-2               |
+| Ca I]    | L     |  9204.09 |        5 |         1 |        0 | *** 3P-1Po  0-1              |
 | He I     | H     |  9210.28 |        4 |         0 |        1 |                              |
+| [Cr II]  | L     |  9222.18 |        6 |         0 |        0 | *** NoGC - or Fe I]?         |
 | H I      | H     |  9229.01 |        2 |         1 |        1 | Pa 9 +[Fe II]9226.63 5/2-3/2 |
+| XXX      | L     |   9236.0 |        6 |         0 |        0 | No ID.  No good cont         |
+| Ca I]    | L     |  9244.31 |        6 |         0 |        1 | *** 3P-1Po  1-1              |
 | [Fe II]  | H     |  9267.55 |        5 |         1 |        1 | a4F-a4P 3/2-1/2              |
 
 
