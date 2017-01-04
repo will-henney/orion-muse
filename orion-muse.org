@@ -1338,7 +1338,7 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 
 ** Sky lines
 :LOGBOOK:
-CLOCK: [2017-01-03 Tue 10:50]
+CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 :END:
 + The OH and O_{2} sky lines are important for two main reasons:
   1. POSITIVE: They allow us to do accurate wavelength calibration and determine instrumental width as function of wavelength
@@ -1352,28 +1352,43 @@ CLOCK: [2017-01-03 Tue 10:50]
   2) By making spectra of regions at periphery of the Orion field
      + These will be mainly sky, except for the strongest lines, which will have a contribution from the extended nebula and the diffuse galactic emission
 
-*** Extracting sky spectra from the binned data cubes
-#+BEGIN_SRC python
+*** Extract table of source and sky spectra from binned data cubes
+#+BEGIN_SRC python :results file :return outfile 
   import os
   from astropy.io import fits
   from astropy.wcs import WCS
   from astropy.table import Table
+  from astropy import units as u
   import numpy as np
 
+  outfile = 'full-spectrum-by-area.tab'
   N = 16
   D = 'BigFiles'
   fmt = 'muse-hr-data-wavsec{0:d}-rebin{1:d}x{1:d}.fits'
 
-  # Python axis order is wavelength, Dec, RA
+  # Areas on the map where we want to extract the spectrum
   areas = {
+      # Python axis order for FITS cube is
+      # (Z, Y, X) = (wavelength, Dec, RA)
       'all': [slice(None, None), slice(None, None), slice(None, None)],
+      # Take sky samples from 10x10 squares in top left and bottom right 
       'sky-ne': [slice(None, None), slice(-10, -1), slice(0, 9)],
-      'sky-sw': [slice(None, None), slice(0, 9), slice(-10, -1)]
+      'sky-sw': [slice(None, None), slice(0, 9), slice(-10, -1)],
+      'orion-s': [slice(None, None), slice(40, 50), slice(60, 70)],
+      'hh-202': [slice(None, None), slice(60, 64), slice(80, 83)],
+      'lv1': [slice(None, None), slice(50, 53), slice(54, 56)],
+      'lv6': [slice(None, None), slice(47, 51), slice(59, 65)],
+      'big-arc': [slice(None, None), slice(28, 35), slice(49, 59)],
+      'bar-ifront': [slice(None, None), slice(27, 30), slice(29, 33)],
+      'hh-203': [slice(None, None), slice(20, 32), slice(30, 31)],
   }
 
+  formats = {'wavelength': '%.2f'}
   results = {'wavelength': []}
   for k in areas:
       results[k] = []
+      formats[k] = '%.6e'
+
 
   for iwavsec in range(8):
       fn = fmt.format(iwavsec, N)
@@ -1383,12 +1398,86 @@ CLOCK: [2017-01-03 Tue 10:50]
       nv, ny, nx = hdu.data.shape
 
       _, _, wavs = w.all_pix2world([0]*nv, [0]*nv, np.arange(nv), 0)
-      results['wavelength'].extend(wavs)
-    
+      results['wavelength'].extend(wavs*u.m/u.AA)
+
       for area, area_slice in areas.items():
           spectrum = np.nanmean(hdu.data[area_slice], axis=(1, 2))
           results[area].extend(spectrum)
+
+  Table(results).write(outfile, format='ascii.tab', formats=formats)
 #+END_SRC
+
+#+RESULTS:
+[[file:full-spectrum-by-area.tab]]
+
+
+*** Plot the sky and source spectra
+#+BEGIN_SRC python :results file :return plotfile
+  import numpy as np
+  from astropy.table import Table
+  from matplotlib import pyplot as plt
+  from matplotlib.ticker import (MultipleLocator, LogLocator, 
+				 MaxNLocator, FormatStrFormatter)
+  import seaborn as sns
+
+  wavmin, wavmax = 4580, 9380
+  NSECTIONS = 6
+  SCALE = 1e6
+  dwav = (wavmax - wavmin)/NSECTIONS
+  plotfile = 'full-sky-spectrum.pdf'
+
+  sns.set(style='whitegrid', font_scale=1.0, color_codes=True)
+  fig, axes = plt.subplots(NSECTIONS, 1,
+                           figsize=(16, 20), sharey=True)
+  # Leave more height between plots (hspace), but otherwise reduce the margins
+  plt.subplots_adjust(bottom=0.06, top=0.99, left=0.06, right=0.99, hspace=0.35)
+
+  startwavs = np.linspace(wavmin, wavmax, NSECTIONS, endpoint=False)
+
+  tab = Table.read('full-spectrum-by-area.tab', format='ascii.tab')
+
+  chosen_spectra = {
+      'big-arc': {'label': 'Big Arc', 'color': 'b'},
+      'orion-s': {'label': 'Orion S', 'color': 'r'},
+      'hh-203': {'label': 'HH 203', 'color': 'm'},
+      'lv6': {'label': 'Trapezium', 'color': 'y'},
+      'bar-ifront': {'label': 'Bright Bar', 'color': 'c'},
+  }
+
+  # What we have to multiply the NE sky spectrum by before subtracting
+  # it from the source spectrum
+  sky_factor_default = 0.75
+  sky_factors = {}
+
+  for startwav, ax in zip(startwavs, axes.flat):
+      ax.fill_between(tab['wavelength'], 4*tab['sky-ne']/SCALE,
+                      alpha=0.2, color='k', label='4 x Sky')
+      for spectrum, plot_kws in chosen_spectra.items():
+          sky_fac = sky_factors.get(spectrum, sky_factor_default)
+          ax.plot(tab['wavelength'],
+                  (tab[spectrum] - sky_fac*tab['sky-ne'])/SCALE,
+                  lw=1, alpha=0.7, **plot_kws)
+      ax.set(
+          xlim=[startwav - 0.01*dwav, startwav + 1.01*dwav],
+          ylim=[0.0, 2.9],
+      )
+      ax.xaxis.set_major_locator(MaxNLocator(52, integer=True, prune='both'))
+      ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+      ax.yaxis.set_major_locator(MaxNLocator(3, integer=True, prune='both'))
+      ax.yaxis.set_major_formatter(FormatStrFormatter('%d'))
+
+  axes[-1].set(
+      xlabel='Wavelength, Angstrom',
+      ylabel='Mean brightness',
+  )
+  axes[2].legend(ncol=2, loc='upper right')
+  fig.savefig(plotfile)
+
+#+END_SRC
+
+#+RESULTS:
+[[file:full-sky-spectrum.pdf]]
+
 *** Cross correlating with Osterbrock's lists
 
 
@@ -1443,17 +1532,24 @@ CLOCK: [2017-01-03 Tue 10:50]
 | O I      | L     |  5298.89 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5333.646 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5376.452 |        5 |         1 |        1 |                              |
-| [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs                  |
+| [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs +[Fe II]?         |
 | O II     | P     |  5433.49 |        6 |         1 |        1 |                              |
 | S II     | P     |  5453.81 |        6 |         1 |        1 |                              |
-| [Cl III] | H     |  5517.71 |        3 |         0 |        1 | O I 5512.77                  |
+| N II     | P     |  5495.67 |        6 |         1 |        1 | *** multiplet 29 + [Fe II]?  |
+| O I      | L     |  5512.77 |        5 |         1 |        0 | ***                          |
+| [Cl III] | H     |  5517.71 |        3 |         0 |        1 |                              |
+| [Fe II]  | P     |  5528.64 |        7 |         0 |        0 | *** ID unsure |
 | [Cl III] | H     |  5537.88 |        3 |         1 |        1 |                              |
-| N II     | P     |  5551.95 |        6 |         1 |        0 |                              |
+| N II     | P     |  5551.95 |        6 |         1 |        0 | multiplet 63                 |
 | O I      | L     |  5555.03 |        5 |         0 |        1 |                              |
-| [O I]    | L     |  5577.34 |        4 |         1 |        1 | Sky contamination            |
+| [O I]    | L     |  5577.34 |        4 |         1 |        1 | + S II 5578.870 ?            |
 | O III    | A7    |  5592.37 |       -5 |         1 |        1 | Absorption line              |
-| N II     | P     | 5666.629 |        5 |         1 |        1 |                              |
-| N II     | P     | 5679.558 |        5 |         1 |        1 |                              |
+| XXX      | P     | 5640.346 |        7 |         1 |        1 | *** very weak                |
+| N II     | P     | 5666.629 |        5 |         1 |        1 | multiplet 3                  |
+| N II     | P     |  5676.02 |        6 |         0 |        0 | *** multiplet 3  - no good c |
+| N II     | P     | 5679.558 |        5 |         1 |        1 | multiplet 3                  |
+| N II     | P     |  5686.21 |        6 |         0 |        1 | *** multiplet 3              |
+| N II     | P     |  5711.06 |        6 |         1 |        1 | *** multiplet 3              |
 | Si III   | U     |  5739.73 |        5 |         1 |        1 |                              |
 | [N II]   | M     |  5755.08 |        4 |         1 |        1 |                              |
 | DIB      | A0    |     5781 |       -4 |         1 |        0 | Diffuse interstellar band    |
