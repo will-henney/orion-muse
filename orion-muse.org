@@ -1338,6 +1338,7 @@ python multibin-map.py LineMaps/continuum-He_II-5411.fits
 
 ** Sky lines
 :LOGBOOK:
+CLOCK: [2017-01-04 Wed 22:48]--[2017-01-05 Thu 00:11] =>  1:23
 CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 :END:
 + The OH and O_{2} sky lines are important for two main reasons:
@@ -1425,6 +1426,7 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
   SCALE = 1e6
   dwav = (wavmax - wavmin)/NSECTIONS
   plotfile = 'full-sky-spectrum.pdf'
+  VHEL = -16.217273731
 
   sns.set(style='whitegrid', font_scale=1.0, color_codes=True)
   fig, axes = plt.subplots(NSECTIONS, 1,
@@ -1449,6 +1451,19 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
   sky_factor_default = 0.75
   sky_factors = {}
 
+  oh_tab = Table.read(
+      'SkyLines-Osterbrock96/oh.dat',
+      format='ascii.cds',
+      readme='SkyLines-Osterbrock96/ReadMe'
+  )
+  o2_tab = Table.read(
+      'SkyLines-Osterbrock96/o2.dat',
+      format='ascii.cds',
+      readme='SkyLines-Osterbrock96/ReadMe'
+  )
+  oh_tab['lambda'] *= (1.0 + VHEL/2.99792458e5)
+  o2_tab['lambda'] *= (1.0 + VHEL/2.99792458e5)
+
   for startwav, ax in zip(startwavs, axes.flat):
       ax.fill_between(tab['wavelength'], 4*tab['sky-ne']/SCALE,
                       alpha=0.2, color='k', label='4 x Sky')
@@ -1457,8 +1472,15 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
           ax.plot(tab['wavelength'],
                   (tab[spectrum] - sky_fac*tab['sky-ne'])/SCALE,
                   lw=1, alpha=0.7, **plot_kws)
+      wavmin, wavmax = startwav - 0.01*dwav, startwav + 1.01*dwav
+      for wav in oh_tab['lambda']:
+          if wavmin <= wav <= wavmax:
+              ax.axvline(wav, ymin=0.0, ymax=0.06, color='m', lw=0.5, alpha=0.6)
+      for wav in o2_tab['lambda']:
+          if wavmin <= wav <= wavmax:
+              ax.axvline(wav, ymin=0.0, ymax=0.04, color='k', lw=0.5, alpha=0.6)
       ax.set(
-          xlim=[startwav - 0.01*dwav, startwav + 1.01*dwav],
+          xlim=[wavmin, wavmax],
           ylim=[0.0, 2.9],
       )
       ax.xaxis.set_major_locator(MaxNLocator(52, integer=True, prune='both'))
@@ -1478,8 +1500,127 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 #+RESULTS:
 [[file:full-sky-spectrum.pdf]]
 
+*** Make a curated list of sky lines to use
+:LOGBOOK:
+CLOCK: [2017-01-05 Thu 00:11]--
+:END:
++ These will be lines we have identified on the sky spectrum which satisfy the following criteria:
+  1. Not also nebular lines 
+  2. Have wavelengths and appoximate intensities from Osterbrock 1996
+     + (so either OH or O_{2})
+  3. Well-isolated enough to extract moment maps of with the usual techniques
+     + But this need not be hard and fast, since we could try and fit Gaussians to a bunch of lines at once maybe
++ We want a good coverage in wavelength
++ Then we will use them in the orion-widths project to try and determine the instrumental profile as a function of wavelength
++ And we will investigate how well we can determine the \sigma of multiplet splitting
++ We will start at the red end, since that seems easier
+|   |
+|   |
+
+
+
 *** Cross correlating with Osterbrock's lists
 
++ [X] Obtained tables from Vizier
++ [X] Saved them to ascii files
+  + O_{2} lines :: [[file:SkyLines-Osterbrock96/o2.dat]]
+  + OH lines :: [[file:SkyLines-Osterbrock96/oh.dat]]
++ [X] Check the files can be read
+  + Open with 
+    : astropy.Table.read(..., format='ascii.cds', readme=...)
+
+#+BEGIN_SRC python :results output
+  from astropy.table import Table
+
+  tab = Table.read(
+      'SkyLines-Osterbrock96/o2.dat',
+      format='ascii.cds',
+      readme='SkyLines-Osterbrock96/ReadMe'
+  )
+
+  print(tab)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ lambda Trans 
+ 0.1 nm       
+------- ------
+     -- rQ(21)
+8609.98  R(21)
+8610.57 rQ(19)
+     --  R(19)
+     -- rQ(17)
+     --  R(17)
+8615.56 rQ(15)
+8617.15  R(15)
+     -- rQ(13)
+8619.95  R(13)
+    ...    ...
+8680.17 pQ(15)
+8681.59  P(15)
+ 8685.9 pQ(17)
+ 8687.3  P(17)
+8691.81 pQ(19)
+8693.22  P(19)
+     -- pQ(21)
+     --  P(21)
+8704.22 pQ(23)
+8705.61  P(23)
+Length = 45 rows
+#+end_example
+
++ We will now test the OH table by printing out all lines in range 9300 \to 9350 \AA
++ Note that each line is a doublet, with intensity ratio roughly 1
++ In the figure, only the mean wavelength is used since splitting is only about 1 km/s
+
+#+BEGIN_SRC python :return result
+  import numpy as np
+  from astropy.table import Table
+
+  tab = Table.read(
+      'SkyLines-Osterbrock96/oh.dat',
+      format='ascii.cds',
+      readme='SkyLines-Osterbrock96/ReadMe'
+  )
+
+  mask = np.abs(tab['lambda'] - 9325) <= 25
+  result = [
+      tab.colnames,
+      None
+  ] + [row.data for row in tab[mask]]
+
+#+END_SRC
+
+#+RESULTS:
+|   lambda | nu' | --- | nu" | Trans    |
+|----------+-----+-----+-----+----------|
+| 9305.982 |   8 | -   |   4 | R1f(4.5) |
+| 9306.009 |   8 | -   |   4 | R1e(4.5) |
+| 9307.345 |   8 | -   |   4 | R1f(3.5) |
+| 9307.398 |   8 | -   |   4 | R1e(3.5) |
+| 9308.998 |   8 | -   |   4 | R2e(3.5) |
+|  9309.11 |   8 | -   |   4 | R2f(3.5) |
+| 9310.701 |   8 | -   |   4 | R2e(4.5) |
+| 9310.822 |   8 | -   |   4 | R2f(4.5) |
+| 9312.861 |   8 | -   |   4 | R2e(2.5) |
+| 9312.944 |   8 | -   |   4 | R2f(2.5) |
+| 9313.316 |   8 | -   |   4 | R1f(2.5) |
+| 9313.375 |   8 | -   |   4 | R1e(2.5) |
+| 9317.663 |   8 | -   |   4 | R1e(6.5) |
+| 9317.753 |   8 | -   |   4 | R1f(6.5) |
+| 9317.878 |   8 | -   |   4 | R2e(5.5) |
+| 9317.988 |   8 | -   |   4 | R2f(5.5) |
+| 9322.431 |   8 | -   |   4 | R2e(1.5) |
+| 9322.467 |   8 | -   |   4 | R2f(1.5) |
+| 9323.706 |   8 | -   |   4 | R1f(1.5) |
+| 9323.752 |   8 | -   |   4 | R1e(1.5) |
+| 9330.493 |   8 | -   |   4 | R2e(6.5) |
+| 9330.574 |   8 | -   |   4 | R2f(6.5) |
+| 9330.999 |   8 | -   |   4 | R1e(7.5) |
+| 9331.178 |   8 | -   |   4 | R1f(7.5) |
+| 9337.842 |   8 | -   |   4 | R2f(0.5) |
+| 9337.866 |   8 | -   |   4 | R2e(0.5) |
 
 ** Strong lines and others of primary interest: basic-line-list.tab
 :PROPERTIES:
@@ -1517,6 +1658,7 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 | He I     | H     |  4921.93 |        3 |         1 |        1 |                              |
 | [Fe III] | M     |  4930.50 |        4 |         0 |        1 | blend with [O III] 4931.32   |
 | [O III]  | H     |  4958.91 |        1 |         1 |        1 |                              |
+| O I      | L     |  4980.13 |        1 |         0 |          |                              |
 | [O III]  | H     |  5006.84 |        1 |         1 |        1 |                              |
 | He I     | H     |  5015.68 |        3 |         0 |        1 | On red wing of 5007          |
 | Si II    | P     |  5041.03 |        4 |         1 |        0 |                              |
@@ -1532,13 +1674,13 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 | O I      | L     |  5298.89 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5333.646 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5376.452 |        5 |         1 |        1 |                              |
-| [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs +[Fe II]?         |
+| [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs +[Fe II]?        |
 | O II     | P     |  5433.49 |        6 |         1 |        1 |                              |
 | S II     | P     |  5453.81 |        6 |         1 |        1 |                              |
 | N II     | P     |  5495.67 |        6 |         1 |        1 | *** multiplet 29 + [Fe II]?  |
 | O I      | L     |  5512.77 |        5 |         1 |        0 | ***                          |
 | [Cl III] | H     |  5517.71 |        3 |         0 |        1 |                              |
-| [Fe II]  | P     |  5528.64 |        7 |         0 |        0 | *** ID unsure |
+| [Fe II]  | P     |  5528.64 |        7 |         0 |        0 | *** ID unsure                |
 | [Cl III] | H     |  5537.88 |        3 |         1 |        1 |                              |
 | N II     | P     |  5551.95 |        6 |         1 |        0 | multiplet 63                 |
 | O I      | L     |  5555.03 |        5 |         0 |        1 |                              |
@@ -1556,6 +1698,7 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 | He II    | A7    | 5784.947 |       -5 |         0 |        1 | Abs blend O II 5783.788      |
 | C IV     | A7    |  5801.35 |       -5 |         1 |        1 | Absorption line              |
 | C IV     | A7    |  5811.97 |       -5 |         1 |        1 | Absorption line              |
+| Ni II    | P     |  5867.99 |        6 |         1 |        0 | ***                          |
 | He I     | H     |  5875.62 |        1 |         1 |        1 |                              |
 | C II     | P     |  5889.78 |        4 |         1 |        0 | Na I sky blend               |
 | N III    | A7    |   5896.1 |       -5 |         0 |        1 | Absorption line              |
@@ -1564,9 +1707,9 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 | N III    | A7    |   5918.5 |       -5 |         1 |        1 | Absorption line              |
 | N II     | P     |  5931.78 |        4 |         0 |        1 | Blend with 5927.81           |
 | N II     | P     |  5941.65 |        4 |         0 |        1 | Blend with 5940.24           |
-| N II     | P     |  5952.39 |        4 |         1 |        0 |                              |
+| N II     | P     |  5952.39 |        4 |         1 |        0 | All multiplet 28             |
 | Si II    | P     |  5957.56 |        4 |         0 |        1 | Blend with O I 5958.39       |
-| Si II    | P     |  5978.93 |        4 |         1 |        1 |                              |
+| Si II    | P     |  5978.93 |        4 |         1 |        1 | Multiplet 4                  |
 | [Ni III] | M     |   6000.2 |        6 |         1 |        1 |                              |
 | XXX      | L     |   6033.0 |        7 |         1 |        1 | Very weak (only HH 202)      |
 | O I      | L     |  6046.23 |        4 |         1 |        1 |                              |
@@ -1598,6 +1741,7 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 | He I     | H     |  6678.15 |        2 |         1 |        1 |                              |
 | [S II]   | M     |  6716.44 |        3 |         1 |        1 |                              |
 | [S II]   | M     | 6730.816 |        3 |         1 |        1 |                              |
+| He I     | H     |  6989.47 |        6 |         1 |        1 |                              |
 | O I      | L     |  7001.92 |        3 |         0 |        1 | Weak line at 6996 (He I?)    |
 | He I     | H     |  7065.28 |        2 |         1 |        1 |                              |
 | [Ar III] | H     |  7135.78 |        1 |         1 |        1 | super strong                 |
