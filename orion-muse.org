@@ -25,6 +25,24 @@
 + Aim is to be able to plot mean velocities and line widths as a function of wavelength
 + But we need to divide lines up into categories so that we are comparing like with like
 + Note that the transfer of files to linux server nil will not be done via git, since it is too much of a mess to work out what needs to be kept from the files there
+*** Random thoughts on permitted lines
+:LOGBOOK:
+CLOCK: [2017-01-05 Thu 13:05]
+:END:
++ Good discussion in Sharpee et al 2004
+  + Turns out that the C II 7231, 7236 lines are already expected to be 50% fluorescence
+    + At least according to Grandi (1976)
+    + This is multiplet V3
+  + Description of morphology of the fluorescent contribution is hidden away in [[id:347AC3EE-D131-4BEF-9A94-71DC9FFFD199][{10/10} Perform line extraction, fuzzing, binning, multimapping all on linux server]]
+  + The best C II line is V6 4267, which we don't have
+  + The pure recomb lines that we /do/ have are
+    + 4620.11 V17.08 - clean bit of spectrum but very weak
+    + 4802.740 - messy blend with N II and possibly [Co II]
+    + 5342.40 V17.06 - clean but weak
+    + 6151.43 V16.04 - stromger that the others, more or less clean, except for O I 6156 on the red side
+    + 6461.95 V17.04 - strongest so far and clean
+    + 7519.49 - not in Sharpee, sky contam but subtractable
+  + So best bet seems to be 6461.95
 
 ** Short term goals
 :PROPERTIES:
@@ -140,6 +158,9 @@ CLOSED: [2015-11-06 Fri 13:43]
 + This is done [[id:DF6370DF-79C4-4B48-B862-27B74302F9A0][down here]]
 **** DONE [#A] [10/10] Perform line extraction, fuzzing, binning, multimapping all on linux server
 CLOSED: [2015-11-09 Mon 19:46]
+:PROPERTIES:
+:ID:       347AC3EE-D131-4BEF-9A94-71DC9FFFD199
+:END:
 :LOGBOOK:
 - Note taken on [2015-11-09 Mon 19:46] \\
   This took forever!
@@ -1413,6 +1434,9 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
 
 
 *** Plot the sky and source spectra
+:LOGBOOK:
+CLOCK: [2017-01-05 Thu 11:18]--[2017-01-05 Thu 13:25] =>  2:07
+:END:
 #+BEGIN_SRC python :results file :return plotfile
   import numpy as np
   from astropy.table import Table
@@ -1461,8 +1485,17 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
       format='ascii.cds',
       readme='SkyLines-Osterbrock96/ReadMe'
   )
+  # Sky lines are at 0 km/s topocentric, so need correcting for the
+  # heliocentric frame
   oh_tab['lambda'] *= (1.0 + VHEL/2.99792458e5)
   o2_tab['lambda'] *= (1.0 + VHEL/2.99792458e5)
+
+  neb_tab = Table.read('basic-line-list.tab', format='ascii.tab')
+  neb_label_kwds = {
+      1: {'fontsize': 7, 'bbox': {'facecolor': 'w', 'alpha': 0.8}},
+      -1: {'fontsize': 5, 'color': 'w', 'bbox': {'facecolor': 'k', 'alpha': 0.4}},
+  }
+
 
   for startwav, ax in zip(startwavs, axes.flat):
       ax.fill_between(tab['wavelength'], 4*tab['sky-ne']/SCALE,
@@ -1473,12 +1506,23 @@ CLOCK: [2017-01-03 Tue 10:50]--[2017-01-03 Tue 12:05] =>  1:15
                   (tab[spectrum] - sky_fac*tab['sky-ne'])/SCALE,
                   lw=1, alpha=0.7, **plot_kws)
       wavmin, wavmax = startwav - 0.01*dwav, startwav + 1.01*dwav
+
+      # Rug plots of OH and O_2 sky lines
       for wav in oh_tab['lambda']:
           if wavmin <= wav <= wavmax:
               ax.axvline(wav, ymin=0.0, ymax=0.06, color='m', lw=0.5, alpha=0.6)
       for wav in o2_tab['lambda']:
           if wavmin <= wav <= wavmax:
               ax.axvline(wav, ymin=0.0, ymax=0.04, color='k', lw=0.5, alpha=0.6)
+
+      # Inverted rug plot of nebular lines
+      for neb in neb_tab:
+          if wavmin <= neb['wav0'] <= wavmax:
+              neblabel = '{} {:.0f}'.format(neb['Ion'], neb['wav0'])
+              ax.axvline(neb['wav0'], ymin=0.1, ymax=1.0, color='r', lw=0.5, alpha=0.6)
+              ax.text(neb['wav0'], 2.6, neblabel,
+                      ha='center', va='center', rotation='vertical',
+                      **neb_label_kwds[np.sign(neb['strength'])])
       ax.set(
           xlim=[wavmin, wavmax],
           ylim=[0.0, 2.9],
@@ -1514,6 +1558,13 @@ CLOCK: [2017-01-05 Thu 00:11]--
 + Then we will use them in the orion-widths project to try and determine the instrumental profile as a function of wavelength
 + And we will investigate how well we can determine the \sigma of multiplet splitting
 + We will start at the red end, since that seems easier
+**** 9300 \to 9500 \AA
++ This range has a lot of strong sky lines
++ /But/ there is also strong absorption of the continuum here, which makes the spectrum hard to interpret
++ So we will ditch it for now
+**** 8750 \to 9000 \AA
++ This range has a lot of strong OH lines
++ Some of them are well separated from any nebular lines
 |   |
 |   |
 
@@ -1572,7 +1623,7 @@ Length = 45 rows
 
 + We will now test the OH table by printing out all lines in range 9300 \to 9350 \AA
 + Note that each line is a doublet, with intensity ratio roughly 1
-+ In the figure, only the mean wavelength is used since splitting is only about 1 km/s
++ In the figures in Osterbrock paper, only the mean wavelength is used since splitting is only about 1 km/s, and therefore unresolved even with HIRES
 
 #+BEGIN_SRC python :return result
   import numpy as np
@@ -1583,7 +1634,7 @@ Length = 45 rows
       format='ascii.cds',
       readme='SkyLines-Osterbrock96/ReadMe'
   )
-
+  tab.remove_column('---')
   mask = np.abs(tab['lambda'] - 9325) <= 25
   result = [
       tab.colnames,
@@ -1593,34 +1644,34 @@ Length = 45 rows
 #+END_SRC
 
 #+RESULTS:
-|   lambda | nu' | --- | nu" | Trans    |
-|----------+-----+-----+-----+----------|
-| 9305.982 |   8 | -   |   4 | R1f(4.5) |
-| 9306.009 |   8 | -   |   4 | R1e(4.5) |
-| 9307.345 |   8 | -   |   4 | R1f(3.5) |
-| 9307.398 |   8 | -   |   4 | R1e(3.5) |
-| 9308.998 |   8 | -   |   4 | R2e(3.5) |
-|  9309.11 |   8 | -   |   4 | R2f(3.5) |
-| 9310.701 |   8 | -   |   4 | R2e(4.5) |
-| 9310.822 |   8 | -   |   4 | R2f(4.5) |
-| 9312.861 |   8 | -   |   4 | R2e(2.5) |
-| 9312.944 |   8 | -   |   4 | R2f(2.5) |
-| 9313.316 |   8 | -   |   4 | R1f(2.5) |
-| 9313.375 |   8 | -   |   4 | R1e(2.5) |
-| 9317.663 |   8 | -   |   4 | R1e(6.5) |
-| 9317.753 |   8 | -   |   4 | R1f(6.5) |
-| 9317.878 |   8 | -   |   4 | R2e(5.5) |
-| 9317.988 |   8 | -   |   4 | R2f(5.5) |
-| 9322.431 |   8 | -   |   4 | R2e(1.5) |
-| 9322.467 |   8 | -   |   4 | R2f(1.5) |
-| 9323.706 |   8 | -   |   4 | R1f(1.5) |
-| 9323.752 |   8 | -   |   4 | R1e(1.5) |
-| 9330.493 |   8 | -   |   4 | R2e(6.5) |
-| 9330.574 |   8 | -   |   4 | R2f(6.5) |
-| 9330.999 |   8 | -   |   4 | R1e(7.5) |
-| 9331.178 |   8 | -   |   4 | R1f(7.5) |
-| 9337.842 |   8 | -   |   4 | R2f(0.5) |
-| 9337.866 |   8 | -   |   4 | R2e(0.5) |
+|   lambda | nu' | nu" | Trans    |
+|----------+-----+-----+----------|
+| 9305.982 |   8 |   4 | R1f(4.5) |
+| 9306.009 |   8 |   4 | R1e(4.5) |
+| 9307.345 |   8 |   4 | R1f(3.5) |
+| 9307.398 |   8 |   4 | R1e(3.5) |
+| 9308.998 |   8 |   4 | R2e(3.5) |
+|  9309.11 |   8 |   4 | R2f(3.5) |
+| 9310.701 |   8 |   4 | R2e(4.5) |
+| 9310.822 |   8 |   4 | R2f(4.5) |
+| 9312.861 |   8 |   4 | R2e(2.5) |
+| 9312.944 |   8 |   4 | R2f(2.5) |
+| 9313.316 |   8 |   4 | R1f(2.5) |
+| 9313.375 |   8 |   4 | R1e(2.5) |
+| 9317.663 |   8 |   4 | R1e(6.5) |
+| 9317.753 |   8 |   4 | R1f(6.5) |
+| 9317.878 |   8 |   4 | R2e(5.5) |
+| 9317.988 |   8 |   4 | R2f(5.5) |
+| 9322.431 |   8 |   4 | R2e(1.5) |
+| 9322.467 |   8 |   4 | R2f(1.5) |
+| 9323.706 |   8 |   4 | R1f(1.5) |
+| 9323.752 |   8 |   4 | R1e(1.5) |
+| 9330.493 |   8 |   4 | R2e(6.5) |
+| 9330.574 |   8 |   4 | R2f(6.5) |
+| 9330.999 |   8 |   4 | R1e(7.5) |
+| 9331.178 |   8 |   4 | R1f(7.5) |
+| 9337.842 |   8 |   4 | R2f(0.5) |
+| 9337.866 |   8 |   4 | R2e(0.5) |
 
 ** Strong lines and others of primary interest: basic-line-list.tab
 :PROPERTIES:
@@ -1635,6 +1686,7 @@ Length = 45 rows
 | O II     | P     |  4595.95 |        7 |         0 |        0 | ** blend 4596.18 + [Ni III]  |
 | N II     | P     |  4601.48 |        7 |         1 |        1 | ** blend O II 4602.11        |
 | N II     | P     |  4607.16 |        4 |         1 |        1 | blend [Fe III], O II 4609.44 |
+| C II     | P     |  4620.11 |        6 |         1 |        1 | *** also 4620.26, pure recom |
 | N II     | P     |  4630.54 |        4 |         1 |        0 |                              |
 | O II     | P     |  4641.81 |        4 |         1 |        0 | blend N III + N II           |
 | O II     | P     |  4650.00 |        4 |         1 |        0 | blend 4649.13,50.84          |
@@ -1649,6 +1701,8 @@ Length = 45 rows
 | [Fe III] | M     |  4754.83 |        4 |         1 |        1 |                              |
 | [Fe III] | M     |   4769.6 |        4 |         0 |        1 |                              |
 | [Fe III] | M     |  4777.88 |        4 |         0 |        1 | blend with [Fe II] 4774.74   |
+| N II     | P     |  4788.13 |        7 |         1 |        1 |                              |
+| C II     | P     | 4802.740 |        5 |         1 |        0 | *** blend but pure recom     |
 | N II     | P     | 4803.287 |        4 |         1 |        1 | blend [Co II] 4802.36        |
 | [Fe II]  | L     | 4814.534 |        4 |         1 |        1 | blend N II, S II             |
 | H I      | H     |  4861.32 |        1 |         1 |        1 |                              |
@@ -1658,12 +1712,20 @@ Length = 45 rows
 | He I     | H     |  4921.93 |        3 |         1 |        1 |                              |
 | [Fe III] | M     |  4930.50 |        4 |         0 |        1 | blend with [O III] 4931.32   |
 | [O III]  | H     |  4958.91 |        1 |         1 |        1 |                              |
-| O I      | L     |  4980.13 |        1 |         0 |          |                              |
+| O I      | L     |  4980.13 |        6 |         1 |        0 | ***                          |
+| [Fe III] | M     |  4987.20 |        4 |         0 |        0 | *** blend 4985.90+N II 87.38 |
+| N II     | P     |  4994.37 |        6 |         0 |        0 | *** hidden in [O III] wing   |
 | [O III]  | H     |  5006.84 |        1 |         1 |        1 |                              |
 | He I     | H     |  5015.68 |        3 |         0 |        1 | On red wing of 5007          |
+| [Fe III] | M     |  5032.68 |        6 |         1 |        0 | ***                          |
+| [Fe II]  | L     |  5035.49 |        6 |         1 |        1 | ***                          |
 | Si II    | P     |  5041.03 |        4 |         1 |        0 |                              |
 | He I     | H     |  5047.74 |        4 |         0 |        1 | No good cont!                |
 | Si II    | P     |  5055.98 |        4 |         0 |        1 |                              |
+| [Fe III] | M     |  5084.77 |        6 |         1 |        1 | ***                          |
+| [Fe II]  | L     |  5111.63 |        6 |         1 |        1 | ***                          |
+| C II     | P     |  5121.82 |        7 |         1 |        1 | ***                          |
+| N II     | D     |  5132.95 |        7 |         1 |        1 | *** and 5133.28 DIELEC RECOM |
 | O I      | L     |  5146.61 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     |  5158.81 |        5 |         1 |        1 |                              |
 | [Ar III] | H     |  5191.82 |        4 |         1 |        0 |                              |
@@ -1674,13 +1736,14 @@ Length = 45 rows
 | O I      | L     |  5298.89 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5333.646 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5376.452 |        5 |         1 |        1 |                              |
+| C II     | P     |  5342.40 |        6 |         1 |        1 | *** V17.06 pure recom        |
 | [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs +[Fe II]?        |
 | O II     | P     |  5433.49 |        6 |         1 |        1 |                              |
 | S II     | P     |  5453.81 |        6 |         1 |        1 |                              |
 | N II     | P     |  5495.67 |        6 |         1 |        1 | *** multiplet 29 + [Fe II]?  |
 | O I      | L     |  5512.77 |        5 |         1 |        0 | ***                          |
 | [Cl III] | H     |  5517.71 |        3 |         0 |        1 |                              |
-| [Fe II]  | P     |  5528.64 |        7 |         0 |        0 | *** ID unsure                |
+| Mg I     | L     |  5528.40 |        7 |         0 |        0 | *** ID unsure (but not N II) |
 | [Cl III] | H     |  5537.88 |        3 |         1 |        1 |                              |
 | N II     | P     |  5551.95 |        6 |         1 |        0 | multiplet 63                 |
 | O I      | L     |  5555.03 |        5 |         0 |        1 |                              |
@@ -1697,14 +1760,15 @@ Length = 45 rows
 | DIB      | A0    |     5781 |       -4 |         1 |        0 | Diffuse interstellar band    |
 | He II    | A7    | 5784.947 |       -5 |         0 |        1 | Abs blend O II 5783.788      |
 | C IV     | A7    |  5801.35 |       -5 |         1 |        1 | Absorption line              |
-| C IV     | A7    |  5811.97 |       -5 |         1 |        1 | Absorption line              |
+| [Ni IV]  | H     |  5820.10 |        7 |         1 |        1 | *** Very high ionization     |
 | Ni II    | P     |  5867.99 |        6 |         1 |        0 | ***                          |
 | He I     | H     |  5875.62 |        1 |         1 |        1 |                              |
-| C II     | P     |  5889.78 |        4 |         1 |        0 | Na I sky blend               |
+| C II     | P     |  5889.78 |        4 |         1 |        0 | Na I sky blend, V5           |
 | N III    | A7    |   5896.1 |       -5 |         0 |        1 | Absorption line              |
 | N III    | A7    |   5901.2 |       -5 |         0 |        1 | Absorption line              |
 | XXX      | U     |  5906.00 |        5 |         0 |        1 | Unidentified                 |
 | N III    | A7    |   5918.5 |       -5 |         1 |        1 | Absorption line              |
+| N II     | P     |  5927.82 |        5 |         1 |        0 | ***                          |
 | N II     | P     |  5931.78 |        4 |         0 |        1 | Blend with 5927.81           |
 | N II     | P     |  5941.65 |        4 |         0 |        1 | Blend with 5940.24           |
 | N II     | P     |  5952.39 |        4 |         1 |        0 | All multiplet 28             |
@@ -1713,22 +1777,29 @@ Length = 45 rows
 | [Ni III] | M     |   6000.2 |        6 |         1 |        1 |                              |
 | XXX      | L     |   6033.0 |        7 |         1 |        1 | Very weak (only HH 202)      |
 | O I      | L     |  6046.23 |        4 |         1 |        1 |                              |
+| He II    | H     |  6074.20 |        7 |         1 |        1 | *** Surely not He II !!!     |
 | [Fe II]  | L     | 6133.433 |        4 |         1 |        1 | plus sky?                    |
-| C II     | P     |  6151.43 |        5 |         1 |        0 |                              |
+| C II     | P     |  6151.43 |        5 |         1 |        0 | V16.04, pure recomb          |
 | O I      | L     |  6155.98 |        6 |         0 |        1 | * blend with Ni II 6157.42   |
-| O I      | L     |  6256.83 |        7 |         1 |        1 | * strong sky contribution    |
+| N II     | P     |  6167.76 |        7 |         1 |        0 | ***                          |
+| N II     | P     |  6173.31 |        7 |         0 |        1 | ***                          |
+| C II     | P     |  6257.18 |        7 |         1 |        0 | *** V10.03 + O I ?           |
+| C II     | P     |  6259.56 |        7 |         0 |        1 | *** V10.03, pure recomb      |
 | DIB      | A0    |  6278.00 |       -2 |         1 |        0 | Telluric gamma band?         |
 | [O I]    | L     |  6300.30 |        3 |         1 |        1 |                              |
 | [S III]  | H     |  6312.06 |        3 |         1 |        1 |                              |
-| XXX      | L     |   6328.0 |        7 |         1 |        0 | * mostly sky                 |
-| XXX      | U     |   6334.0 |        7 |         0 |        1 | * Peaks close in             |
+| N II     | P     |  6334.35 |        7 |         0 |        1 | ***                          |
 | Si II    | P     |  6347.11 |        4 |         1 |        1 |                              |
 | [O I]    | L     |  6363.78 |        3 |         1 |        0 |                              |
 | Si II    | P     |  6371.36 |        4 |         0 |        1 |                              |
+| N II     | P     |   6382.8 |        7 |         1 |        0 | *** blend with C II ?        |
 | [Ni III] | M     |   6401.5 |        6 |         1 |        1 | Blend with Ne I 6402.25      |
-| C II     | P     |  6461.95 |        6 |         1 |        1 |                              |
+| C II     | P     |  6461.95 |        6 |         1 |        1 | V17.04 Pure recomb           |
 | XXX      | AP    |   6480.0 |       -5 |         1 |        0 | * Absorption                 |
 | XXX      | AP    |   6490.0 |       -5 |         0 |        1 | * Absorption                 |
+| O II     | P     |  6501.40 |        7 |         1 |        0 | *** and 6500.83, 6501.42     |
+| XXX      |       |     6505 |        7 |         0 |        0 | *** could be N II            |
+| O II     | P     |  6509.80 |        7 |         0 |        1 | *** and 6509.711, 6510.61    |
 | [N II]   | L     |  6527.24 |        6 |         1 |        0 |                              |
 | [Ni III] | M     |   6533.8 |        6 |         0 |        1 |                              |
 | [N II]   | L     |  6548.05 |        2 |         1 |        1 |                              |
@@ -1741,6 +1812,14 @@ Length = 45 rows
 | He I     | H     |  6678.15 |        2 |         1 |        1 |                              |
 | [S II]   | M     |  6716.44 |        3 |         1 |        1 |                              |
 | [S II]   | M     | 6730.816 |        3 |         1 |        1 |                              |
+| C II     | D     |  6779.94 |        7 |         1 |        1 | *** +6780.60 DIELEC          |
+| C II     | D     |  6787.22 |        7 |         1 |        1 | ***                          |
+| He I     | H     |  6804.94 |        7 |         1 |        0 | ***                          |
+| N II     | P     |  6809.99 |        7 |         0 |        0 | ***                          |
+| C II     | P     |  6812.28 |        7 |         0 |        1 | *** or [Ni II] 6813.57 ?     |
+| He I     | H     |  6827.97 |        6 |         1 |        1 | ***                          |
+| He I     | H     |  6855.99 |        6 |         1 |        1 | ***                          |
+| He I     | H     |  6933.91 |        6 |         1 |        1 | ***                          |
 | He I     | H     |  6989.47 |        6 |         1 |        1 |                              |
 | O I      | L     |  7001.92 |        3 |         0 |        1 | Weak line at 6996 (He I?)    |
 | He I     | H     |  7065.28 |        2 |         1 |        1 |                              |
@@ -1748,10 +1827,11 @@ Length = 45 rows
 | [Fe II]  | L     |  7155.14 |        4 |         1 |        0 |                              |
 | He I     | H     |  7160.13 |        4 |         0 |        1 |                              |
 | [Fe II]  | L     |  7172.00 |        5 |         0 |        1 |                              |
-| C II     | P     |  7231.34 |        3 |         1 |        0 |                              |
+| C II     | P     |  7231.34 |        3 |         1 |        0 | V3 - 50% fluorescence        |
 | C II     | P     |  7236.42 |        3 |         0 |        1 | 7236.42 + 7237.17            |
 | O I      | L     |  7254.15 |        3 |         1 |        1 | Blend with 7254.45,54.53     |
 | He I     | H     |  7281.35 |        3 |         1 |        1 |                              |
+| [Ca II]  | L     |  7291.47 |        7 |         1 |        0 | ***                          |
 | He I     | H     | 7298.050 |        4 |         1 |        1 |                              |
 | [O II]   | M     |  7318.39 |        1 |         1 |        1 | Also 7319.99                 |
 | [O II]   | M     |  7329.66 |        1 |         0 |        1 | Also 7330.73                 |
@@ -1765,33 +1845,69 @@ Length = 45 rows
 | [Fe II]  | L     |  7452.54 |        4 |         1 |        1 |                              |
 | N I      | L     |  7468.31 |        4 |         1 |        1 |                              |
 | He I     | H     |  7499.85 |        5 |         1 |        1 |                              |
+| Fe II    | L     |  7515.83 |        6 |         1 |        0 | ***                          |
 | C II     | P     |  7519.49 |        6 |         1 |        0 | Plus Sky at 7524             |
 | [Cl IV]  | U     |  7530.80 |        5 |         0 |        1 | blend C II 7530.57           |
+| [Fe II]  | L     |  7733.13 |        7 |         1 |        1 | ***                          |
 | [Ar III] | H     |  7751.10 |        1 |         1 |        1 |                              |
+| He I     | H     |  7757.62 |        6 |         0 |        1 | *** wing of [Ar III]         |
+| O I      | L     |  7773.37 |        1 |         1 |        5 | *** Mean 71.94,74.17,75.39   |
+| He I     | H     |  7811.69 |        7 |         1 |        1 | *** singlet                  |
 | He I     | H     |  7816.13 |        4 |         1 |        0 | Sky OH (?) at 7820           |
+| [P II]   | L     |  7875.99 |        6 |         1 |        0 | *** Also 4669.25, 4736.55    |
+| He I     | H     |  7880.90 |        7 |         0 |        1 | *** singlet                  |
 | Ca I]    | L     |  7890.07 |        4 |         1 |        1 |                              |
+| He I     | H     |  7952.96 |        7 |         0 |        1 | *** triplet                  |
+| He I     | H     |  7962.43 |        7 |         1 |        1 | *** triplet                  |
+| He I     | H     |  7971.63 |        6 |         1 |        1 | *** singlet                  |
+| O I      | L     |  7982.40 |        6 |         1 |        0 | ***                          |
+| O I      | L     |  7987.33 |        6 |         0 |        1 | ***                          |
+| [Fe II]  | L     |  7997.03 |        6 |         1 |        0 | ***                          |
 | [Cr II]  | L     |  8000.08 |        5 |         0 |        1 | or [Fe II] 7999.47? Sky 7994 |
+| He I     | H     |  8015.96 |        6 |         1 |        1 | *** triplet                  |
+| Si I     | L     |  8034.91 |        6 |         1 |        1 | *** Or He I 8035.06          |
 | [Cl IV]  | H     |  8045.62 |        4 |         1 |        0 | HIGH IONIZATION!             |
+| He I     | H     |  8057.54 |        6 |         1 |        1 | *** triplet                  |
+| He I     | H     |  8084.28 |        6 |         1 |        1 | *** triplet                  |
+| He I     | H     |  8094.11 |        6 |         1 |        1 | *** singlet                  |
+| He I     | H     |  8116.42 |        6 |         1 |        0 | *** triplet                  |
+| Ca I]    | L     |  8125.31 |        6 |         0 |        1 | ***                          |
+| He I     | H     |  8155.66 |        6 |         1 |        1 | ***                          |
 | XXX      | L     |     8189 |        4 |         1 |        1 | Could be [Cr II] 8188.12?    |
 | N I      | L     |  8216.34 |        4 |         1 |        0 | *Also 8210.72                |
 | N I      | L     |  8223.14 |        4 |         0 |        1 | Same multiplet as 8216.34    |
 | XXX      | L     |     8243 |        4 |         1 |        1 | Could be O I? or Fe II?      |
+| He I     | H     |  8361.73 |        4 |         9 |        1 | *** Blend with H I           |
+| He I     | H     |  8397.41 |        7 |         0 |        1 | *** triplet av wav           |
+| He I     | H     |  8421.97 |        6 |         1 |        0 | *** triplet av wav           |
+| He I     | H     |  8423.79 |        6 |         0 |        1 | *** triplet av wav           |
+| [Cl III] | H     |  8433.94 |        5 |         1 |        0 | *** Blend with H I           |
 | H I      | H     |  8437.96 |        3 |         1 |        0 | Pa 18                        |
 | O I      | L     |  8446.36 |        2 |         0 |        1 | Also  8444.25, 8444.7        |
 | H I      | H     |  8467.25 |        2 |         0 |        1 | Pa 17 Blend with ?? 8464     |
+| [Cl III] | H     |  8480.90 |        5 |         1 |        0 | ***                          |
+| He I     | H     |  8486.27 |        5 |         0 |        1 | ***                          |
+| He I     | H     |  8488.73 |        6 |         0 |        0 | ***                          |
+| [Cl III] | H     |   8499.7 |        4 |         0 |        0 | *** Blend with H I           |
 | H I      | H     |  8502.48 |        2 |         1 |        1 | Pa 16                        |
+| He I     | H     |  8518.04 |        6 |         1 |        0 | *** singlet                  |
+| He I     | H     |  8529.04 |        5 |         1 |        0 | *** Multiplet av wav         |
+| He I     | H     |  8532.27 |        6 |         0 |        1 | *** Multiplet av wav         |
 | H I      | H     |  8545.38 |        2 |         1 |        1 | Pa 15                        |
 | [Cl II]  | L     |  8578.69 |        3 |         1 |        0 | 3P-1D 2-2 Blend with 8582    |
 | He I     | H     |  8582.61 |        4 |         0 |        1 | ** multiplet .611->.646      |
 | H I      | H     |  8598.39 |        2 |         1 |        1 | Pa 14 plus 2nd order ghost   |
 | [Fe II]  | L     |  8616.95 |        3 |         1 |        1 | a4F-a4P 9/2-5/2              |
+| He I     | H     |  8632.97 |        7 |         1 |        1 | ***                          |
 | He I     | H     |  8648.27 |        6 |         1 |        0 | *** and 49.89, 50.83         |
 | H I      | H     |  8665.02 |        2 |         1 |        1 | Pa 13                        |
 | N I      | L     |  8680.28 |        4 |         1 |        0 | Plus 83.4                    |
+| N I      | L     |  8684.24 |        4 |         0 |        0 | ***                          |
 | N I      | L     |  8686.15 |        4 |         0 |        1 | *                            |
 | [Co II]  | L     |  8695.33 |        7 |         1 |        0 | ***                          |
 | N I      | L     |  8703.25 |        4 |         1 |        0 |                              |
 | N I      | L     |  8711.70 |        4 |         0 |        1 | Also 8718.83                 |
+| N I      | L     |  8718.83 |        5 |         0 |        0 | ***                          |
 | [C I]    | L     |  8727.13 |        4 |         1 |        0 | Different!                   |
 | He I     | H     |  8733.43 |        4 |         0 |        1 | *                            |
 | H I      | H     |  8750.47 |        2 |         1 |        1 | Pa 12                        |
@@ -1803,7 +1919,8 @@ Length = 45 rows
 | He I     | H     |  8854.20 |        6 |         0 |        1 | *** and .23                  |
 | H I      | H     |  8862.79 |        2 |         1 |        1 | Pa 11                        |
 | [Fe II]  | L     |  8891.93 |        4 |         0 |        1 | a4F-a4P 7/2-3/2              |
-| He I     | H     |  8914.77 |        6 |         1 |        0 | ***                          |
+| He I     | H     |  8914.77 |        5 |         1 |        0 | ***                          |
+| He I     | H     |  8930.97 |        6 |         1 |        1 | ***                          |
 | He I     | H     |  8996.98 |        5 |         1 |        0 | *** Triplet - Sky to red     |
 | H I      | H     |  9014.91 |        2 |         1 |        1 | Pa 10                        |
 | [Fe II]  | L     |  9033.49 |        5 |         1 |        1 | a4F-a4P 5/2-1/2 + [Cr II]    |
@@ -1819,6 +1936,10 @@ Length = 45 rows
 | Ca I]    | L     |  9244.31 |        6 |         0 |        1 | *** 3P-1Po  1-1              |
 | [Fe II]  | H     |  9267.55 |        5 |         1 |        1 | a4F-a4P 3/2-1/2              |
 
+
+*** Not wanted on voyage
+Lines that we have since got rid of
+| XXX | L | 6328.0 | 7 | 1 | 0 | * mostly sky |
 
 ** Simple method with moments
 + This will work for any line that is sufficiently isolated
