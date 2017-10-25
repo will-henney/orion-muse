@@ -1,5 +1,5 @@
 Ion	Class	wav0	strength	blue cont	red cont	comment
-O II	P	4595.95	7	0	0	** blend 4596.18 + [Ni III]
+O II	P	4595.95	7	0	1	** blend 4596.18 + [Ni III]
 N II	P	4601.48	7	1	1	** blend O II 4602.11
 N II	P	4607.16	4	1	1	blend [Fe III], O II 4609.44
 C II	P	4620.11	6	1	1	*** also 4620.26, pure recom
@@ -133,7 +133,7 @@ C II	D	6787.22	7	1	1	***
 He I	H	6804.94	7	1	0	***
 N II	P	6809.99	7	0	0	***
 C II	P	6812.28	7	0	1	*** or [Ni II] 6813.57 ?
-He I	H	6827.97	6	1	1	***
+He I	H	6827.97	6	1	1	*** blend [Kr III] 6826.7 ?
 He I	H	6855.99	6	1	1	***
 He I	H	6933.91	6	1	1	***
 He I	H	6989.47	6	1	1	
@@ -167,7 +167,7 @@ C II	P	7519.49	6	1	0	Plus Sky at 7524
 [Fe II]	L	7733.13	7	1	1	***
 [Ar III]	H	7751.10	1	1	1	
 He I	H	7757.62	6	0	1	*** wing of [Ar III]
-O I	L	7773.37	1	1	5	*** Mean 71.94,74.17,75.39
+O I	L	7773.37	5	1	0	*** Mean 71.94,74.17,75.39
 He I	H	7811.69	7	1	1	*** singlet
 He I	H	7816.13	4	1	0	Sky OH (?) at 7820
 [P II]	L	7875.99	6	1	0	*** Also 4669.25, 4736.55

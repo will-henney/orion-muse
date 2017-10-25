@@ -27,7 +27,7 @@
 + Note that the transfer of files to linux server nil will not be done via git, since it is too much of a mess to work out what needs to be kept from the files there
 *** Random thoughts on permitted lines
 :LOGBOOK:
-CLOCK: [2017-01-05 Thu 13:05]
+CLOCK: [2017-01-05 Thu 13:05]--[2017-01-09 Mon 19:46] => 102:41
 :END:
 + Good discussion in Sharpee et al 2004
   + Turns out that the C II 7231, 7236 lines are already expected to be 50% fluorescence
@@ -1209,17 +1209,21 @@ This is based on the [[file:~/Dropbox/orion-widths/line-all-wav-grid.pdf][postag
 :END:
 
 #+name: line-classes
-| Class     | Code | Line ID    | Bin |    EW | Linesum |
-|-----------+------+------------+-----+-------+---------|
-| Ultra     | U    | Ar_IV-4740 |  16 |   0.6 |    2000 |
-| Permitted | P    | C_II-7236  |  16 |   3.5 |    5000 |
-| High      | H    | O_III-5007 |  16 |   850 |     3e6 |
-| Moderate  | M    | O_II-7318  |  16 |    70 |   1.5e5 |
-| Low       | L    | O_I-8446   |  16 |    25 |     3e4 |
-| Abs PDR   | AP   | N_III-6634 |  64 | -0.16 |    -600 |
-| Abs O9    | A9   | He_II-4686 |  32 | -0.23 |   -1500 |
-| Abs 07    | A7   | C_IV-5812  | 128 | -0.07 |    -150 |
-| Abs DIB   | A0   | DIB-5781   | 128 | -0.15 |    -300 |
+| Class         | Code | Line ID    | Bin |    EW | Linesum |
+|---------------+------+------------+-----+-------+---------|
+| Ultra         | U    | Ar_IV-4740 |  16 |   0.6 |    2000 |
+| Permitted     | P    | C_II-7236  |  16 |   3.5 |    5000 |
+| Di-electronic | D    | C_II-7236  |  16 |   3.5 |    5000 |
+| High          | H    | O_III-5007 |  16 |   850 |     3e6 |
+| Moderate      | M    | O_II-7318  |  16 |    70 |   1.5e5 |
+| Low           | L    | O_I-8446   |  16 |    25 |     3e4 |
+| Abs PDR       | AP   | N_III-6634 |  64 | -0.16 |    -600 |
+| Abs O9        | A9   | He_II-4686 |  32 | -0.23 |   -1500 |
+| Abs 07        | A7   | C_IV-5812  | 128 | -0.07 |    -150 |
+| Abs DIB       | A0   | DIB-5781   | 128 | -0.15 |    -300 |
+
++ [2017-10-24 Tue] Added di-electronic class
+  + Just copied the one for permitted lines
 
 
 **** Create masks for each line class
@@ -1677,14 +1681,13 @@ Length = 45 rows
 :PROPERTIES:
 :TABLE_EXPORT_FILE: basic-line-list.tab
 :TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:ID:       30F9E738-EE31-4C62-B5CA-CE103485A481
 :END:
 + After editing, remember to export the table to file with =C-c t e=
 + This table has now expanded to cover all lines that can be extracted easily (that is, without fitting gaussians)
 #+name: basic-line-list
 | Ion      | Class |     wav0 | strength | blue cont | red cont | comment                      |
 |----------+-------+----------+----------+-----------+----------+------------------------------|
-| O II     | P     |  4595.95 |        7 |         0 |        0 | ** blend 4596.18 + [Ni III]  |
-| N II     | P     |  4601.48 |        7 |         1 |        1 | ** blend O II 4602.11        |
 | N II     | P     |  4607.16 |        4 |         1 |        1 | blend [Fe III], O II 4609.44 |
 | C II     | P     |  4620.11 |        6 |         1 |        1 | *** also 4620.26, pure recom |
 | N II     | P     |  4630.54 |        4 |         1 |        0 |                              |
@@ -1701,7 +1704,7 @@ Length = 45 rows
 | [Fe III] | M     |  4754.83 |        4 |         1 |        1 |                              |
 | [Fe III] | M     |   4769.6 |        4 |         0 |        1 |                              |
 | [Fe III] | M     |  4777.88 |        4 |         0 |        1 | blend with [Fe II] 4774.74   |
-| N II     | P     |  4788.13 |        7 |         1 |        1 |                              |
+| N II     | P     |  4788.13 |        7 |         1 |        1 | BAD ARTEFACT                 |
 | C II     | P     | 4802.740 |        5 |         1 |        0 | *** blend but pure recom     |
 | N II     | P     | 4803.287 |        4 |         1 |        1 | blend [Co II] 4802.36        |
 | [Fe II]  | L     | 4814.534 |        4 |         1 |        1 | blend N II, S II             |
@@ -1735,8 +1738,8 @@ Length = 45 rows
 | [Fe III] | M     |  5270.40 |        3 |         0 |        1 | + [Fe II] 5273.38            |
 | O I      | L     |  5298.89 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5333.646 |        5 |         1 |        1 |                              |
+| C II     | P     |  5342.40 |        6 |         0 |        1 | *** V17.06 pure recom        |
 | [Fe II]  | L     | 5376.452 |        5 |         1 |        1 |                              |
-| C II     | P     |  5342.40 |        6 |         1 |        1 | *** V17.06 pure recom        |
 | [Fe III] | M     |  5412.00 |        5 |         1 |        1 | + He II abs +[Fe II]?        |
 | O II     | P     |  5433.49 |        6 |         1 |        1 |                              |
 | S II     | P     |  5453.81 |        6 |         1 |        1 |                              |
@@ -1750,7 +1753,7 @@ Length = 45 rows
 | [O I]    | L     |  5577.34 |        4 |         1 |        1 | + S II 5578.870 ?            |
 | O III    | A7    |  5592.37 |       -5 |         1 |        1 | Absorption line              |
 | XXX      | P     | 5640.346 |        7 |         1 |        1 | *** very weak                |
-| N II     | P     | 5666.629 |        5 |         1 |        1 | multiplet 3                  |
+| N II     | P     | 5666.629 |        5 |         1 |        1 | multiplet 3  (contam low?)   |
 | N II     | P     |  5676.02 |        6 |         0 |        0 | *** multiplet 3  - no good c |
 | N II     | P     | 5679.558 |        5 |         1 |        1 | multiplet 3                  |
 | N II     | P     |  5686.21 |        6 |         0 |        1 | *** multiplet 3              |
@@ -1812,12 +1815,12 @@ Length = 45 rows
 | He I     | H     |  6678.15 |        2 |         1 |        1 |                              |
 | [S II]   | M     |  6716.44 |        3 |         1 |        1 |                              |
 | [S II]   | M     | 6730.816 |        3 |         1 |        1 |                              |
-| C II     | D     |  6779.94 |        7 |         1 |        1 | *** +6780.60 DIELEC          |
+| C II     | D     |  6779.94 |        7 |         1 |        0 | *** +6780.60 DIELEC          |
 | C II     | D     |  6787.22 |        7 |         1 |        1 | ***                          |
 | He I     | H     |  6804.94 |        7 |         1 |        0 | ***                          |
 | N II     | P     |  6809.99 |        7 |         0 |        0 | ***                          |
 | C II     | P     |  6812.28 |        7 |         0 |        1 | *** or [Ni II] 6813.57 ?     |
-| He I     | H     |  6827.97 |        6 |         1 |        1 | ***                          |
+| He I     | H     |  6827.97 |        6 |         1 |        1 | *** blend [Kr III] 6826.7 ?  |
 | He I     | H     |  6855.99 |        6 |         1 |        1 | ***                          |
 | He I     | H     |  6933.91 |        6 |         1 |        1 | ***                          |
 | He I     | H     |  6989.47 |        6 |         1 |        1 |                              |
@@ -1851,7 +1854,7 @@ Length = 45 rows
 | [Fe II]  | L     |  7733.13 |        7 |         1 |        1 | ***                          |
 | [Ar III] | H     |  7751.10 |        1 |         1 |        1 |                              |
 | He I     | H     |  7757.62 |        6 |         0 |        1 | *** wing of [Ar III]         |
-| O I      | L     |  7773.37 |        1 |         1 |        5 | *** Mean 71.94,74.17,75.39   |
+| O I      | L     |  7773.37 |        5 |         1 |        0 | *** Mean 71.94,74.17,75.39   |
 | He I     | H     |  7811.69 |        7 |         1 |        1 | *** singlet                  |
 | He I     | H     |  7816.13 |        4 |         1 |        0 | Sky OH (?) at 7820           |
 | [P II]   | L     |  7875.99 |        6 |         1 |        0 | *** Also 4669.25, 4736.55    |
@@ -1938,8 +1941,12 @@ Length = 45 rows
 
 
 *** Not wanted on voyage
-Lines that we have since got rid of
-| XXX | L | 6328.0 | 7 | 1 | 0 | * mostly sky |
++ Lines that we have since got rid of
++ First two seemed to be off end of spectrum
+
+| O II | P | 4595.95 | 7 | 0 | 1 | ** blend 4596.18 + [Ni III] |
+| N II | P | 4601.48 | 7 | 1 | 1 | ** blend O II 4602.11       |
+| XXX  | L |  6328.0 | 7 | 1 | 0 | * mostly sky                |
 
 ** Simple method with moments
 + This will work for any line that is sufficiently isolated
@@ -2217,12 +2224,14 @@ Check out the heliocentric correction
   from astropy.io import fits
   from astropy.wcs import WCS
   from misc_utils import sanitize_string
-  sys.path.append('/Users/will/Dropbox/OrionWest/')
-  from extract_utils import (find_wavsec, trim_to_window, extract_line_maps, linetab)
+  from extract_utils import (find_wavsec, trim_to_window,
+                             extract_line_maps, get_masks, linetab)
   from fuzz_utils import fuzz
 
 
-  def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
+  def save_linemap_files(
+          wav, species,
+          mapdir='LineMaps', usecont=[1, 1], specmask=None):
       full_width = 24.0  # Angstrom
       wavsec = find_wavsec(wav)
       wavsec_blue = find_wavsec(wav - full_width/2)
@@ -2241,7 +2250,6 @@ Check out the heliocentric correction
           hdulist = fits.open('BigFiles/' + fn)
       hdu = hdulist['DATA']
       wfull = WCS(hdu.header)
-      helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
 
       # Read in variance for fuzzing
       vfn = fn.replace('data', 'variance')
@@ -2256,7 +2264,7 @@ Check out the heliocentric correction
       fuzzies = fuzz(cube, varcube, nfuzz)
 
       for ifuzz, fuzzcube in enumerate(fuzzies):
-          maps, spec =  extract_line_maps(wav, fuzzcube, w, helio_hdr, usecont)
+          maps, spec =  extract_line_maps(wav, fuzzcube, w, usecont, specmask=specmask)
           wavid = str(int(wav+0.5))
           fuzzid = '{:03d}'.format(ifuzz)
           # Save the maps to FITS file 
@@ -2282,14 +2290,17 @@ Check out the heliocentric correction
   except:
       nfuzz = 10
 
-
+  masks = get_masks()
   for row in linetab:
       if wav_wanted is not None and wav_wanted != int(0.5 + row['wav0']):
           # jump all unwanted lines if command line argument was given
           continue                
       print(row['Ion'], row['wav0'])
-      save_linemap_files(row['wav0'], sanitize_string(row['Ion']),
-                         usecont=[row['blue cont'], row['red cont']])
+      save_linemap_files(
+          row['wav0'], sanitize_string(row['Ion']),
+          usecont=[row['blue cont'], row['red cont']],
+          specmask=masks[row['Class']],
+      )
 #+END_SRC
 
 
@@ -2671,7 +2682,7 @@ python correct-for-extinction.py S_III-9069 -bin016
           fits.PrimaryHDU(data=data, header=hdu.header).writeto(fn, clobber=True)
           print(fn)
 
-#+END_SRC
+      #+END_SRC
 
 #+BEGIN_SRC bash :results verbatim
 source activate py27
@@ -3167,9 +3178,9 @@ mkdir NebulioMUSE
   # Mean and std of the color terms ktwiddle
   # This is copied from ratio-sensitivity-nebulio.py in the Tsquared folder
   COLOR_TERMS_MEAN_SIG = {
-      "FQ674N": (1.00, 0.10), 
-      "F673N":  (1.00, 0.10), 
-      "FQ672N": (0.99, 0.10), 
+      FQ674N: (1.00, 0.10), 
+      F673N:  (1.00, 0.10), 
+      FQ672N"": (0.99, 0.10), 
       "F658N":  (1.04, 0.11), 
       "F656N":  (1.04, 0.11), 
       "FQ575N": (0.95, 0.03), 
@@ -9134,29 +9145,50 @@ These need to be run through clean_up_wav_wcs.py afterwards
 :PROPERTIES:
 :ID:       E29DD76D-0B11-4F52-8B50-8967046D2F0C
 :END:
+
+
+**** Ship data tables to server
 #+BEGIN_SRC sh :results verbatim
   date
   rsync -avzPL --info=progress0 [a-l,n-z]*.tab nil:/fs/nil/other0/will/orion-muse
+#+END_SRC
+  
+**** Ship python programs to server
+#+BEGIN_SRC sh :results verbatim
+  date
   rsync -avzPL --info=progress0 *.{py,sh} nil:/fs/nil/other0/will/orion-muse
+#+END_SRC
+
+#+RESULTS:
+: Wed Oct 25 17:56:01 CDT 2017
+: sending incremental file list
+: extract-em-line-fuzz.py
+: extract_utils.py
+: 
+: sent 3,669 bytes  received 131 bytes  1,520.00 bytes/sec
+: total size is 145,308  speedup is 38.24
+
+
+**** Ship line class masks to server
++ /Note that this requires that external disk be connected/
+#+BEGIN_SRC sh :results verbatim
+  date
   rsync -avzPL --info=progress0 LineMaps/mask-line-class*.fits nil:/fs/nil/other0/will/orion-muse/LineMaps
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-Mon Dec 26 00:06:45 GMT 2016
+Tue Oct 24 22:13:26 CDT 2017
 sending incremental file list
 basic-line-list.tab
+line-classes.tab
 
-sent 575 bytes  received 82 bytes  23.05 bytes/sec
-total size is 7,173  speedup is 10.92
+sent 933 bytes  received 137 bytes  713.33 bytes/sec
+total size is 785,704  speedup is 734.30
 sending incremental file list
 
-sent 2,110 bytes  received 11 bytes  108.77 bytes/sec
-total size is 144,236  speedup is 68.00
-sending incremental file list
-
-sent 169 bytes  received 11 bytes  6.55 bytes/sec
-total size is 24,805,440  speedup is 137,808.00
+sent 2,165 bytes  received 11 bytes  1,450.67 bytes/sec
+total size is 145,293  speedup is 66.77
 #+end_example
 
 *** Heliocentric correction

@@ -1,6 +1,7 @@
 Class	Code	Line ID	Bin	EW	Linesum
 Ultra	U	Ar_IV-4740	16	0.6	2000
 Permitted	P	C_II-7236	16	3.5	5000
+Di-electronic	D	C_II-7236	16	3.5	5000
 High	H	O_III-5007	16	850	3e6
 Moderate	M	O_II-7318	16	70	1.5e5
 Low	L	O_I-8446	16	25	3e4

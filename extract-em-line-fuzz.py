@@ -5,12 +5,14 @@ from astropy.table import Table
 from astropy.io import fits
 from astropy.wcs import WCS
 from misc_utils import sanitize_string
-sys.path.append('/Users/will/Dropbox/OrionWest/')
-from extract_utils import (find_wavsec, trim_to_window, extract_line_maps, linetab)
+from extract_utils import (find_wavsec, trim_to_window,
+                           extract_line_maps, get_masks, linetab)
 from fuzz_utils import fuzz
 
 
-def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
+def save_linemap_files(
+        wav, species,
+        mapdir='LineMaps', usecont=[1, 1], specmask=None):
     full_width = 24.0  # Angstrom
     wavsec = find_wavsec(wav)
     wavsec_blue = find_wavsec(wav - full_width/2)
@@ -29,7 +31,6 @@ def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
         hdulist = fits.open('BigFiles/' + fn)
     hdu = hdulist['DATA']
     wfull = WCS(hdu.header)
-    helio_hdr = fits.open('muse-hr-window-wfc3-f656n.fits')[0].header
 
     # Read in variance for fuzzing
     vfn = fn.replace('data', 'variance')
@@ -44,7 +45,7 @@ def save_linemap_files(wav, species, mapdir='LineMaps', usecont=[1, 1]):
     fuzzies = fuzz(cube, varcube, nfuzz)
 
     for ifuzz, fuzzcube in enumerate(fuzzies):
-        maps, spec =  extract_line_maps(wav, fuzzcube, w, helio_hdr, usecont)
+        maps, spec =  extract_line_maps(wav, fuzzcube, w, usecont, specmask=specmask)
         wavid = str(int(wav+0.5))
         fuzzid = '{:03d}'.format(ifuzz)
         # Save the maps to FITS file 
@@ -70,11 +71,14 @@ try:
 except:
     nfuzz = 10
 
-
+masks = get_masks()
 for row in linetab:
     if wav_wanted is not None and wav_wanted != int(0.5 + row['wav0']):
         # jump all unwanted lines if command line argument was given
         continue                
     print(row['Ion'], row['wav0'])
-    save_linemap_files(row['wav0'], sanitize_string(row['Ion']),
-                       usecont=[row['blue cont'], row['red cont']])
+    save_linemap_files(
+        row['wav0'], sanitize_string(row['Ion']),
+        usecont=[row['blue cont'], row['red cont']],
+        specmask=masks[row['Class']],
+    )
