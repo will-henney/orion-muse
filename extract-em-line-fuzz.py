@@ -53,6 +53,16 @@ def save_linemap_files(
             mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
             mname = '{}/{}-{}-{}-fuzz{}.fits'.format(mapdir, mapid,
                                                      species, wavid, fuzzid)
+            try:
+                # Possible sky line correction 30 Oct 2017
+                cname = '{}/{}-{}-{}-correction.fits'.format(
+                    mapdir, mapid, species, wavid)
+                chdu = fits.open(cname)[0]
+                mhdu.data -= chdu.data
+                print('Correcting map with', cname)
+            except FileNotFoundError:
+                # No correction file found
+                pass
             mhdu.writeto(mname, clobber=True)
         sname = '{}/spec1d-{}-{}-fuzz{}.tab'.format(mapdir, species, wavid, fuzzid)
         # And save the spectrum to TSV file

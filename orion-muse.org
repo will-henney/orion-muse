@@ -39,7 +39,7 @@ CLOCK: [2017-01-05 Thu 13:05]--[2017-01-09 Mon 19:46] => 102:41
     + 4620.11 V17.08 - clean bit of spectrum but very weak
     + 4802.740 - messy blend with N II and possibly [Co II]
     + 5342.40 V17.06 - clean but weak
-    + 6151.43 V16.04 - stromger that the others, more or less clean, except for O I 6156 on the red side
+    + 6151.43 V16.04 - stronger than the others, more or less clean, except for O I 6156 on the red side
     + 6461.95 V17.04 - strongest so far and clean
     + 7519.49 - not in Sharpee, sky contam but subtractable
   + So best bet seems to be 6461.95
@@ -2272,6 +2272,16 @@ Check out the heliocentric correction
               mhdu = fits.PrimaryHDU(header=w.celestial.to_header(), data=mapdata)
               mname = '{}/{}-{}-{}-fuzz{}.fits'.format(mapdir, mapid,
                                                        species, wavid, fuzzid)
+              try:
+                  # Possible sky line correction 30 Oct 2017
+                  cname = '{}/{}-{}-{}-correction.fits'.format(
+                      mapdir, mapid, species, wavid)
+                  chdu = fits.open(cname)[0]
+                  mhdu.data -= chdu.data
+                  print('Correcting map with', cname)
+              except FileNotFoundError:
+                  # No correction file found
+                  pass
               mhdu.writeto(mname, clobber=True)
           sname = '{}/spec1d-{}-{}-fuzz{}.tab'.format(mapdir, species, wavid, fuzzid)
           # And save the spectrum to TSV file
@@ -6681,9 +6691,9 @@ nohup sh all-fuzz-multibin.sh 009 > all-fuzz-009-multibin.log &
 
 Note that I have now put it up to 10 fuzzes again to improve the noise estimates
 
-And one I forgot
-#+BEGIN_SRC sh :results verbatim
-linelist=LineMaps/linesum-Cl_IV-8046-fuzz???.fits
+And slice things the other way - this does all fuzzes for a single line
+#+BEGIN_SRC sh :eval no :tangle one-line-fuzz-multibin.sh
+linelist=LineMaps/linesum-$1-fuzz???.fits
 for line in $linelist; do
     echo "Processing $line"
     time python multibin-map.py $line
@@ -9153,20 +9163,19 @@ These need to be run through clean_up_wav_wcs.py afterwards
   rsync -avzPL --info=progress0 [a-l,n-z]*.tab nil:/fs/nil/other0/will/orion-muse
 #+END_SRC
   
-**** Ship python programs to server
+**** Ship python programs and shell scripts to server
 #+BEGIN_SRC sh :results verbatim
   date
   rsync -avzPL --info=progress0 *.{py,sh} nil:/fs/nil/other0/will/orion-muse
 #+END_SRC
 
 #+RESULTS:
-: Wed Oct 25 17:56:01 CDT 2017
+: Mon Oct 30 12:10:54 CST 2017
 : sending incremental file list
 : extract-em-line-fuzz.py
-: extract_utils.py
 : 
-: sent 3,669 bytes  received 131 bytes  1,520.00 bytes/sec
-: total size is 145,308  speedup is 38.24
+: sent 2,654 bytes  received 64 bytes  1,812.00 bytes/sec
+: total size is 145,872  speedup is 53.67
 
 
 **** Ship line class masks to server
