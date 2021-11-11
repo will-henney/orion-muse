@@ -8,6 +8,17 @@
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 #+TODO: TODO NEXT STARTED | DONE CANCELED
+* Dealing with symbolic links to external disk
++ [2019-05-11 Sat] Unfortunately, because of the way that Dropbox works, there are problems with having links to folders that come and go
++ So for the moment, I am removing the symbolic link of ~Linemaps/~ to ~/Volumes/SSD-1TB/OrionMuse/LineMaps/~
++ We can reinstate it later if necessary, but that will cause Dropbox churn
++ Better would be to add an explicit path to the scripts
+
+
+** Command to reinstate link
+#+begin_src sh
+ln -s Linemaps /Volumes/SSD-1TB/OrionMuse/LineMaps
+#+end_src
 
 * Project Planning
 :PROPERTIES:
@@ -1071,6 +1082,34 @@ The reddenings are very similar, except for two things:
   + Unfortunately, they are very weak in the nebula
   + Requires integration over 15x15 arcsec box to have much s/n
 + N III 6633.9 is very interesting
+  + [2019-05-11 Sat 22:18] *Look for molecular ID*
+    + /Conclusions:/ Nothing useful
+    + Use JPL database
+      + https://spec.jpl.nasa.gov/ftp/pub/catalog/catform.html
+      + That is useless - does not cover optical wavelengths
+    + HITRAN is better
+      + https://hitran.org/lbl/
+    + Requires frequency or wavenumber
+      |   \lambda, \AA | \lambda(Vac) |   \nu, GHz | wavenumber, cm^-1 |
+      |--------+--------+----------+-------------------|
+      | 6633.5 | 6635.4 | 4.5181e5 |          1.5071e4 |
+      | 6634.5 | 6636.4 | 4.5174e5 |          1.5068e4 |
+      |--------+--------+----------+-------------------|
+      |   6000 | 6001.8 | 4.9950e5 |          1.6662e4 |
+      |   7000 | 7002.0 | 4.2815e5 |          1.4282e4 |
+      #+TBLFM: $2=(1.0 + 1e-6*(287.6155 + 1.62887/($1/1e4)**2 + 0.01360/($1/1e4)**4)) $1 ; f1::$3=$c / $2 $Ang $GHz; s5::$4=1 / $2 $Ang ; s5
+    + Air \to vac factor = 1.00029
+    + There are H_2 O lines at 15067.8706 cm^-1 and 15071.70
+    + But there are other H_2 O lines that are 100 times stronger at other wavelengths
+      + For instance 14400 cm^-1 = 6944 \AA
+      + And 15450 = 6473 \AA
+    + There is an H_2 transition at 15021.905 Hz = 6657 \AA = 6655 \AA in air
+      + So that is a long way from the right wavelength
+      + There are weaker ones that are closer, but nothing looks promising
+    + Strength S is in units of cm^-1 / (mol cm^-2)
+      + cm^-1 = n \sigma
+      + (mol cm^-2) =  n z
+      + So these units are strange
   + [2015-11-03 Tue 19:35] *New info*
     + Now I have made a map of this line, and it is amazing
     + It can't be scattered continuum - I think it is foreground absorption
@@ -1121,6 +1160,7 @@ CLOSED: [2015-08-13 Thu 11:15]
 #+RESULTS:
 
 ** Longer wavelength lines
+7492
 | 7001.92 | O I      | 3 |                          |
 | 7002.23 | O I      | 3 | blend                    |
 | 7065.28 | He I     | 2 |                          |
@@ -1815,6 +1855,7 @@ Length = 45 rows
 | He I     | H     |  6678.15 |        2 |         1 |        1 |                              |
 | [S II]   | M     |  6716.44 |        3 |         1 |        1 |                              |
 | [S II]   | M     | 6730.816 |        3 |         1 |        1 |                              |
+| [Fe II]  | L     | 6746.933 |        7 |         1 |        1 | +                            |
 | C II     | D     |  6779.94 |        7 |         1 |        0 | *** +6780.60 DIELEC          |
 | C II     | D     |  6787.22 |        7 |         1 |        1 | ***                          |
 | He I     | H     |  6804.94 |        7 |         1 |        0 | ***                          |
@@ -2532,6 +2573,9 @@ open LineMaps/spec1d*-wav.pdf
 
 ** DONE Do extinction correction for all lines
 CLOSED: [2016-03-29 Tue 22:33]
+:PROPERTIES:
+:ID:       7778E7D1-3209-481E-B301-163D5AEB8BAB
+:END:
 + Basic strategy is to use the Hb/Ha map to predict C(lambda) from the Blagrave extinction law
 #+BEGIN_SRC python :eval no :tangle correct-for-extinction.py
   from __future__ import print_function
@@ -5697,6 +5741,9 @@ python make-color-maps.py
   + Except for the slight Ne and Te dependence of He I
   + And fact that He+ ionization zone only imperfectly overlaps with the C^{++} ionization zone
     + There will be an inner C^{+++} zone, but that should not matter too much
++ [ ] [2019-08-31 Sat] This would be better using the 6462 C II line, since that should be pure recombination
+  + But I need to make a map of that line
+
 
 #+BEGIN_SRC python :tangle c-ii-fluorescent.py
 from astropy.io import fits
@@ -5713,6 +5760,25 @@ python c-ii-fluorescent.py
 #+END_SRC
 
 I need to make an aply figure of this and all my other rgb images
+
+****** [2019-06-21 Fri] Do the same, but for the unbinned data
+
+We now need to be more careful about the data folder, since we have removed the symbolic link to the external disk from Dropbox
+
+#+BEGIN_SRC python :tangle c-ii-fluorescent-bin001.py
+  from astropy.io import fits
+  datadir = "/Volumes/SSD-1TB/OrionMuse/LineMaps"
+  hduA = fits.open(f'{datadir}/linesum-C_II-7236-bin001.fits')['SCALED']
+  hduAA = fits.open(f'{datadir}/linesum-C_II-7231-bin001.fits')['SCALED']
+  hduB = fits.open(f'{datadir}/linesum-He_I-6678-bin001.fits')['SCALED']
+  hduA.data += hduAA.data
+  hduA.data -= hduB.data/13.0
+  hduA.writeto('C_II-723X-fluorescent-bin001.fits', clobber=True)
+#+END_SRC
+
+#+BEGIN_SRC sh :results silent
+python c-ii-fluorescent-bin001.py
+#+END_SRC
 
 
 
@@ -5739,7 +5805,7 @@ I need to make an aply figure of this and all my other rgb images
   newfiles = [template.format(chan) for chan in channels]
   for newfn, fn in zip(newfiles, rgbfiles):
       hdu = fits.open(fn)['SCALED']
-      hdu.writeto(newfn, clobber=True)
+      fits.PrimaryHDU(data=hdu.data, header=hdu.header).writeto(newfn, overwrite=True)
 
   aplpy.make_rgb_image(newfiles, 'rgb-for-aplpy.png',
                        vmin_r=r1, vmin_g=g1, vmin_b=b1,
@@ -5756,9 +5822,9 @@ I need to make an aply figure of this and all my other rgb images
 #+END_SRC
 
 #+name: rgb-limits-hi
-| C_II-723X-fluorescent                       | 0 | 31000 | linear |
-| LineMaps/linesum-Cl_IV-8046-multibin-SN0005 | 0 |  8200 | linear |
-| LineMaps/linesum-Ar_IV-4740-multibin-SN0005 | 0 |  9900 | linear |
+| C_II-723X-fluorescent                                                  | 0 | 31000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-Cl_IV-8046-multibin-SN0005 | 0 |  8200 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-Ar_IV-4740-multibin-SN0005 | 0 |  9900 | linear |
 
 #+call: rgb-muse-image(TAB=rgb-limits-hi, SUFFIX="hi") :results file
 
@@ -5766,9 +5832,9 @@ I need to make an aply figure of this and all my other rgb images
 [[file:rgb-muse-hi.pdf]]
 
 #+name: rgb-limits-mod
-| LineMaps/linesum-Ar_III-7751-multibin-SN0005 | 0 |   435000 | linear |
-| LineMaps/linesum-He_I-6678-multibin-SN0005   | 0 |   357000 | linear |
-| LineMaps/linesum-O_III-5007-multibin-SN0005  | 0 | 16250000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-Ar_III-7751-multibin-SN0005 | 0 |   435000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-He_I-6678-multibin-SN0005   | 0 |   357000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-O_III-5007-multibin-SN0005  | 0 | 16250000 | linear |
 
 #+call: rgb-muse-image(TAB=rgb-limits-mod, SUFFIX="mod") :results file
 
@@ -5776,9 +5842,9 @@ I need to make an aply figure of this and all my other rgb images
 [[file:rgb-muse-mod.pdf]]
 
 #+name: rgb-limits-lowish
-| LineMaps/linesum-O_II-7318-multibin-SN0005 | 0 |  900000 | linear |
-| LineMaps/linesum-N_II-6583-multibin-SN0005 | 0 | 7500000 | linear |
-| LineMaps/linesum-N_II-5755-multibin-SN0005 | 0 |  100000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-O_II-7318-multibin-SN0005 | 0 |  900000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-N_II-6583-multibin-SN0005 | 0 | 7500000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-N_II-5755-multibin-SN0005 | 0 |  100000 | linear |
 
 #+call: rgb-muse-image(TAB=rgb-limits-lowish, SUFFIX="lowish") :results file
 
@@ -5786,14 +5852,27 @@ I need to make an aply figure of this and all my other rgb images
 [[file:rgb-muse-lowish.pdf]]
 
 #+name: rgb-limits-lowest
-| LineMaps/linesum-O_I-8446-multibin-SN0005  | 0 | 200000 | linear |
-| LineMaps/linesum-O_I-6300-multibin-SN0005  | 0 | 200000 | linear |
-| LineMaps/linesum-S_II-6731-multibin-SN0005 | 0 | 900000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-O_I-8446-multibin-SN0005  | 0 | 200000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-O_I-6300-multibin-SN0005  | 0 | 200000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-S_II-6731-multibin-SN0005 | 0 | 900000 | linear |
 
 #+call: rgb-muse-image(TAB=rgb-limits-lowest, SUFFIX="lowest") :results file
 
 #+RESULTS:
 [[file:rgb-muse-lowest.pdf]]
+
+
+[2019-06-21 Fri] Make a version with no binning, just to show how bad it is
+
+#+name: rgb-limits-hi-bin001
+| C_II-723X-fluorescent-bin001                                  | 0 | 31000 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-Cl_IV-8046-bin001 | 0 |  8200 | linear |
+| /Volumes/SSD-1TB/OrionMuse/LineMaps/linesum-Ar_IV-4740-bin001 | 0 |  9900 | linear |
+
+#+call: rgb-muse-image(TAB=rgb-limits-hi-bin001, SUFFIX="hi-bin001") :results file
+
+#+RESULTS:
+[[file:rgb-muse-hi-bin001.pdf]]
 
 ****** Utility script for getting info from DS9 about current frame
 #+name: get-rgb-info-from-ds9
@@ -6443,8 +6522,9 @@ python fig_utils.py
 
 ** Make a whole load of figures
 #+BEGIN_SRC python :tangle figs-multibin-Te-Ne.py
+  import os
   from fig_utils import fig_ax_im_from_fits
-
+  import matplotlib.pyplot as plt
 
   quantities = {
       'muse-derived-Te': (6500, 14000),
@@ -6453,14 +6533,16 @@ python fig_utils.py
       'muse-derived-Ne-iii': (0.0, 2.0e4),
   }
 
+  datadir = "/Volumes/SSD-1TB/OrionMuse/LineMaps"
+
   for SN in 3, 10, 30, 100, 300:
       for quant, (vmin, vmax) in quantities.items():
-          fn = ('LineMaps/{}-multibin-SN{:04d}.fits'.format(quant, SN))
+          fn = (f'{datadir}/{quant}-multibin-SN{SN:04d}.fits')
           try:
               fig, ax, im = fig_ax_im_from_fits(fn, vmin=vmin, vmax=vmax, cmap=plt.cm.gray_r)
           except IOError:
               continue
-          figfile = fn.replace('.fits', '.jpg')
+          figfile = os.path.basename(fn).replace('.fits', '.pdf')
           fig.set_size_inches(8, 6)
           fig.savefig(figfile, dpi=200)
   
@@ -6472,6 +6554,45 @@ time python figs-multibin-Te-Ne.py
 #+END_SRC
 
 #+RESULTS:
+
+** [2019-06-21 Fri] Do the figures at each bin level too
+
+#+BEGIN_SRC python :tangle figs-binned-Te-Ne.py
+  import os
+  from fig_utils import fig_ax_im_from_fits
+  import matplotlib.pyplot as plt
+
+
+  quantities = {
+      'muse-derived-Te': (6500, 14000),
+      'muse-derived-Te-iii': (6500, 14000),
+      'muse-derived-Ne': (0.0, 2.0e4),
+      'muse-derived-Ne-iii': (0.0, 2.0e4),
+  }
+
+  datadir = "/Volumes/SSD-1TB/OrionMuse/LineMaps"
+
+  for nbin in 1, 2, 4, 8, 16, 32, 64:
+      for quant, (vmin, vmax) in quantities.items():
+          fn = (f'{datadir}/{quant}-bin{nbin:03d}.fits')
+          try:
+              fig, ax, im = fig_ax_im_from_fits(fn, vmin=vmin, vmax=vmax, cmap=plt.cm.gray_r)
+          except IOError:
+              continue
+          figfile = os.path.basename(fn).replace('.fits', '.pdf')
+          fig.set_size_inches(8, 6)
+          fig.savefig(figfile)
+
+#+END_SRC
+
+
+#+BEGIN_SRC sh
+time python figs-binned-Te-Ne.py
+#+END_SRC
+
+#+RESULTS:
+
+
 *** Absorption lines
 
 Mystery 6634 line 
@@ -6480,7 +6601,6 @@ python fig_utils.py ew-N_III-6634-multibin-SN0007 -0.5 0.0
 #+END_SRC
 
 #+RESULTS:
-[[file:LineMaps/ew-N_III-6634-multibin-SN0007.jpg]]
 
 He II 4886 line
 #+BEGIN_SRC sh :results file
@@ -6490,13 +6610,22 @@ python fig_utils.py ew-He_II-4686-multibin-SN0007 -0.5 0.0
 #+RESULTS:
 [[file:LineMaps/ew-He_II-4686-multibin-SN0007.jpg]]
 
-C IV 5812 line
-#+BEGIN_SRC sh :results export file
-python fig_utils.py ew-C_IV-5812-multibin-SN0007 -0.2 0.0
+He II 5785 line
+#+BEGIN_SRC sh :results file
+python fig_utils.py ew-He_II-5785-multibin-SN0007 -0.5 0.0
 #+END_SRC
 
 #+RESULTS:
-[[file:LineMaps/ew-C_IV-5812-multibin-SN0007.jpg]]
+[[file:LineMaps/ew-He_II-5785-multibin-SN0007.jpg]]
+
+
+C IV 5812 line
+#+BEGIN_SRC sh :results export file
+python fig_utils.py ew-C_IV-5812-multibin-SN0005 -0.2 0.0
+#+END_SRC
+
+#+RESULTS:
+[[file:LineMaps/ew-C_IV-5812-multibin-SN0005.jpg]]
 
 
 Si III 6663 line
@@ -6520,7 +6649,6 @@ python fig_utils.py linesum-DIB-5781-multibin-SN0005 -1000 0.0
 #+END_SRC
 
 #+RESULTS:
-[[file:LineMaps/linesum-DIB-5781-multibin-SN0005.jpg]]
 
 #+BEGIN_SRC sh
 for f in LineMaps/linesum-DIB-5781-bin*.fits; do
@@ -7168,6 +7296,7 @@ Ar_III-7136 Ar_III-7751
 :PROPERTIES:
 :TABLE_EXPORT_FILE: line-ratio-list.tab
 :TABLE_EXPORT_FORMAT: orgtbl-to-tsv
+:ID:       026A1878-E6AC-4E5B-8180-AEE71DC9C829
 :END:
 + Export with =C-c t e= after editing
 + The =Group= column is to allow selecting certain subsets of the ratios for recalculation as needed
@@ -7214,7 +7343,12 @@ Ar_III-7136 Ar_III-7751
   from astropy.table import Table
   from muse_line_ratio import save_line_ratio_map
 
-  ratiotab = Table.read('line-ratio-list.tab', format='ascii.tab')
+  try:
+      suffix = sys.argv[1]
+  except:
+      suffix = ''
+
+  ratiotab = Table.read('line-ratio-list{}.tab'.format(suffix), format='ascii.tab')
 
   # Only do the lines, not continuum
   prefix = 'linesum'
