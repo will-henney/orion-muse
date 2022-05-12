@@ -1751,7 +1751,7 @@ Length = 45 rows
 | H I      | H     |  4861.32 |        1 |         1 |        1 |                              |
 | [Fe III] | M     | 4881.073 |        4 |         1 |        1 |                              |
 | [Fe II]  | L     | 4889.704 |        5 |         0 |        1 |                              |
-| [Fe II]  | L     | 4905.339 |        5 |         1 |        1 |                              |
+| [Fe II]  | L     | 4905.339 |        5 |         1 |        1 | blend with HIGH IONIZATION!! |
 | He I     | H     |  4921.93 |        3 |         1 |        1 |                              |
 | [Fe III] | M     |  4930.50 |        4 |         0 |        1 | blend with [O III] 4931.32   |
 | [O III]  | H     |  4958.91 |        1 |         1 |        1 |                              |
@@ -1774,7 +1774,7 @@ Length = 45 rows
 | [Ar III] | H     |  5191.82 |        4 |         1 |        0 |                              |
 | [N I]    | L     |  5199.00 |        4 |         0 |        1 | Blend 5197.98,200.26         |
 | S III    | P     |  5219.31 |        6 |         0 |        1 | *Also something 5210         |
-| [Fe II]  | L     |  5261.61 |        4 |         1 |        0 |                              |
+| [Fe II]  | L     |  5261.61 |        4 |         1 |        0 | Fluorescent?                 |
 | [Fe III] | M     |  5270.40 |        3 |         0 |        1 | + [Fe II] 5273.38            |
 | O I      | L     |  5298.89 |        5 |         1 |        1 |                              |
 | [Fe II]  | L     | 5333.646 |        5 |         1 |        1 |                              |
@@ -5743,6 +5743,7 @@ python make-color-maps.py
     + There will be an inner C^{+++} zone, but that should not matter too much
 + [ ] [2019-08-31 Sat] This would be better using the 6462 C II line, since that should be pure recombination
   + But I need to make a map of that line
+  + 5342 7151 are other weak lines of C II (pure recomb)
 
 
 #+BEGIN_SRC python :tangle c-ii-fluorescent.py
@@ -5875,6 +5876,9 @@ python c-ii-fluorescent-bin001.py
 [[file:rgb-muse-hi-bin001.pdf]]
 
 ****** Utility script for getting info from DS9 about current frame
+:PROPERTIES:
+:ID:       21907F36-E8D0-4689-A274-B2AFBC85F6EB
+:END:
 #+name: get-rgb-info-from-ds9
 #+BEGIN_SRC sh :results verbatim
   for chan in red green blue; do
